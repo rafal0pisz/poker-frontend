@@ -15,7 +15,7 @@ const VARIANT_DESCRIPTIONS: Record<GameVariant, string> = {
 };
 
 // Which variants are fully implemented and selectable
-const AVAILABLE_VARIANTS: GameVariant[] = ['texas'];
+const AVAILABLE_VARIANTS: GameVariant[] = ['texas', 'omaha'];
 
 interface Props {
   currentVariant: GameVariant;

@@ -13,8 +13,10 @@ interface Props {
   isYou: boolean;
   lastMessage?: ChatMessage | null;
   handName?: string;
-  // Set of cards that won — used to highlight hole cards
   winningCards?: Set<CardType>;
+  // How many hole cards to show facedown for this player (when not revealed)
+  // Default: 2 (Texas). For Omaha: 4. For Drawmaha: 5.
+  cardCount?: number;
 }
 
 const STATUS_LABEL: Record<PlayerStatus, string> = {
@@ -38,30 +40,36 @@ export function PlayerSeat({
   lastMessage,
   handName,
   winningCards,
+  cardCount = 2,
 }: Props) {
   const dimmed = player.status === 'folded' || player.status === 'sitting-out' || player.status === 'disconnected' || player.status === 'spectator';
 
-  const hasRevealedCards = !!player.holeCards && player.holeCards.length === 2;
+  const revealedCards = player.holeCards || [];
+  const hasRevealedCards = revealedCards.length > 0;
 
-  // Check if each hole card is winning
-  const card1Winning = hasRevealedCards && !!winningCards?.has(player.holeCards![0]);
-  const card2Winning = hasRevealedCards && !!winningCards?.has(player.holeCards![1]);
+  // For tighter layout when many cards (4+ in Omaha, 5 in Drawmaha)
+  const useSmallGap = cardCount >= 4 || revealedCards.length >= 4;
 
   return (
     <div className={`relative flex flex-col items-center ${dimmed ? 'opacity-50' : ''}`}>
-      {/* Floating chat bubble */}
       <FloatingBubble message={lastMessage || null} position="above" />
 
-      {/* Cards: revealed OR facedown OR none */}
       {hasRevealedCards ? (
-        <div className="flex gap-0.5 mb-1">
-          <Card card={player.holeCards![0]} size="sm" winning={card1Winning} />
-          <Card card={player.holeCards![1]} size="sm" winning={card2Winning} />
+        <div className={`flex mb-1 ${useSmallGap ? '-space-x-1.5' : 'gap-0.5'}`}>
+          {revealedCards.map((c, i) => (
+            <Card
+              key={`${c}-${i}`}
+              card={c}
+              size="sm"
+              winning={!!winningCards?.has(c)}
+            />
+          ))}
         </div>
       ) : player.status === 'playing' || player.status === 'all-in' || player.status === 'folded' ? (
-        <div className="flex gap-0.5 mb-1">
-          <Card size="sm" facedown />
-          <Card size="sm" facedown />
+        <div className={`flex mb-1 ${useSmallGap ? '-space-x-1.5' : 'gap-0.5'}`}>
+          {Array.from({ length: cardCount }).map((_, i) => (
+            <Card key={i} size="sm" facedown />
+          ))}
         </div>
       ) : (
         <div className="h-12 mb-1" />
@@ -100,7 +108,6 @@ export function PlayerSeat({
         <p className="text-[10px] text-poker-yellow/60">{player.chips}</p>
       </div>
 
-      {/* Hand name at showdown */}
       {handName && hasRevealedCards && (
         <div className="mt-0.5 bg-poker-gold/15 border border-poker-gold/30 px-2 py-0.5 rounded text-[9px] text-poker-gold font-medium max-w-[90px] truncate">
           {handName}

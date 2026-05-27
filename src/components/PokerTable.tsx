@@ -307,6 +307,9 @@ export function PokerTable({ initialRoom, mySessionToken, onLeave }: Props) {
   );
 
   // ===== Other players row =====
+  // How many hole cards to show facedown per player (based on current variant)
+  const currentCardCount = currentVariant === 'omaha' ? 4 : currentVariant === 'drawmaha' ? 5 : 2;
+
   const otherPlayersRow = (
     <div className="flex justify-around items-start py-3 flex-wrap gap-3 min-h-[110px]">
       {otherPlayers.length === 0 ? (
@@ -326,6 +329,7 @@ export function PokerTable({ initialRoom, mySessionToken, onLeave }: Props) {
               lastMessage={getBubbleForPlayer(p.sessionToken)}
               handName={showdownCard?.handName}
               winningCards={winningCardsSet}
+              cardCount={currentCardCount}
             />
           );
         })
@@ -389,11 +393,15 @@ export function PokerTable({ initialRoom, mySessionToken, onLeave }: Props) {
           </p>
         </div>
         <div className="flex gap-0.5">
-          {myHoleCards.length === 2 ? (
-            <>
-              <Card card={myHoleCards[0]} size="lg" winning={winningCardsSet.has(myHoleCards[0])} />
-              <Card card={myHoleCards[1]} size="lg" winning={winningCardsSet.has(myHoleCards[1])} />
-            </>
+          {myHoleCards.length > 0 ? (
+            myHoleCards.map((c, i) => (
+              <Card
+                key={`${c}-${i}`}
+                card={c}
+                size={myHoleCards.length >= 4 ? 'md' : 'lg'}
+                winning={winningCardsSet.has(c)}
+              />
+            ))
           ) : (
             <>
               <CardPlaceholder size="lg" />

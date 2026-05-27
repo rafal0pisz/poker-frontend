@@ -12,7 +12,8 @@ export type PlayerStatus =
   | 'sitting-out'
   | 'waiting'
   | 'no-chips'
-  | 'disconnected';
+  | 'disconnected'
+  | 'spectator';
 
 export type ActionType = 'check' | 'call' | 'bet' | 'raise' | 'fold' | 'all-in';
 
@@ -56,6 +57,7 @@ export interface SidePot {
 export interface HandResult {
   winnings: { sessionToken: string; amount: number; handDescription?: string }[];
   showdownCards: { sessionToken: string; cards: Card[]; handName: string }[];
+  winningCards: Card[];
 }
 
 export interface GameState {

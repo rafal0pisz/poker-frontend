@@ -65,7 +65,7 @@ export function JoinRoomScreen({ defaultNick, onCancel, onRoomJoined }: Props) {
 
         <div className="bg-poker-gold/10 border border-poker-gold/25 rounded-lg p-3">
           <p className="text-poker-yellow/70 text-xs">
-            ℹ️ You'll join with 0 chips. The admin needs to assign chips to you before you can play.
+            ℹ️ You'll join as a spectator. Click "Take a seat" once inside to join the game — admin will then assign you chips.
           </p>
         </div>
 

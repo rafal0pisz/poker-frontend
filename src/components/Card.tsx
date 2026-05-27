@@ -6,6 +6,8 @@ interface Props {
   card?: CardType;
   size?: 'sm' | 'md' | 'lg';
   facedown?: boolean;
+  // If true, this card is part of the winning hand — highlight it
+  winning?: boolean;
 }
 
 const SUIT_SYMBOLS: Record<string, string> = {
@@ -28,7 +30,7 @@ const SIZE_CLASSES = {
   lg: 'w-14 h-20 text-xl',
 };
 
-export function Card({ card, size = 'md', facedown = false }: Props) {
+export function Card({ card, size = 'md', facedown = false, winning = false }: Props) {
   if (!card || facedown) {
     return (
       <div
@@ -47,9 +49,14 @@ export function Card({ card, size = 'md', facedown = false }: Props) {
   const color = SUIT_COLORS[suit];
   const displayRank = rank === 'T' ? '10' : rank;
 
+  // Winning card: gold ring + slight upward translation + glow
+  const winningStyle = winning
+    ? 'ring-2 ring-poker-gold ring-offset-2 ring-offset-poker-bg -translate-y-2 shadow-[0_0_12px_rgba(212,175,55,0.6)]'
+    : '';
+
   return (
     <div
-      className={`${SIZE_CLASSES[size]} rounded-md bg-white flex flex-col items-center justify-center shadow-card`}
+      className={`${SIZE_CLASSES[size]} rounded-md bg-white flex flex-col items-center justify-center shadow-card transition-all duration-300 ${winningStyle}`}
     >
       <span className={`${color} font-medium leading-none`}>{displayRank}</span>
       <span className={`${color} leading-none`}>{symbol}</span>

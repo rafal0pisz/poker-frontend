@@ -1,6 +1,6 @@
 'use client';
 
-import type { Player, PlayerStatus, ChatMessage } from '@/lib/types';
+import type { Player, PlayerStatus, ChatMessage, Card as CardType } from '@/lib/types';
 import { Card } from './Card';
 import { FloatingBubble } from './FloatingBubble';
 
@@ -13,6 +13,8 @@ interface Props {
   isYou: boolean;
   lastMessage?: ChatMessage | null;
   handName?: string;
+  // Set of cards that won — used to highlight hole cards
+  winningCards?: Set<CardType>;
 }
 
 const STATUS_LABEL: Record<PlayerStatus, string> = {
@@ -23,6 +25,7 @@ const STATUS_LABEL: Record<PlayerStatus, string> = {
   waiting: 'WAITING',
   'no-chips': 'NO CHIPS',
   disconnected: 'OFFLINE',
+  spectator: 'SPECTATOR',
 };
 
 export function PlayerSeat({
@@ -34,10 +37,15 @@ export function PlayerSeat({
   isYou,
   lastMessage,
   handName,
+  winningCards,
 }: Props) {
-  const dimmed = player.status === 'folded' || player.status === 'sitting-out' || player.status === 'disconnected';
+  const dimmed = player.status === 'folded' || player.status === 'sitting-out' || player.status === 'disconnected' || player.status === 'spectator';
 
   const hasRevealedCards = !!player.holeCards && player.holeCards.length === 2;
+
+  // Check if each hole card is winning
+  const card1Winning = hasRevealedCards && !!winningCards?.has(player.holeCards![0]);
+  const card2Winning = hasRevealedCards && !!winningCards?.has(player.holeCards![1]);
 
   return (
     <div className={`relative flex flex-col items-center ${dimmed ? 'opacity-50' : ''}`}>
@@ -47,8 +55,8 @@ export function PlayerSeat({
       {/* Cards: revealed OR facedown OR none */}
       {hasRevealedCards ? (
         <div className="flex gap-0.5 mb-1">
-          <Card card={player.holeCards![0]} size="sm" />
-          <Card card={player.holeCards![1]} size="sm" />
+          <Card card={player.holeCards![0]} size="sm" winning={card1Winning} />
+          <Card card={player.holeCards![1]} size="sm" winning={card2Winning} />
         </div>
       ) : player.status === 'playing' || player.status === 'all-in' || player.status === 'folded' ? (
         <div className="flex gap-0.5 mb-1">

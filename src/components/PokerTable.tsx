@@ -162,9 +162,30 @@ export function PokerTable({ initialRoom, mySessionToken, onLeave }: Props) {
     !!gameState &&
     me.status !== 'sitting-out' &&
     me.status !== 'waiting' &&
-    me.status !== 'no-chips';
+    me.status !== 'no-chips' &&
+    me.status !== 'spectator';
 
   const isSittingOut = me.status === 'sitting-out';
+  const isSpectator = me.status === 'spectator';
+
+  // Set of winning cards (from lastResult OR gameState.lastHandResult)
+  // Used to highlight on UI during showdown
+  const winningCardsSet = new Set<CardType>();
+  const activeResult = lastResult || gameState?.lastHandResult;
+  if (activeResult?.winningCards) {
+    for (const c of activeResult.winningCards) {
+      winningCardsSet.add(c);
+    }
+  }
+
+  const handleTakeSeat = () => {
+    const socket = getSocket();
+    socket.emit('game:take-seat', (response: { ok: boolean; error?: string } | undefined) => {
+      if (response && !response.ok) {
+        alert(response.error || 'Failed to take seat');
+      }
+    });
+  };
 
   let resultMessage = '';
   if (lastResult) {
@@ -251,7 +272,7 @@ export function PokerTable({ initialRoom, mySessionToken, onLeave }: Props) {
         {[0, 1, 2, 3, 4].map((i) => {
           const card = gameState?.communityCards[i];
           return card ? (
-            <Card key={i} card={card} size="md" />
+            <Card key={i} card={card} size="md" winning={winningCardsSet.has(card)} />
           ) : (
             <CardPlaceholder key={i} size="md" />
           );
@@ -297,8 +318,8 @@ export function PokerTable({ initialRoom, mySessionToken, onLeave }: Props) {
         <div className="flex gap-0.5">
           {myHoleCards.length === 2 ? (
             <>
-              <Card card={myHoleCards[0]} size="lg" />
-              <Card card={myHoleCards[1]} size="lg" />
+              <Card card={myHoleCards[0]} size="lg" winning={winningCardsSet.has(myHoleCards[0])} />
+              <Card card={myHoleCards[1]} size="lg" winning={winningCardsSet.has(myHoleCards[1])} />
             </>
           ) : (
             <>
@@ -309,11 +330,27 @@ export function PokerTable({ initialRoom, mySessionToken, onLeave }: Props) {
         </div>
       </div>
 
-      {gameState && (
+      {/* Spectator mode — show prominent "Take a seat" button */}
+      {isSpectator && (
+        <div className="bg-poker-gold/10 border-2 border-poker-gold/40 rounded-xl p-4 text-center mb-2">
+          <p className="text-poker-gold text-base font-medium mb-1">👀 You are watching</p>
+          <p className="text-poker-yellow/70 text-xs mb-3">
+            Take a seat to join the game. Admin will assign chips to you.
+          </p>
+          <button
+            onClick={handleTakeSeat}
+            className="w-full bg-poker-gold text-poker-bg font-medium py-3 rounded-lg active:scale-95"
+          >
+            🪑 Take a seat at the table
+          </button>
+        </div>
+      )}
+
+      {gameState && !isSpectator && (
         <ActionPanel me={me} gameState={gameState} settings={room.settings} />
       )}
 
-      {!gameState && (
+      {!gameState && !isSpectator && (
         <div className="bg-poker-yellow/5 border border-poker-gold/25 rounded-xl px-4 py-3 text-center">
           <p className="text-poker-yellow/70 text-sm">
             {isAdmin
@@ -321,8 +358,11 @@ export function PokerTable({ initialRoom, mySessionToken, onLeave }: Props) {
               : 'Waiting for the admin to start the game...'}
           </p>
           <p className="text-poker-yellow/40 text-xs mt-1">
-            Players at table: {room.players.length} ·{' '}
+            Players at table: {room.players.filter((p) => p.status !== 'spectator').length} ·{' '}
             {room.players.filter((p) => p.chips > 0).length} with chips
+            {room.players.some((p) => p.status === 'spectator') && (
+              <> · {room.players.filter((p) => p.status === 'spectator').length} watching</>
+            )}
           </p>
         </div>
       )}
@@ -352,6 +392,7 @@ export function PokerTable({ initialRoom, mySessionToken, onLeave }: Props) {
               isYou={false}
               lastMessage={lastBubbleByPlayer[p.sessionToken] || null}
               handName={showdownCard?.handName}
+              winningCards={winningCardsSet}
             />
           );
         })
@@ -383,12 +424,13 @@ export function PokerTable({ initialRoom, mySessionToken, onLeave }: Props) {
               {room.players.map((p) => {
                 const isYou = p.sessionToken === mySessionToken;
                 const isCurrent = gameState?.currentPlayerSeat === p.seat;
+                const isSpectatorRow = p.status === 'spectator';
                 return (
                   <div
                     key={p.sessionToken}
                     className={`flex items-center gap-2 p-1.5 rounded-lg ${
                       isCurrent ? 'bg-poker-gold/10 border border-poker-gold/30' : ''
-                    }`}
+                    } ${isSpectatorRow ? 'opacity-60' : ''}`}
                   >
                     <div
                       className={`w-8 h-8 rounded-full flex items-center justify-center text-[11px] font-medium flex-shrink-0 ${
@@ -406,9 +448,10 @@ export function PokerTable({ initialRoom, mySessionToken, onLeave }: Props) {
                         {p.nick}
                         {isYou && <span className="text-poker-yellow/40">(you)</span>}
                         {isCurrent && <span className="text-poker-gold text-[9px]">·turn</span>}
+                        {isSpectatorRow && <span className="text-poker-gold/60 text-[9px]">👀</span>}
                       </p>
                       <p className="text-poker-yellow/50 text-[10px]">
-                        {p.chips} · {p.status === 'playing' ? '' : p.status}
+                        {isSpectatorRow ? 'watching' : `${p.chips} · ${p.status === 'playing' ? '' : p.status}`}
                       </p>
                     </div>
                   </div>

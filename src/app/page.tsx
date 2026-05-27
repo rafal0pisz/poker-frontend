@@ -1,0 +1,187 @@
+'use client';
+
+import { useState, useRef } from 'react';
+import { useNick } from '@/lib/useNick';
+import { CreateRoomScreen } from '@/components/CreateRoomScreen';
+import { JoinRoomScreen } from '@/components/JoinRoomScreen';
+import { PokerTable } from '@/components/PokerTable';
+import type { Room } from '@/lib/types';
+
+type View = 'home' | 'create' | 'join' | 'table';
+
+export default function HomePage() {
+  const [nick, setNick] = useNick();
+  const [editingNick, setEditingNick] = useState(false);
+  const [nickInput, setNickInput] = useState('');
+  const [view, setView] = useState<View>('home');
+  const [room, setRoom] = useState<Room | null>(null);
+  const [mySessionToken, setMySessionToken] = useState<string>('');
+  const [shakeHint, setShakeHint] = useState(false);
+
+  const nickInputRef = useRef<HTMLInputElement>(null);
+
+  const startEditNick = () => {
+    setNickInput(nick);
+    setEditingNick(true);
+  };
+
+  const saveNick = () => {
+    setNick(nickInput);
+    setEditingNick(false);
+  };
+
+  const handleRoomReady = (newRoom: Room, sessionToken: string) => {
+    setRoom(newRoom);
+    setMySessionToken(sessionToken);
+    setView('table');
+  };
+
+  const goHome = () => {
+    setRoom(null);
+    setMySessionToken('');
+    setView('home');
+  };
+
+  const handleActionClick = (target: 'create' | 'join') => {
+    if (!nick) {
+      startEditNick();
+      setShakeHint(true);
+      setTimeout(() => setShakeHint(false), 600);
+      setTimeout(() => nickInputRef.current?.focus(), 50);
+      return;
+    }
+    setView(target);
+  };
+
+  if (view === 'create') {
+    return (
+      <CreateRoomScreen
+        defaultNick={nick}
+        onCancel={() => setView('home')}
+        onRoomCreated={handleRoomReady}
+      />
+    );
+  }
+
+  if (view === 'join') {
+    return (
+      <JoinRoomScreen
+        defaultNick={nick}
+        onCancel={() => setView('home')}
+        onRoomJoined={handleRoomReady}
+      />
+    );
+  }
+
+  if (view === 'table' && room) {
+    return (
+      <PokerTable
+        initialRoom={room}
+        mySessionToken={mySessionToken}
+        onLeave={goHome}
+      />
+    );
+  }
+
+  return (
+    <main className="min-h-screen flex items-center justify-center p-4">
+      <div className="w-full max-w-sm">
+        <div className="text-center mb-12 mt-8">
+          <div className="inline-flex items-center gap-2 mb-2">
+            <span className="text-3xl text-poker-gold">♠</span>
+            <span className="font-serif italic text-4xl text-poker-gold">Poker</span>
+          </div>
+          <p className="text-poker-yellow/60 text-sm">Play with friends in 30 seconds</p>
+        </div>
+
+        <button
+          onClick={() => handleActionClick('create')}
+          className={`w-full font-medium py-4 rounded-xl mb-3 flex items-center justify-center gap-2 active:scale-95 transition ${
+            nick
+              ? 'bg-poker-gold text-poker-bg'
+              : 'bg-poker-gold/40 text-poker-bg/70'
+          }`}
+        >
+          <span className="text-xl">+</span>
+          Create room
+        </button>
+
+        <button
+          onClick={() => handleActionClick('join')}
+          className={`w-full border font-medium py-4 rounded-xl flex items-center justify-center gap-2 active:scale-95 transition ${
+            nick
+              ? 'border-poker-gold/40 text-poker-gold'
+              : 'border-poker-gold/15 text-poker-gold/50'
+          }`}
+        >
+          <span>→</span>
+          Join room
+        </button>
+
+        <div
+          className={`mt-8 pt-6 border-t transition-colors ${
+            shakeHint ? 'border-poker-coral/60' : 'border-poker-gold/15'
+          }`}
+          style={shakeHint ? { animation: 'shake 0.5s' } : undefined}
+        >
+          {!nick && (
+            <div className={`mb-3 px-3 py-2 rounded-lg text-xs text-center ${
+              shakeHint
+                ? 'bg-poker-coral/20 border border-poker-coral/40 text-poker-coral'
+                : 'bg-poker-gold/10 border border-poker-gold/25 text-poker-gold'
+            }`}>
+              👇 Please set your nickname first
+            </div>
+          )}
+
+          <p className="text-poker-yellow/50 text-xs mb-3 text-center">
+            Your nickname (remembered)
+          </p>
+
+          {editingNick ? (
+            <div className="flex gap-2">
+              <input
+                ref={nickInputRef}
+                type="text"
+                value={nickInput}
+                onChange={(e) => setNickInput(e.target.value)}
+                maxLength={16}
+                autoFocus
+                placeholder="Enter nickname"
+                className="flex-1 bg-poker-yellow/10 border border-poker-gold/20 text-poker-yellow px-4 py-3 rounded-lg outline-none focus:bg-poker-yellow/15"
+                onKeyDown={(e) => e.key === 'Enter' && nickInput.trim() && saveNick()}
+              />
+              <button
+                onClick={saveNick}
+                disabled={!nickInput.trim()}
+                className="bg-poker-gold text-poker-bg px-4 py-3 rounded-lg font-medium active:scale-95 disabled:opacity-40"
+              >
+                OK
+              </button>
+            </div>
+          ) : (
+            <button
+              onClick={startEditNick}
+              className="w-full bg-poker-yellow/10 border border-poker-gold/20 px-4 py-3.5 rounded-lg text-poker-yellow flex items-center justify-between active:scale-95 transition"
+            >
+              <span>{nick || 'Tap to set nickname'}</span>
+              <span className="text-poker-gold/50 text-sm">edit</span>
+            </button>
+          )}
+        </div>
+
+        <p className="text-poker-yellow/30 text-xs text-center mt-12">
+          Virtual chips · No monetary value
+        </p>
+      </div>
+
+      <style jsx>{`
+        @keyframes shake {
+          0%, 100% { transform: translateX(0); }
+          25% { transform: translateX(-8px); }
+          75% { transform: translateX(8px); }
+        }
+      `}</style>
+    </main>
+  );
+}

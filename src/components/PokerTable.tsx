@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
-import type { Room, Card as CardType, HandResult, ChatMessage } from '@/lib/types';
+import type { Room, Card as CardType, HandResult, ChatMessage, GameVariant } from '@/lib/types';
 import { getSocket } from '@/lib/socket';
 import { clearSessionToken } from '@/lib/session';
 import { Card, CardPlaceholder } from './Card';
@@ -10,6 +10,7 @@ import { ActionPanel } from './ActionPanel';
 import { AdminPanel } from './AdminPanel';
 import { ChatModal } from './ChatModal';
 import { FloatingBubble } from './FloatingBubble';
+import { VariantPicker, VARIANT_LABELS } from './VariantPicker';
 
 interface Props {
   initialRoom: Room;
@@ -22,6 +23,7 @@ export function PokerTable({ initialRoom, mySessionToken, onLeave }: Props) {
   const [myHoleCards, setMyHoleCards] = useState<CardType[]>([]);
   const [showAdminPanel, setShowAdminPanel] = useState(false);
   const [showChat, setShowChat] = useState(false);
+  const [showVariantPicker, setShowVariantPicker] = useState(false);
   const [lastResult, setLastResult] = useState<HandResult | null>(null);
   const [resultTimer, setResultTimer] = useState<NodeJS.Timeout | null>(null);
   const [codeCopied, setCodeCopied] = useState(false);
@@ -31,6 +33,9 @@ export function PokerTable({ initialRoom, mySessionToken, onLeave }: Props) {
   const [unreadCount, setUnreadCount] = useState(0);
   const [lastBubbleByPlayer, setLastBubbleByPlayer] = useState<Record<string, ChatMessage>>({});
   const [myLastBubble, setMyLastBubble] = useState<ChatMessage | null>(null);
+  // BUGFIX: bubbles auto-dismiss after 5s and DON'T reappear on future renders
+  // We keep "dismissed message IDs" to filter out already-shown bubbles
+  const [dismissedBubbleIds, setDismissedBubbleIds] = useState<Set<string>>(new Set());
 
   // Refs for stable handlers
   const showChatRef = useRef(showChat);
@@ -61,7 +66,8 @@ export function PokerTable({ initialRoom, mySessionToken, onLeave }: Props) {
     const handleHandResult = (result: HandResult) => {
       setLastResult(result);
       if (resultTimer) clearTimeout(resultTimer);
-      const t = setTimeout(() => setLastResult(null), 7000);
+      // Result visible for 6 seconds — short enough to feel snappy, long enough to read
+      const t = setTimeout(() => setLastResult(null), 6000);
       setResultTimer(t);
     };
 
@@ -83,6 +89,15 @@ export function PokerTable({ initialRoom, mySessionToken, onLeave }: Props) {
             [message.senderSessionToken!]: message,
           }));
         }
+
+        // BUGFIX: auto-dismiss bubble after 5 seconds — and STAY dismissed
+        setTimeout(() => {
+          setDismissedBubbleIds((prev) => {
+            const next = new Set(prev);
+            next.add(message.id);
+            return next;
+          });
+        }, 5000);
       }
 
       if (
@@ -141,7 +156,6 @@ export function PokerTable({ initialRoom, mySessionToken, onLeave }: Props) {
     } catch {}
   };
 
-  // Send chat message inline (for desktop sidebar)
   const sendInlineChat = (text: string) => {
     const trimmed = text.trim();
     if (!trimmed) return;
@@ -150,6 +164,16 @@ export function PokerTable({ initialRoom, mySessionToken, onLeave }: Props) {
       if (response && !response.ok) {
         alert(response.error || 'Failed to send');
       }
+    });
+  };
+
+  const handleSetVariant = (variant: GameVariant) => {
+    const socket = getSocket();
+    socket.emit('game:set-variant', { variant }, (response: { ok: boolean; error?: string } | undefined) => {
+      if (response && !response.ok) {
+        alert(response.error || 'Failed to set variant');
+      }
+      setShowVariantPicker(false);
     });
   };
 
@@ -168,8 +192,7 @@ export function PokerTable({ initialRoom, mySessionToken, onLeave }: Props) {
   const isSittingOut = me.status === 'sitting-out';
   const isSpectator = me.status === 'spectator';
 
-  // Set of winning cards (from lastResult OR gameState.lastHandResult)
-  // Used to highlight on UI during showdown
+  // Set of winning cards for highlighting
   const winningCardsSet = new Set<CardType>();
   const activeResult = lastResult || gameState?.lastHandResult;
   if (activeResult?.winningCards) {
@@ -196,23 +219,44 @@ export function PokerTable({ initialRoom, mySessionToken, onLeave }: Props) {
     resultMessage = winners.join(', ');
   }
 
-  // ===== Top bar (shared between mobile and desktop) =====
-  const TopBar = () => (
+  // Current variant being played (from gameState if running, otherwise from current dealer's preference)
+  const currentVariant: GameVariant = gameState?.variant || 'texas';
+
+  // Find the next dealer (player after current dealer in seat order)
+  // For "Next: X" hint between hands
+  let nextDealerVariant: GameVariant | null = null;
+  if (!gameState && room.players.length > 0) {
+    // Game not active — pick the first eligible player
+    const eligible = room.players
+      .filter((p) => p.status !== 'spectator' && p.status !== 'disconnected')
+      .sort((a, b) => a.seat - b.seat);
+    if (eligible[0]) {
+      nextDealerVariant = eligible[0].preferredVariant || 'texas';
+    }
+  }
+
+  // ===== Helpers for filtered bubbles =====
+  // BUGFIX: filter out dismissed bubbles (so they don't reappear)
+  const myBubbleToShow = myLastBubble && !dismissedBubbleIds.has(myLastBubble.id) ? myLastBubble : null;
+  const getBubbleForPlayer = (sessionToken: string): ChatMessage | null => {
+    const bubble = lastBubbleByPlayer[sessionToken];
+    if (!bubble) return null;
+    if (dismissedBubbleIds.has(bubble.id)) return null;
+    return bubble;
+  };
+
+  // ===== TopBar (inline, not a component — avoids re-creation on every render) =====
+  const topBar = (
     <div className="flex items-center justify-between mb-2 gap-2">
       <button
         onClick={copyCode}
         className="flex items-center gap-1.5 bg-poker-gold/10 border border-poker-gold/20 px-3 py-1.5 rounded-lg flex-shrink-0"
       >
         <span className="text-poker-gold/60 text-xs">#</span>
-        <span className="font-mono text-poker-gold text-sm tracking-wider">
-          {room.id}
-        </span>
-        <span className="text-poker-gold/40 text-[10px]">
-          {codeCopied ? '✓' : '⧉'}
-        </span>
+        <span className="font-mono text-poker-gold text-sm tracking-wider">{room.id}</span>
+        <span className="text-poker-gold/40 text-[10px]">{codeCopied ? '✓' : '⧉'}</span>
       </button>
       <div className="flex items-center gap-1.5 flex-wrap justify-end">
-        {/* Chat button — only show on mobile (desktop has it in sidebar) */}
         <button
           onClick={openChat}
           className="md:hidden relative bg-poker-gold/10 border border-poker-gold/30 text-poker-gold text-xs px-2.5 py-1.5 rounded-lg"
@@ -224,46 +268,75 @@ export function PokerTable({ initialRoom, mySessionToken, onLeave }: Props) {
             </span>
           )}
         </button>
-
         {isSittingOut ? (
-          <button
-            onClick={handleSitBack}
-            className="bg-poker-gold/20 border border-poker-gold/50 text-poker-gold text-xs px-2.5 py-1.5 rounded-lg"
-          >
+          <button onClick={handleSitBack} className="bg-poker-gold/20 border border-poker-gold/50 text-poker-gold text-xs px-2.5 py-1.5 rounded-lg">
             ▶ Sit back
           </button>
         ) : canSitOut ? (
-          <button
-            onClick={handleSitOut}
-            className="bg-poker-yellow/5 border border-poker-gold/25 text-poker-yellow/70 text-xs px-2.5 py-1.5 rounded-lg"
-          >
+          <button onClick={handleSitOut} className="bg-poker-yellow/5 border border-poker-gold/25 text-poker-yellow/70 text-xs px-2.5 py-1.5 rounded-lg">
             ⏸ Sit out
           </button>
         ) : null}
         {isAdmin && (
-          <button
-            onClick={() => setShowAdminPanel(true)}
-            className="bg-poker-gold/15 border border-poker-gold/40 text-poker-gold text-xs px-2.5 py-1.5 rounded-lg"
-          >
+          <button onClick={() => setShowAdminPanel(true)} className="bg-poker-gold/15 border border-poker-gold/40 text-poker-gold text-xs px-2.5 py-1.5 rounded-lg">
             ⚙ Admin
           </button>
         )}
-        <button
-          onClick={handleLeave}
-          className="text-poker-yellow/60 text-xs px-2 py-1.5"
-        >
+        <button onClick={handleLeave} className="text-poker-yellow/60 text-xs px-2 py-1.5">
           Leave
         </button>
       </div>
     </div>
   );
 
+  // ===== Variant bar (Dealer's Choice) =====
+  const variantBar = (
+    <div className="flex items-center justify-between bg-poker-gold/8 border border-poker-gold/30 px-3 py-1.5 rounded-lg mb-2" style={{ background: 'rgba(212,175,55,0.08)' }}>
+      <div className="flex items-center gap-2 min-w-0">
+        <span className="text-poker-gold/60 text-[9px] tracking-widest flex-shrink-0">NOW PLAYING</span>
+        <span className="text-poker-gold text-xs font-medium truncate">{VARIANT_LABELS[currentVariant]}</span>
+      </div>
+      <button
+        onClick={() => setShowVariantPicker(true)}
+        className="bg-poker-gold text-poker-bg text-[11px] font-medium px-2 py-0.5 rounded flex items-center gap-1 flex-shrink-0"
+        title="Dealer's choice — pick game for your turn"
+      >
+        D <span className="text-[9px] opacity-70">▾</span>
+      </button>
+    </div>
+  );
+
+  // ===== Other players row =====
+  const otherPlayersRow = (
+    <div className="flex justify-around items-start py-3 flex-wrap gap-3 min-h-[110px]">
+      {otherPlayers.length === 0 ? (
+        <p className="text-poker-yellow/40 text-sm self-center">No one else here yet...</p>
+      ) : (
+        otherPlayers.map((p) => {
+          const showdownCard = activeResult?.showdownCards.find((sc) => sc.sessionToken === p.sessionToken);
+          return (
+            <PlayerSeat
+              key={p.sessionToken}
+              player={p}
+              isCurrent={gameState?.currentPlayerSeat === p.seat}
+              isDealer={gameState?.dealerSeat === p.seat}
+              isSb={false}
+              isBb={false}
+              isYou={false}
+              lastMessage={getBubbleForPlayer(p.sessionToken)}
+              handName={showdownCard?.handName}
+              winningCards={winningCardsSet}
+            />
+          );
+        })
+      )}
+    </div>
+  );
+
   // ===== Center: pot + community cards =====
-  const TableCenter = () => (
+  const tableCenter = (
     <div className="poker-felt rounded-2xl p-4 md:p-6 my-2">
-      <p className="text-center text-[10px] text-poker-gold/70 tracking-widest mb-1">
-        POT
-      </p>
+      <p className="text-center text-[10px] text-poker-gold/70 tracking-widest mb-1">POT</p>
       <p className="text-center text-2xl md:text-3xl text-poker-yellow font-medium mb-3">
         {gameState ? gameState.pot : 0}
       </p>
@@ -295,10 +368,10 @@ export function PokerTable({ initialRoom, mySessionToken, onLeave }: Props) {
   );
 
   // ===== Player section (you) =====
-  const PlayerSection = () => (
+  const playerSection = (
     <div className="relative bg-poker-yellow/5 rounded-2xl p-3 border border-poker-gold/25">
       <div className="absolute -top-2 right-4 z-10">
-        <FloatingBubble message={myLastBubble} position="above" />
+        <FloatingBubble message={myBubbleToShow} position="above" />
       </div>
 
       <div className="flex items-center justify-between mb-3">
@@ -330,17 +403,13 @@ export function PokerTable({ initialRoom, mySessionToken, onLeave }: Props) {
         </div>
       </div>
 
-      {/* Spectator mode — show prominent "Take a seat" button */}
       {isSpectator && (
         <div className="bg-poker-gold/10 border-2 border-poker-gold/40 rounded-xl p-4 text-center mb-2">
           <p className="text-poker-gold text-base font-medium mb-1">👀 You are watching</p>
           <p className="text-poker-yellow/70 text-xs mb-3">
             Take a seat to join the game. Admin will assign chips to you.
           </p>
-          <button
-            onClick={handleTakeSeat}
-            className="w-full bg-poker-gold text-poker-bg font-medium py-3 rounded-lg active:scale-95"
-          >
+          <button onClick={handleTakeSeat} className="w-full bg-poker-gold text-poker-bg font-medium py-3 rounded-lg active:scale-95">
             🪑 Take a seat at the table
           </button>
         </div>
@@ -353,10 +422,13 @@ export function PokerTable({ initialRoom, mySessionToken, onLeave }: Props) {
       {!gameState && !isSpectator && (
         <div className="bg-poker-yellow/5 border border-poker-gold/25 rounded-xl px-4 py-3 text-center">
           <p className="text-poker-yellow/70 text-sm">
-            {isAdmin
-              ? 'Open admin panel and click "Start game"'
-              : 'Waiting for the admin to start the game...'}
+            {isAdmin ? 'Open admin panel and click "Start game"' : 'Waiting for the admin to start the game...'}
           </p>
+          {nextDealerVariant && (
+            <p className="text-poker-gold/70 text-xs mt-2">
+              ▸ Next: <span className="font-medium">{VARIANT_LABELS[nextDealerVariant]}</span>
+            </p>
+          )}
           <p className="text-poker-yellow/40 text-xs mt-1">
             Players at table: {room.players.filter((p) => p.status !== 'spectator').length} ·{' '}
             {room.players.filter((p) => p.chips > 0).length} with chips
@@ -369,53 +441,21 @@ export function PokerTable({ initialRoom, mySessionToken, onLeave }: Props) {
     </div>
   );
 
-  // ===== Other players row =====
-  const OtherPlayersRow = () => (
-    <div className="flex justify-around items-start py-3 flex-wrap gap-3 min-h-[110px]">
-      {otherPlayers.length === 0 ? (
-        <p className="text-poker-yellow/40 text-sm self-center">
-          No one else here yet...
-        </p>
-      ) : (
-        otherPlayers.map((p) => {
-          const showdownCard = gameState?.lastHandResult?.showdownCards.find(
-            (sc) => sc.sessionToken === p.sessionToken,
-          );
-          return (
-            <PlayerSeat
-              key={p.sessionToken}
-              player={p}
-              isCurrent={gameState?.currentPlayerSeat === p.seat}
-              isDealer={gameState?.dealerSeat === p.seat}
-              isSb={false}
-              isBb={false}
-              isYou={false}
-              lastMessage={lastBubbleByPlayer[p.sessionToken] || null}
-              handName={showdownCard?.handName}
-              winningCards={winningCardsSet}
-            />
-          );
-        })
-      )}
-    </div>
-  );
-
   return (
     <main className="min-h-screen">
-      {/* ===== MOBILE LAYOUT (< md) — single column, unchanged ===== */}
+      {/* ===== MOBILE LAYOUT (< md) ===== */}
       <div className="md:hidden flex flex-col p-3 max-w-md mx-auto min-h-screen">
-        <TopBar />
-        <OtherPlayersRow />
-        <TableCenter />
+        {topBar}
+        {variantBar}
+        {otherPlayersRow}
+        {tableCenter}
         <div className="flex-1" />
-        <PlayerSection />
+        {playerSection}
       </div>
 
-      {/* ===== DESKTOP LAYOUT (>= md) — sidebar + main area ===== */}
+      {/* ===== DESKTOP LAYOUT (>= md) ===== */}
       <div className="hidden md:grid p-4 gap-4 max-w-6xl mx-auto min-h-screen" style={{ gridTemplateColumns: '260px 1fr' }}>
-        {/* LEFT SIDEBAR: players list + always-visible chat */}
         <aside className="flex flex-col gap-3 h-[calc(100vh-2rem)] sticky top-4">
-          {/* Players list */}
           <div className="bg-poker-yellow/5 border border-poker-gold/25 rounded-xl p-3">
             <p className="text-poker-gold/60 text-[11px] uppercase tracking-wider mb-2">
               Players ({room.players.length})
@@ -460,7 +500,6 @@ export function PokerTable({ initialRoom, mySessionToken, onLeave }: Props) {
             </div>
           </div>
 
-          {/* Chat (always visible on desktop) */}
           <DesktopChat
             messages={messages}
             mySessionToken={mySessionToken}
@@ -468,13 +507,13 @@ export function PokerTable({ initialRoom, mySessionToken, onLeave }: Props) {
           />
         </aside>
 
-        {/* MAIN AREA */}
         <div className="flex flex-col">
-          <TopBar />
-          <OtherPlayersRow />
-          <TableCenter />
+          {topBar}
+          {variantBar}
+          {otherPlayersRow}
+          {tableCenter}
           <div className="flex-1" />
-          <PlayerSection />
+          {playerSection}
         </div>
       </div>
 
@@ -491,6 +530,14 @@ export function PokerTable({ initialRoom, mySessionToken, onLeave }: Props) {
           messages={messages}
           mySessionToken={mySessionToken}
           onClose={() => setShowChat(false)}
+        />
+      )}
+
+      {showVariantPicker && me && (
+        <VariantPicker
+          currentVariant={me.preferredVariant || 'texas'}
+          onSelect={handleSetVariant}
+          onClose={() => setShowVariantPicker(false)}
         />
       )}
     </main>
@@ -533,9 +580,7 @@ function DesktopChat({
 
       <div ref={scrollRef} className="flex-1 overflow-y-auto space-y-1.5 min-h-[200px]">
         {messages.length === 0 ? (
-          <p className="text-poker-yellow/40 text-xs text-center mt-4">
-            No messages yet
-          </p>
+          <p className="text-poker-yellow/40 text-xs text-center mt-4">No messages yet</p>
         ) : (
           messages.map((m) => {
             if (m.type === 'system') {
@@ -548,10 +593,7 @@ function DesktopChat({
             const isMine = m.senderSessionToken === mySessionToken;
             const isReaction = m.type === 'reaction';
             return (
-              <div
-                key={m.id}
-                className={`flex ${isMine ? 'justify-end' : 'justify-start'}`}
-              >
+              <div key={m.id} className={`flex ${isMine ? 'justify-end' : 'justify-start'}`}>
                 <div
                   className={
                     isReaction
@@ -574,7 +616,6 @@ function DesktopChat({
         )}
       </div>
 
-      {/* Quick reactions */}
       <div className="flex gap-1 justify-center mt-2 pt-2 border-t border-poker-gold/10">
         {['👍', '😂', '🔥', '😎', '😠'].map((emoji) => (
           <button
@@ -587,7 +628,6 @@ function DesktopChat({
         ))}
       </div>
 
-      {/* Input */}
       <div className="flex gap-1.5 mt-2">
         <input
           type="text"

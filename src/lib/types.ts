@@ -5,6 +5,9 @@ export type Card = `${Rank}${Suit}`;
 
 export type PlayerRole = 'player' | 'vice-admin' | 'admin';
 
+// Game variants for Dealer's Choice (Mix Poker)
+export type GameVariant = 'texas' | 'omaha' | 'drawmaha';
+
 export type PlayerStatus =
   | 'playing'
   | 'folded'
@@ -37,6 +40,7 @@ export interface Player {
   currentBet: number;
   totalBetInHand: number;
   hasActedThisRound: boolean;
+  preferredVariant: GameVariant;
 }
 
 export interface RoomSettings {
@@ -62,6 +66,7 @@ export interface HandResult {
 
 export interface GameState {
   phase: HandPhase;
+  variant: GameVariant;
   communityCards: Card[];
   pot: number;
   sidePots: SidePot[];

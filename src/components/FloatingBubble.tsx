@@ -1,35 +1,21 @@
 'use client';
 
-import { useEffect, useState } from 'react';
 import type { ChatMessage } from '@/lib/types';
 
 interface Props {
   message: ChatMessage | null;
-  position?: 'above' | 'below'; // above avatar (for top row) or below (for "you")
+  position?: 'above' | 'below';
 }
-
-const BUBBLE_LIFETIME_MS = 5000;
 
 /**
  * Shows a floating speech bubble above (or below) a player avatar.
- * Auto-dismisses after BUBBLE_LIFETIME_MS.
+ * Fully controlled by parent: if message is null, bubble is hidden.
+ * Parent handles auto-dismiss timing (via dismissedBubbleIds in PokerTable).
  */
 export function FloatingBubble({ message, position = 'above' }: Props) {
-  const [visible, setVisible] = useState(false);
-  const [currentMsg, setCurrentMsg] = useState<ChatMessage | null>(null);
+  if (!message) return null;
 
-  useEffect(() => {
-    if (!message) return;
-    setCurrentMsg(message);
-    setVisible(true);
-    const t = setTimeout(() => setVisible(false), BUBBLE_LIFETIME_MS);
-    return () => clearTimeout(t);
-  }, [message?.id]); // eslint-disable-line react-hooks/exhaustive-deps
-
-  if (!currentMsg || !visible) return null;
-
-  // Reaction = bigger, no background
-  const isReaction = currentMsg.type === 'reaction';
+  const isReaction = message.type === 'reaction';
 
   const arrowStyles =
     position === 'above'
@@ -47,25 +33,22 @@ export function FloatingBubble({ message, position = 'above' }: Props) {
         };
 
   const containerPosition =
-    position === 'above'
-      ? 'bottom-full mb-2'
-      : 'top-full mt-2';
+    position === 'above' ? 'bottom-full mb-2' : 'top-full mt-2';
 
   return (
     <div
-      className={`absolute ${containerPosition} left-1/2 -translate-x-1/2 z-20 pointer-events-none animate-bubble-pop`}
-      style={{
-        animation: 'bubble-pop 200ms ease-out',
-      }}
+      key={message.id}
+      className={`absolute ${containerPosition} left-1/2 -translate-x-1/2 z-20 pointer-events-none`}
+      style={{ animation: 'bubble-pop 200ms ease-out' }}
     >
       <div
         className={
           isReaction
             ? 'text-2xl'
-            : 'bg-white text-poker-bg px-3 py-1.5 rounded-2xl text-xs font-medium whitespace-nowrap max-w-[180px] truncate shadow-lg'
+            : 'bg-white text-poker-bg px-3 py-1.5 rounded-2xl text-xs font-medium whitespace-nowrap max-w-[180px] truncate shadow-lg relative'
         }
       >
-        {currentMsg.content}
+        {message.content}
         {!isReaction && (
           <div
             className="absolute left-1/2 -translate-x-1/2"

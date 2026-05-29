@@ -1,8 +1,8 @@
 'use client';
 
-import { useCallback, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 
-function getAudioContext(): AudioContext | null {
+function createCtx(): AudioContext | null {
   if (typeof window === 'undefined') return null;
   try {
     return new (window.AudioContext || (window as any).webkitAudioContext)();
@@ -11,20 +11,59 @@ function getAudioContext(): AudioContext | null {
   }
 }
 
+// Play a silent 1-frame buffer — required to "unlock" audio on iOS Safari.
+// Must be called inside a user-gesture handler (touchstart / click).
+function playSilentBuffer(ctx: AudioContext) {
+  try {
+    const buf = ctx.createBuffer(1, 1, 22050);
+    const src = ctx.createBufferSource();
+    src.buffer = buf;
+    src.connect(ctx.destination);
+    src.start(0);
+  } catch { /* ignore */ }
+}
+
 export function useSounds() {
   const [muted, setMuted] = useState(false);
-
-  // useRef so sound callbacks always read the latest value
-  // without needing to be recreated on every mute toggle
   const mutedRef = useRef(false);
   const ctxRef = useRef<AudioContext | null>(null);
+  const unlockedRef = useRef(false);
+
+  // Unlock AudioContext on first user interaction.
+  // This is required on iOS Safari and some Android browsers —
+  // AudioContext can only be created/resumed inside a user-gesture handler.
+  useEffect(() => {
+    const unlock = () => {
+      if (unlockedRef.current) return;
+      if (!ctxRef.current) ctxRef.current = createCtx();
+      const ctx = ctxRef.current;
+      if (!ctx) return;
+      if (ctx.state === 'suspended') {
+        ctx.resume().catch(() => {});
+      }
+      playSilentBuffer(ctx);
+      unlockedRef.current = true;
+    };
+
+    // Listen on both touch and click to cover all mobile browsers
+    document.addEventListener('touchstart', unlock, { passive: true, once: true });
+    document.addEventListener('click', unlock, { once: true });
+
+    return () => {
+      document.removeEventListener('touchstart', unlock);
+      document.removeEventListener('click', unlock);
+    };
+  }, []);
 
   const getCtx = useCallback((): AudioContext | null => {
     if (mutedRef.current) return null;
-    if (!ctxRef.current) ctxRef.current = getAudioContext();
-    if (ctxRef.current?.state === 'suspended') ctxRef.current.resume();
-    return ctxRef.current;
-  }, []); // no deps — reads from ref, always fresh
+    if (!ctxRef.current) ctxRef.current = createCtx();
+    const ctx = ctxRef.current;
+    if (!ctx) return null;
+    // Resume if suspended (e.g. tab backgrounded)
+    if (ctx.state === 'suspended') ctx.resume().catch(() => {});
+    return ctx;
+  }, []);
 
   const toggleMute = useCallback(() => {
     setMuted((prev) => {
@@ -34,14 +73,11 @@ export function useSounds() {
   }, []);
 
   // ── Poker chip stack ──
-  // Layered: initial impact + secondary resonance + brief rattle
-  // Modelled on the sound of a stack of clay casino chips hitting felt
   const playChip = useCallback(() => {
     const ctx = getCtx();
     if (!ctx) return;
     const t = ctx.currentTime;
 
-    // Layer 1: sharp impact click
     const clickBuf = ctx.createBuffer(1, ctx.sampleRate * 0.02, ctx.sampleRate);
     const clickData = clickBuf.getChannelData(0);
     for (let i = 0; i < clickData.length; i++) {
@@ -62,7 +98,6 @@ export function useSounds() {
     click.start(t);
     click.stop(t + 0.025);
 
-    // Layer 2: ceramic body resonance (the "ring" of a chip)
     const osc = ctx.createOscillator();
     const oscGain = ctx.createGain();
     osc.type = 'sine';
@@ -75,40 +110,35 @@ export function useSounds() {
     osc.start(t);
     osc.stop(t + 0.12);
 
-    // Layer 3: subtle rattle of chips settling (2 quick secondary ticks)
     for (let i = 1; i <= 2; i++) {
-      const rattleOffset = t + i * 0.022;
+      const offset = t + i * 0.022;
       const rattleBuf = ctx.createBuffer(1, ctx.sampleRate * 0.012, ctx.sampleRate);
-      const rattleData = rattleBuf.getChannelData(0);
-      for (let j = 0; j < rattleData.length; j++) {
-        rattleData[j] = (Math.random() * 2 - 1) * Math.pow(1 - j / rattleData.length, 4);
-      }
+      const d = rattleBuf.getChannelData(0);
+      for (let j = 0; j < d.length; j++) d[j] = (Math.random() * 2 - 1) * Math.pow(1 - j / d.length, 4);
       const rattle = ctx.createBufferSource();
       rattle.buffer = rattleBuf;
-      const rattleFilter = ctx.createBiquadFilter();
-      rattleFilter.type = 'highpass';
-      rattleFilter.frequency.value = 2500;
-      const rattleGain = ctx.createGain();
-      rattleGain.gain.setValueAtTime(0.15 / i, rattleOffset);
-      rattleGain.gain.exponentialRampToValueAtTime(0.001, rattleOffset + 0.012);
-      rattle.connect(rattleFilter);
-      rattleFilter.connect(rattleGain);
-      rattleGain.connect(ctx.destination);
-      rattle.start(rattleOffset);
-      rattle.stop(rattleOffset + 0.015);
+      const rf = ctx.createBiquadFilter();
+      rf.type = 'highpass';
+      rf.frequency.value = 2500;
+      const rg = ctx.createGain();
+      rg.gain.setValueAtTime(0.15 / i, offset);
+      rg.gain.exponentialRampToValueAtTime(0.001, offset + 0.012);
+      rattle.connect(rf);
+      rf.connect(rg);
+      rg.connect(ctx.destination);
+      rattle.start(offset);
+      rattle.stop(offset + 0.015);
     }
   }, [getCtx]);
 
-  // ── Card deal ── papery whoosh
+  // ── Card deal ──
   const playDeal = useCallback(() => {
     const ctx = getCtx();
     if (!ctx) return;
     const t = ctx.currentTime;
     const buf = ctx.createBuffer(1, ctx.sampleRate * 0.12, ctx.sampleRate);
     const data = buf.getChannelData(0);
-    for (let i = 0; i < data.length; i++) {
-      data[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / data.length, 2);
-    }
+    for (let i = 0; i < data.length; i++) data[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / data.length, 2);
     const src = ctx.createBufferSource();
     src.buffer = buf;
     const filter = ctx.createBiquadFilter();
@@ -125,7 +155,7 @@ export function useSounds() {
     src.stop(t + 0.12);
   }, [getCtx]);
 
-  // ── Your turn ── two rising tones
+  // ── Your turn ──
   const playYourTurn = useCallback(() => {
     const ctx = getCtx();
     if (!ctx) return;
@@ -145,7 +175,7 @@ export function useSounds() {
     });
   }, [getCtx]);
 
-  // ── Win ── ascending arpeggio
+  // ── Win ──
   const playWin = useCallback(() => {
     const ctx = getCtx();
     if (!ctx) return;
@@ -166,7 +196,7 @@ export function useSounds() {
     });
   }, [getCtx]);
 
-  // ── Fold ── descending thud
+  // ── Fold ──
   const playFold = useCallback(() => {
     const ctx = getCtx();
     if (!ctx) return;
@@ -184,7 +214,7 @@ export function useSounds() {
     osc.stop(t + 0.2);
   }, [getCtx]);
 
-  // ── Draw select ── light tick
+  // ── Draw select ──
   const playSelect = useCallback(() => {
     const ctx = getCtx();
     if (!ctx) return;

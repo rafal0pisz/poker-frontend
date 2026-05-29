@@ -5,7 +5,6 @@ export type Card = `${Rank}${Suit}`;
 
 export type PlayerRole = 'player' | 'vice-admin' | 'admin';
 
-// Game variants for Dealer's Choice (Mix Poker)
 export type GameVariant = 'texas' | 'omaha' | 'drawmaha';
 
 export type PlayerStatus =
@@ -51,7 +50,8 @@ export interface RoomSettings {
   actionTimeoutSec: 15 | 30 | 60;
 }
 
-export type HandPhase = 'preflop' | 'flop' | 'turn' | 'river' | 'showdown';
+// 'draw' = Drawmaha draw phase (after flop, before turn)
+export type HandPhase = 'preflop' | 'flop' | 'draw' | 'turn' | 'river' | 'showdown';
 
 export interface SidePot {
   amount: number;
@@ -62,7 +62,31 @@ export interface HandResult {
   winnings: { sessionToken: string; amount: number; handDescription?: string }[];
   showdownCards: { sessionToken: string; cards: Card[]; handName: string }[];
   winningCards: Card[];
+  // Present for Drawmaha — split pot details
+  drawmahaResult?: {
+    omahaWinner: { sessionToken: string; amount: number; handDescription: string };
+    texasWinner: { sessionToken: string; amount: number; handDescription: string };
+  };
 }
+
+// ===== DRAWMAHA =====
+
+export interface DrawPlayerState {
+  discardIndices: number[];
+  revealedCard: Card | null;
+  accepted: boolean | null;
+  hasDrawn: boolean;
+  hasDecided: boolean;
+}
+
+export interface DrawState {
+  playerStates: Record<string, DrawPlayerState>;
+  openCards: Record<string, Card>;
+  decideDeadline: number | null;
+  currentDecidingSeat: number | null;
+}
+
+// ========================
 
 export interface GameState {
   phase: HandPhase;
@@ -78,6 +102,7 @@ export interface GameState {
   lastAction: Action | null;
   handNumber: number;
   lastHandResult: HandResult | null;
+  drawState?: DrawState;
 }
 
 // Chat

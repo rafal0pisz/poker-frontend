@@ -7,6 +7,7 @@ import type { Room } from '@/lib/types';
 
 interface Props {
   defaultNick: string;
+  defaultRoomId?: string;  // Pre-filled from ?room= URL param
   onCancel: () => void;
   onRoomJoined: (room: Room, sessionToken: string) => void;
 }
@@ -15,8 +16,8 @@ type JoinRoomResponse =
   | { ok: true; room: Room; sessionToken: string }
   | { ok: false; error: string };
 
-export function JoinRoomScreen({ defaultNick, onCancel, onRoomJoined }: Props) {
-  const [roomId, setRoomId] = useState('');
+export function JoinRoomScreen({ defaultNick, defaultRoomId = '', onCancel, onRoomJoined }: Props) {
+  const [roomId, setRoomId] = useState(defaultRoomId);
   const [nick, setNick] = useState(defaultNick);
   const [joining, setJoining] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -52,15 +53,27 @@ export function JoinRoomScreen({ defaultNick, onCancel, onRoomJoined }: Props) {
       <div className="flex-1 max-w-sm mx-auto w-full space-y-5">
         <div>
           <label className="text-poker-yellow/60 text-xs uppercase tracking-wide block mb-2">Room code</label>
-          <input type="text" value={roomId} onChange={(e) => setRoomId(e.target.value.toUpperCase())}
-            maxLength={8} placeholder="e.g. 7K4M2X" autoFocus
-            className="w-full bg-poker-yellow/10 border border-poker-gold/20 px-4 py-4 rounded-lg outline-none focus:bg-poker-yellow/15 text-center text-2xl font-mono tracking-widest text-poker-gold"/>
+          <input
+            type="text"
+            value={roomId}
+            onChange={(e) => setRoomId(e.target.value.toUpperCase())}
+            maxLength={8}
+            placeholder="e.g. 7K4M2X"
+            autoFocus={!defaultRoomId}
+            className="w-full bg-poker-yellow/10 border border-poker-gold/20 px-4 py-4 rounded-lg outline-none focus:bg-poker-yellow/15 text-center text-2xl font-mono tracking-widest text-poker-gold"
+          />
         </div>
 
         <div>
           <label className="text-poker-yellow/60 text-xs uppercase tracking-wide block mb-2">Your nickname</label>
-          <input type="text" value={nick} onChange={(e) => setNick(e.target.value)} maxLength={16}
-            className="w-full bg-poker-yellow/10 border border-poker-gold/20 px-4 py-3 rounded-lg outline-none focus:bg-poker-yellow/15"/>
+          <input
+            type="text"
+            value={nick}
+            onChange={(e) => setNick(e.target.value)}
+            maxLength={16}
+            autoFocus={!!defaultRoomId}
+            className="w-full bg-poker-yellow/10 border border-poker-gold/20 px-4 py-3 rounded-lg outline-none focus:bg-poker-yellow/15"
+          />
         </div>
 
         <div className="bg-poker-gold/10 border border-poker-gold/25 rounded-lg p-3">
@@ -77,8 +90,11 @@ export function JoinRoomScreen({ defaultNick, onCancel, onRoomJoined }: Props) {
       </div>
 
       <div className="max-w-sm mx-auto w-full mt-6">
-        <button onClick={handleJoin} disabled={joining || !roomId.trim() || !nick.trim()}
-          className="w-full bg-poker-gold text-poker-bg font-medium py-4 rounded-xl active:scale-95 transition disabled:opacity-40">
+        <button
+          onClick={handleJoin}
+          disabled={joining || !roomId.trim() || !nick.trim()}
+          className="w-full bg-poker-gold text-poker-bg font-medium py-4 rounded-xl active:scale-95 transition disabled:opacity-40"
+        >
           {joining ? 'Joining...' : 'Join'}
         </button>
       </div>

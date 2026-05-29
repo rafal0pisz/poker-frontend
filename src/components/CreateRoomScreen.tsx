@@ -55,35 +55,57 @@ export function CreateRoomScreen({ defaultNick, onCancel, onRoomCreated }: Props
       <div className="flex-1 max-w-sm mx-auto w-full space-y-5">
         <div>
           <label className="text-poker-yellow/60 text-xs uppercase tracking-wide block mb-2">Your nickname</label>
-          <input type="text" value={nick} onChange={(e) => setNick(e.target.value)} maxLength={16}
-            className="w-full bg-poker-yellow/10 border border-poker-gold/20 px-4 py-3 rounded-lg outline-none focus:bg-poker-yellow/15"/>
+          <input
+            type="text"
+            value={nick}
+            onChange={(e) => setNick(e.target.value)}
+            maxLength={16}
+            className="w-full bg-poker-yellow/10 border border-poker-gold/20 px-4 py-3 rounded-lg outline-none focus:bg-poker-yellow/15"
+          />
         </div>
 
         <div className="grid grid-cols-2 gap-3">
           <div>
             <label className="text-poker-yellow/60 text-xs uppercase tracking-wide block mb-2">Small blind</label>
-            <input type="number" value={smallBlind} onChange={(e) => {
-              const sb = Math.max(1, Number(e.target.value));
-              setSmallBlind(sb);
-              setBigBlind(sb * 2);
-            }} min={1}
-              className="w-full bg-poker-yellow/10 border border-poker-gold/20 px-4 py-3 rounded-lg outline-none focus:bg-poker-yellow/15"/>
+            <input
+              type="number"
+              value={smallBlind}
+              onChange={(e) => {
+                const sb = Math.max(1, Number(e.target.value));
+                setSmallBlind(sb);
+                if (bigBlind < sb * 2) setBigBlind(sb * 2);
+              }}
+              min={1}
+              className="w-full bg-poker-yellow/10 border border-poker-gold/20 px-4 py-3 rounded-lg outline-none focus:bg-poker-yellow/15"
+            />
           </div>
           <div>
             <label className="text-poker-yellow/60 text-xs uppercase tracking-wide block mb-2">Big blind</label>
-            <input type="number" value={bigBlind} onChange={(e) => setBigBlind(Math.max(smallBlind * 2, Number(e.target.value)))}
+            <input
+              type="number"
+              value={bigBlind}
+              onChange={(e) => setBigBlind(Math.max(smallBlind * 2, Number(e.target.value)))}
               min={smallBlind * 2}
-              className="w-full bg-poker-yellow/10 border border-poker-gold/20 px-4 py-3 rounded-lg outline-none focus:bg-poker-yellow/15"/>
+              className="w-full bg-poker-yellow/10 border border-poker-gold/20 px-4 py-3 rounded-lg outline-none focus:bg-poker-yellow/15"
+            />
           </div>
         </div>
 
         <div>
-          <label className="text-poker-yellow/60 text-xs uppercase tracking-wide block mb-2">Your starting chips</label>
-          <input type="number" value={startingBuyIn} onChange={(e) => setStartingBuyIn(Math.max(bigBlind * 10, Number(e.target.value)))}
-            min={bigBlind * 10} step={100}
-            className="w-full bg-poker-yellow/10 border border-poker-gold/20 px-4 py-3 rounded-lg outline-none focus:bg-poker-yellow/15"/>
+          <label className="text-poker-yellow/60 text-xs uppercase tracking-wide block mb-2">
+            Your starting chips
+          </label>
+          {/* No minimum tied to blinds — enter any value you want */}
+          <input
+            type="number"
+            value={startingBuyIn}
+            onChange={(e) => setStartingBuyIn(Math.max(1, Number(e.target.value)))}
+            min={1}
+            step={1}
+            className="w-full bg-poker-yellow/10 border border-poker-gold/20 px-4 py-3 rounded-lg outline-none focus:bg-poker-yellow/15"
+          />
           <p className="text-poker-yellow/40 text-[11px] mt-1">
-            Other players will join with 0 chips — you assign chips from the admin panel.
+            Other players join with 0 chips — assign chips from the admin panel.
           </p>
         </div>
 
@@ -91,20 +113,31 @@ export function CreateRoomScreen({ defaultNick, onCancel, onRoomCreated }: Props
           <label className="text-poker-yellow/60 text-xs uppercase tracking-wide block mb-2">
             Number of seats: <span className="text-poker-gold font-medium">{maxSeats}</span>
           </label>
-          <input type="range" min={2} max={9} value={maxSeats} onChange={(e) => setMaxSeats(Number(e.target.value))}
-            className="w-full accent-poker-gold"/>
+          <input
+            type="range"
+            min={2}
+            max={9}
+            value={maxSeats}
+            onChange={(e) => setMaxSeats(Number(e.target.value))}
+            className="w-full accent-poker-gold"
+          />
         </div>
 
         <div>
           <label className="text-poker-yellow/60 text-xs uppercase tracking-wide block mb-2">Action time</label>
           <div className="grid grid-cols-3 gap-2">
             {[15, 30, 60].map((sec) => (
-              <button key={sec} onClick={() => setActionTimeoutSec(sec as 15 | 30 | 60)}
+              <button
+                key={sec}
+                onClick={() => setActionTimeoutSec(sec as 15 | 30 | 60)}
                 className={`py-3 rounded-lg font-medium transition border ${
                   actionTimeoutSec === sec
                     ? 'bg-poker-gold text-poker-bg border-poker-gold'
                     : 'bg-poker-yellow/10 text-poker-yellow border-poker-gold/20'
-                }`}>{sec}s</button>
+                }`}
+              >
+                {sec}s
+              </button>
             ))}
           </div>
         </div>
@@ -117,8 +150,11 @@ export function CreateRoomScreen({ defaultNick, onCancel, onRoomCreated }: Props
       </div>
 
       <div className="max-w-sm mx-auto w-full mt-6">
-        <button onClick={handleCreate} disabled={creating || !nick.trim()}
-          className="w-full bg-poker-gold text-poker-bg font-medium py-4 rounded-xl active:scale-95 transition disabled:opacity-40">
+        <button
+          onClick={handleCreate}
+          disabled={creating || !nick.trim()}
+          className="w-full bg-poker-gold text-poker-bg font-medium py-4 rounded-xl active:scale-95 transition disabled:opacity-40"
+        >
           {creating ? 'Creating...' : 'Create room'}
         </button>
       </div>

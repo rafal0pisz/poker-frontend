@@ -11,11 +11,11 @@ export const VARIANT_LABELS: Record<GameVariant, string> = {
 const VARIANT_DESCRIPTIONS: Record<GameVariant, string> = {
   texas: 'Classic · 2 hole + 5 board',
   omaha: '4 hole · must use 2 + 3 board',
-  drawmaha: '5-card draw + Omaha · split pot',
+  drawmaha: '5 hole · draw · split pot (Omaha + Texas)',
 };
 
-// Which variants are fully implemented and selectable
-const AVAILABLE_VARIANTS: GameVariant[] = ['texas', 'omaha'];
+// All variants are now fully implemented
+const AVAILABLE_VARIANTS: GameVariant[] = ['texas', 'omaha', 'drawmaha'];
 
 interface Props {
   currentVariant: GameVariant;
@@ -45,10 +45,9 @@ export function VariantPicker({ currentVariant, onSelect, onClose }: Props) {
         <div className="flex flex-col gap-2">
           {variants.map((v) => {
             const isAvailable = AVAILABLE_VARIANTS.includes(v);
-            const isSelected = v === currentVariant && isAvailable;
+            const isSelected = v === currentVariant;
 
             if (!isAvailable) {
-              // Disabled/soon
               return (
                 <div
                   key={v}
@@ -57,9 +56,7 @@ export function VariantPicker({ currentVariant, onSelect, onClose }: Props) {
                   <div className="flex justify-between items-center">
                     <div>
                       <p className="text-poker-yellow text-sm">{VARIANT_LABELS[v]}</p>
-                      <p className="text-poker-yellow/50 text-[10px]">
-                        {VARIANT_DESCRIPTIONS[v]}
-                      </p>
+                      <p className="text-poker-yellow/50 text-[10px]">{VARIANT_DESCRIPTIONS[v]}</p>
                     </div>
                     <span className="bg-poker-yellow/10 text-poker-yellow/50 text-[9px] tracking-wider px-2 py-0.5 rounded">
                       SOON
@@ -83,6 +80,11 @@ export function VariantPicker({ currentVariant, onSelect, onClose }: Props) {
                   <div>
                     <p className={`text-sm font-medium ${isSelected ? 'text-poker-gold' : 'text-poker-yellow'}`}>
                       {VARIANT_LABELS[v]}
+                      {v === 'drawmaha' && (
+                        <span className="ml-2 text-[9px] bg-poker-gold/20 text-poker-gold px-1.5 py-0.5 rounded tracking-wider">
+                          NEW
+                        </span>
+                      )}
                     </p>
                     <p className={`text-[10px] ${isSelected ? 'text-poker-gold/70' : 'text-poker-yellow/50'}`}>
                       {VARIANT_DESCRIPTIONS[v]}

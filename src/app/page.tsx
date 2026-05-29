@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { useNick } from '@/lib/useNick';
 import { CreateRoomScreen } from '@/components/CreateRoomScreen';
 import { JoinRoomScreen } from '@/components/JoinRoomScreen';
@@ -17,8 +17,22 @@ export default function HomePage() {
   const [room, setRoom] = useState<Room | null>(null);
   const [mySessionToken, setMySessionToken] = useState<string>('');
   const [shakeHint, setShakeHint] = useState(false);
+  // Pre-filled room code from URL param ?room=CODE
+  const [urlRoomCode, setUrlRoomCode] = useState<string>('');
 
   const nickInputRef = useRef<HTMLInputElement>(null);
+
+  // On mount: check for ?room=CODE in URL — auto-open join screen
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const code = params.get('room')?.toUpperCase().trim();
+    if (code) {
+      setUrlRoomCode(code);
+      setView('join');
+      // Clean URL without reloading
+      window.history.replaceState({}, '', window.location.pathname);
+    }
+  }, []);
 
   const startEditNick = () => {
     setNickInput(nick);
@@ -67,7 +81,8 @@ export default function HomePage() {
     return (
       <JoinRoomScreen
         defaultNick={nick}
-        onCancel={() => setView('home')}
+        defaultRoomId={urlRoomCode}
+        onCancel={() => { setUrlRoomCode(''); setView('home'); }}
         onRoomJoined={handleRoomReady}
       />
     );

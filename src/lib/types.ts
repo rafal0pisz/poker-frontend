@@ -40,6 +40,7 @@ export interface Player {
   totalBetInHand: number;
   hasActedThisRound: boolean;
   preferredVariant: GameVariant;
+  totalBuyIn: number;
 }
 
 export interface RoomSettings {
@@ -119,6 +120,15 @@ export interface ChatMessage {
   timestamp: number;
 }
 
+export interface SessionResult {
+  sessionToken: string;
+  nick: string;
+  totalBuyIn: number;
+  finalChips: number;
+  netResult: number;
+  leftAt: number;
+}
+
 export interface Room {
   id: string;
   createdAt: number;
@@ -126,6 +136,7 @@ export interface Room {
   settings: RoomSettings;
   gameState: GameState | null;
   messages: ChatMessage[];
+  sessionSummary: SessionResult[];
 }
 
 // Reactions available as quick-tap buttons

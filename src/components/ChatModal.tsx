@@ -1,20 +1,21 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
-import type { ChatMessage } from '@/lib/types';
+import type { ChatMessage, SessionResult, Room } from '@/lib/types';
 import { QUICK_REACTIONS } from '@/lib/types';
 import { getSocket } from '@/lib/socket';
 
 interface Props {
   messages: ChatMessage[];
   mySessionToken: string;
+  room: Room;
   onClose: () => void;
 }
 
-type Tab = 'chat' | 'actions';
+type Tab = 'chat' | 'actions' | 'summary';
 type ActionResponse = { ok: boolean; error?: string } | undefined;
 
-export function ChatModal({ messages, mySessionToken, onClose }: Props) {
+export function ChatModal({ messages, mySessionToken, room, onClose }: Props) {
   const [tab, setTab] = useState<Tab>('chat');
   const [text, setText] = useState('');
   const [sending, setSending] = useState(false);
@@ -24,9 +25,7 @@ export function ChatModal({ messages, mySessionToken, onClose }: Props) {
   const actionMessages = messages.filter((m) => m.type === 'system');
 
   useEffect(() => {
-    if (scrollRef.current) {
-      scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
-    }
+    if (scrollRef.current) scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
   }, [messages.length, tab]);
 
   const sendText = () => {
@@ -35,7 +34,7 @@ export function ChatModal({ messages, mySessionToken, onClose }: Props) {
     setSending(true);
     getSocket().emit('chat:send', { type: 'text', content: trimmed }, (response: ActionResponse) => {
       setSending(false);
-      if (response && !response.ok) { alert(response.error || 'Failed to send'); return; }
+      if (response && !response.ok) { alert(response.error || 'Failed'); return; }
       setText('');
     });
   };
@@ -46,8 +45,29 @@ export function ChatModal({ messages, mySessionToken, onClose }: Props) {
     });
   };
 
-  const formatTime = (timestamp: number) =>
-    new Date(timestamp).toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' });
+  const formatTime = (ts: number) =>
+    new Date(ts).toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' });
+
+  // Build summary — active players + those who left
+  const activeSummary: SessionResult[] = room.players
+    .filter((p) => p.status !== 'spectator')
+    .map((p) => ({
+      sessionToken: p.sessionToken,
+      nick: p.nick,
+      totalBuyIn: p.totalBuyIn,
+      finalChips: p.chips,
+      netResult: p.chips - p.totalBuyIn,
+      leftAt: 0, // still in room
+    }));
+
+  const leftSummary: SessionResult[] = room.sessionSummary ?? [];
+
+  // Merge — prefer active over left (player could have rejoined)
+  const activeTokens = new Set(activeSummary.map((s) => s.sessionToken));
+  const allSummary: SessionResult[] = [
+    ...activeSummary,
+    ...leftSummary.filter((s) => !activeTokens.has(s.sessionToken)),
+  ].sort((a, b) => b.netResult - a.netResult);
 
   const displayed = tab === 'chat' ? chatMessages : actionMessages;
 
@@ -64,106 +84,141 @@ export function ChatModal({ messages, mySessionToken, onClose }: Props) {
         </div>
 
         {/* Tabs */}
-        <div className="flex px-4 pb-2 gap-2 flex-shrink-0">
-          <button
-            onClick={() => setTab('chat')}
-            className={`flex-1 py-2 rounded-lg text-sm font-medium transition ${
-              tab === 'chat'
-                ? 'bg-poker-gold text-poker-bg'
-                : 'bg-poker-yellow/10 text-poker-yellow/60 border border-poker-gold/20'
-            }`}
-          >
-            💬 Chat
-            {chatMessages.length > 0 && (
-              <span className="ml-1.5 text-[10px] opacity-70">({chatMessages.length})</span>
-            )}
-          </button>
-          <button
-            onClick={() => setTab('actions')}
-            className={`flex-1 py-2 rounded-lg text-sm font-medium transition ${
-              tab === 'actions'
-                ? 'bg-poker-gold text-poker-bg'
-                : 'bg-poker-yellow/10 text-poker-yellow/60 border border-poker-gold/20'
-            }`}
-          >
-            📋 Actions
-            {actionMessages.length > 0 && (
-              <span className="ml-1.5 text-[10px] opacity-70">({actionMessages.length})</span>
-            )}
-          </button>
+        <div className="flex px-4 pb-2 gap-1.5 flex-shrink-0">
+          {(['chat', 'actions', 'summary'] as Tab[]).map((t) => {
+            const labels: Record<Tab, string> = { chat: '💬 Chat', actions: '📋 Actions', summary: '📊 Summary' };
+            const counts: Record<Tab, number> = { chat: chatMessages.length, actions: actionMessages.length, summary: allSummary.length };
+            return (
+              <button
+                key={t}
+                onClick={() => setTab(t)}
+                className={`flex-1 py-2 rounded-lg text-xs font-medium transition ${
+                  tab === t
+                    ? 'bg-poker-gold text-poker-bg'
+                    : 'bg-poker-yellow/10 text-poker-yellow/60 border border-poker-gold/20'
+                }`}
+              >
+                {labels[t]}
+                {counts[t] > 0 && tab !== t && (
+                  <span className="ml-1 text-[9px] opacity-70">({counts[t]})</span>
+                )}
+              </button>
+            );
+          })}
         </div>
 
-        {/* Messages */}
+        {/* Content */}
         <div
           ref={scrollRef}
-          className="flex-1 overflow-y-auto px-4 py-2 space-y-2"
+          className="flex-1 overflow-y-auto px-4 py-2"
           style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' } as React.CSSProperties}
         >
-          {displayed.length === 0 ? (
-            <p className="text-poker-yellow/40 text-sm text-center mt-8">
-              {tab === 'chat' ? 'No messages yet. Say hi!' : 'No game events yet.'}
-            </p>
+          {tab === 'summary' ? (
+            <div className="space-y-2 py-1">
+              <p className="text-poker-yellow/40 text-[10px] text-center uppercase tracking-wider mb-3">
+                Session results · {allSummary.length} player{allSummary.length !== 1 ? 's' : ''}
+              </p>
+              {allSummary.length === 0 ? (
+                <p className="text-poker-yellow/40 text-sm text-center mt-8">No data yet</p>
+              ) : (
+                allSummary.map((s) => {
+                  const isMe = s.sessionToken === mySessionToken;
+                  const left = s.leftAt > 0;
+                  const netPositive = s.netResult > 0;
+                  const netNegative = s.netResult < 0;
+                  return (
+                    <div
+                      key={s.sessionToken}
+                      className={`rounded-xl border p-3 ${
+                        isMe
+                          ? 'border-poker-gold/40 bg-poker-gold/8'
+                          : 'border-poker-gold/15 bg-poker-yellow/5'
+                      }`}
+                      style={isMe ? { background: 'rgba(212,175,55,0.08)' } : undefined}
+                    >
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                          <span className="text-poker-yellow font-medium text-sm">
+                            {s.nick}{isMe ? ' (you)' : ''}
+                          </span>
+                          {left ? (
+                            <span className="text-[9px] text-poker-yellow/40 bg-poker-yellow/10 px-1.5 py-0.5 rounded">left</span>
+                          ) : (
+                            <span className="text-[9px] text-green-400/70 bg-green-400/10 px-1.5 py-0.5 rounded">in game</span>
+                          )}
+                        </div>
+                        {/* Net result */}
+                        <span className={`text-base font-bold ${
+                          netPositive ? 'text-green-400' : netNegative ? 'text-poker-coral' : 'text-poker-yellow/60'
+                        }`}>
+                          {netPositive ? '+' : ''}{s.netResult}
+                        </span>
+                      </div>
+                      <div className="flex items-center gap-3 mt-1.5 text-[11px] text-poker-yellow/50">
+                        <span>Buy-in: <span className="text-poker-yellow/70">{s.totalBuyIn}</span></span>
+                        <span>·</span>
+                        <span>{left ? 'Left with' : 'Current'}: <span className="text-poker-yellow/70">{s.finalChips}</span></span>
+                      </div>
+                    </div>
+                  );
+                })
+              )}
+              <p className="text-poker-yellow/25 text-[10px] text-center mt-4 italic">
+                Net = current chips − total buy-in
+              </p>
+            </div>
           ) : tab === 'chat' ? (
-            displayed.map((m) => {
-              const isMine = m.senderSessionToken === mySessionToken;
-              const isReaction = m.type === 'reaction';
-              return (
-                <div key={m.id} className={`flex ${isMine ? 'justify-end' : 'justify-start'}`}>
-                  <div
-                    className={
-                      isReaction
-                        ? `text-3xl ${isMine ? 'mr-1' : 'ml-1'}`
-                        : `max-w-[75%] px-3 py-1.5 rounded-2xl ${
-                            isMine
-                              ? 'bg-poker-gold text-poker-bg'
-                              : 'bg-poker-yellow/10 text-poker-yellow border border-poker-gold/15'
-                          }`
-                    }
-                  >
-                    {!isMine && !isReaction && (
-                      <p className="text-[10px] opacity-70 mb-0.5">{m.senderNick}</p>
-                    )}
-                    <p className={isReaction ? '' : 'text-sm break-words'}>{m.content}</p>
-                    {!isReaction && (
-                      <p className={`text-[9px] mt-0.5 text-right ${isMine ? 'text-poker-bg/50' : 'text-poker-yellow/40'}`}>
-                        {formatTime(m.timestamp)}
-                      </p>
-                    )}
-                  </div>
-                </div>
-              );
-            })
+            <div className="space-y-2 py-1">
+              {chatMessages.length === 0 ? (
+                <p className="text-poker-yellow/40 text-sm text-center mt-8">No messages yet. Say hi!</p>
+              ) : (
+                chatMessages.map((m) => {
+                  const isMine = m.senderSessionToken === mySessionToken;
+                  const isReaction = m.type === 'reaction';
+                  return (
+                    <div key={m.id} className={`flex ${isMine ? 'justify-end' : 'justify-start'}`}>
+                      <div className={isReaction ? `text-3xl ${isMine ? 'mr-1' : 'ml-1'}` : `max-w-[75%] px-3 py-1.5 rounded-2xl ${isMine ? 'bg-poker-gold text-poker-bg' : 'bg-poker-yellow/10 text-poker-yellow border border-poker-gold/15'}`}>
+                        {!isMine && !isReaction && <p className="text-[10px] opacity-70 mb-0.5">{m.senderNick}</p>}
+                        <p className={isReaction ? '' : 'text-sm break-words'}>{m.content}</p>
+                        {!isReaction && (
+                          <p className={`text-[9px] mt-0.5 text-right ${isMine ? 'text-poker-bg/50' : 'text-poker-yellow/40'}`}>
+                            {formatTime(m.timestamp)}
+                          </p>
+                        )}
+                      </div>
+                    </div>
+                  );
+                })
+              )}
+            </div>
           ) : (
-            // Actions tab — chronological game log
-            displayed.map((m) => (
-              <div key={m.id} className="flex items-start gap-2 py-0.5">
-                <span className="text-poker-gold/30 text-[10px] font-mono flex-shrink-0 mt-0.5">
-                  {formatTime(m.timestamp)}
-                </span>
-                <p className="text-poker-yellow/70 text-xs leading-relaxed">{m.content}</p>
-              </div>
-            ))
+            <div className="space-y-0.5 py-1">
+              {actionMessages.length === 0 ? (
+                <p className="text-poker-yellow/40 text-sm text-center mt-8">No game events yet.</p>
+              ) : (
+                actionMessages.map((m) => (
+                  <div key={m.id} className="flex items-start gap-2 py-0.5">
+                    <span className="text-poker-gold/30 text-[10px] font-mono flex-shrink-0 mt-0.5">{formatTime(m.timestamp)}</span>
+                    <p className="text-poker-yellow/70 text-xs leading-relaxed">{m.content}</p>
+                  </div>
+                ))
+              )}
+            </div>
           )}
         </div>
 
-        {/* Reactions row — only on chat tab */}
+        {/* Reactions — chat tab only */}
         {tab === 'chat' && (
           <div className="px-4 py-2 border-t border-poker-gold/15 flex-shrink-0">
             <div className="flex gap-1.5 justify-center">
               {QUICK_REACTIONS.map((emoji) => (
-                <button
-                  key={emoji}
-                  onClick={() => sendReaction(emoji)}
-                  className="bg-poker-yellow/5 hover:bg-poker-yellow/15 px-3 py-1.5 rounded-full text-lg active:scale-90 transition"
-                >
-                  {emoji}
-                </button>
+                <button key={emoji} onClick={() => sendReaction(emoji)} className="bg-poker-yellow/5 hover:bg-poker-yellow/15 px-3 py-1.5 rounded-full text-lg active:scale-90 transition">{emoji}</button>
               ))}
             </div>
           </div>
         )}
 
-        {/* Input — only on chat tab */}
+        {/* Input — chat tab only */}
         {tab === 'chat' && (
           <div className="p-3 border-t border-poker-gold/15 flex-shrink-0">
             <div className="flex gap-2">
@@ -176,15 +231,8 @@ export function ChatModal({ messages, mySessionToken, onClose }: Props) {
                 placeholder="Type a message..."
                 className="flex-1 bg-poker-yellow/10 border border-poker-gold/20 px-4 py-2.5 rounded-full text-poker-yellow outline-none placeholder:text-poker-yellow/40"
               />
-              <button
-                onClick={sendText}
-                disabled={sending || !text.trim()}
-                className="bg-poker-gold text-poker-bg w-10 h-10 rounded-full font-medium disabled:opacity-40 active:scale-95 flex items-center justify-center"
-              >
-                ↑
-              </button>
+              <button onClick={sendText} disabled={sending || !text.trim()} className="bg-poker-gold text-poker-bg w-10 h-10 rounded-full font-medium disabled:opacity-40 active:scale-95 flex items-center justify-center">↑</button>
             </div>
-            <p className="text-poker-yellow/30 text-[10px] mt-1 text-right">{text.length}/200</p>
           </div>
         )}
       </div>

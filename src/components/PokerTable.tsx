@@ -95,19 +95,19 @@ function DrawCardsDisplay({ holeCards, discardIndices, submitted, onToggle }: {
   );
 }
 
-function DesktopChat({ messages, mySessionToken, onSend, onSendReaction }: {
+function DesktopChat({ messages, mySessionToken, room, onSend, onSendReaction }: {
   messages: ChatMessage[];
   mySessionToken: string;
+  room: Room;
   onSend: (t: string) => void;
   onSendReaction: (emoji: string) => void;
 }) {
   const [text, setText] = useState('');
-  const [tab, setTab] = useState<'chat' | 'actions'>('chat');
+  const [tab, setTab] = useState<'chat' | 'actions' | 'summary'>('chat');
   const scrollRef = useRef<HTMLDivElement>(null);
 
   const chatMessages = messages.filter((m) => m.type !== 'system');
   const actionMessages = messages.filter((m) => m.type === 'system');
-  const displayed = tab === 'chat' ? chatMessages : actionMessages;
 
   useEffect(() => {
     if (scrollRef.current) scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
@@ -123,92 +123,125 @@ function DesktopChat({ messages, mySessionToken, onSend, onSendReaction }: {
   const formatTime = (ts: number) =>
     new Date(ts).toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' });
 
+  // Build summary
+  const activeSummary = room.players
+    .filter((p) => p.status !== 'spectator')
+    .map((p) => ({
+      sessionToken: p.sessionToken,
+      nick: p.nick,
+      totalBuyIn: p.totalBuyIn,
+      finalChips: p.chips,
+      netResult: p.chips - p.totalBuyIn,
+      leftAt: 0,
+    }));
+  const activeTokens = new Set(activeSummary.map((s) => s.sessionToken));
+  const allSummary = [
+    ...activeSummary,
+    ...(room.sessionSummary ?? []).filter((s) => !activeTokens.has(s.sessionToken)),
+  ].sort((a, b) => b.netResult - a.netResult);
+
+  const tabLabels = { chat: '💬 Chat', actions: '📋 Actions', summary: '📊' };
+  const tabCounts = { chat: chatMessages.length, actions: actionMessages.length, summary: allSummary.length };
+
   return (
     <div className="bg-poker-yellow/5 border border-poker-gold/25 rounded-xl p-3 flex-1 flex flex-col min-h-0">
-      <div className="flex gap-1.5 mb-2">
-        <button
-          onClick={() => setTab('chat')}
-          className={`flex-1 py-1.5 rounded-lg text-xs font-medium transition ${
-            tab === 'chat'
-              ? 'bg-poker-gold text-poker-bg'
-              : 'bg-poker-yellow/5 text-poker-yellow/50 border border-poker-gold/15'
-          }`}
-        >
-          💬 Chat
-          {chatMessages.length > 0 && tab !== 'chat' && (
-            <span className="ml-1 text-[9px] opacity-70">({chatMessages.length})</span>
-          )}
-        </button>
-        <button
-          onClick={() => setTab('actions')}
-          className={`flex-1 py-1.5 rounded-lg text-xs font-medium transition ${
-            tab === 'actions'
-              ? 'bg-poker-gold text-poker-bg'
-              : 'bg-poker-yellow/5 text-poker-yellow/50 border border-poker-gold/15'
-          }`}
-        >
-          📋 Actions
-          {actionMessages.length > 0 && tab !== 'actions' && (
-            <span className="ml-1 text-[9px] opacity-70">({actionMessages.length})</span>
-          )}
-        </button>
+      {/* Tab switcher */}
+      <div className="flex gap-1 mb-2">
+        {(['chat', 'actions', 'summary'] as const).map((t) => (
+          <button
+            key={t}
+            onClick={() => setTab(t)}
+            className={`flex-1 py-1.5 rounded-lg text-xs font-medium transition ${
+              tab === t
+                ? 'bg-poker-gold text-poker-bg'
+                : 'bg-poker-yellow/5 text-poker-yellow/50 border border-poker-gold/15'
+            }`}
+          >
+            {tabLabels[t]}
+            {tabCounts[t] > 0 && tab !== t && (
+              <span className="ml-0.5 text-[9px] opacity-60">({tabCounts[t]})</span>
+            )}
+          </button>
+        ))}
       </div>
 
+      {/* Content */}
       <div
         ref={scrollRef}
-        className="flex-1 overflow-y-auto space-y-1.5 min-h-[200px] chat-scroll"
+        className="flex-1 overflow-y-auto space-y-1 min-h-[160px] chat-scroll"
         style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' } as React.CSSProperties}
       >
-        {displayed.length === 0 ? (
-          <p className="text-poker-yellow/40 text-xs text-center mt-4">
-            {tab === 'chat' ? 'No messages yet' : 'No game events yet'}
-          </p>
+        {tab === 'summary' ? (
+          <div className="space-y-1.5 py-1">
+            {allSummary.length === 0 ? (
+              <p className="text-poker-yellow/40 text-xs text-center mt-4">No data yet</p>
+            ) : (
+              allSummary.map((s) => {
+                const isMe = s.sessionToken === mySessionToken;
+                const left = s.leftAt > 0;
+                const pos = s.netResult > 0;
+                const neg = s.netResult < 0;
+                return (
+                  <div key={s.sessionToken} className={`rounded-lg border px-2.5 py-2 ${isMe ? 'border-poker-gold/40' : 'border-poker-gold/15'}`} style={isMe ? { background: 'rgba(212,175,55,0.06)' } : undefined}>
+                    <div className="flex items-center justify-between">
+                      <span className="text-poker-yellow text-xs font-medium">
+                        {s.nick}{isMe ? ' ★' : ''}{left ? ' (left)' : ''}
+                      </span>
+                      <span className={`text-sm font-bold ${pos ? 'text-green-400' : neg ? 'text-poker-coral' : 'text-poker-yellow/50'}`}>
+                        {pos ? '+' : ''}{s.netResult}
+                      </span>
+                    </div>
+                    <p className="text-poker-yellow/40 text-[10px]">
+                      buy-in {s.totalBuyIn} · {left ? 'left' : 'now'} {s.finalChips}
+                    </p>
+                  </div>
+                );
+              })
+            )}
+          </div>
         ) : tab === 'chat' ? (
-          displayed.map((m) => {
-            const isMine = m.senderSessionToken === mySessionToken;
-            const isReaction = m.type === 'reaction';
-            return (
-              <div key={m.id} className={`flex ${isMine ? 'justify-end' : 'justify-start'}`}>
-                <div className={isReaction ? 'text-xl' : `max-w-[85%] px-2.5 py-1 rounded-xl text-[11px] ${isMine ? 'bg-poker-gold text-poker-bg' : 'bg-poker-yellow/10 text-poker-yellow border border-poker-gold/15'}`}>
-                  {!isMine && !isReaction && <p className="text-[9px] opacity-70 leading-tight">{m.senderNick}</p>}
-                  <p className={isReaction ? '' : 'break-words leading-tight'}>{m.content}</p>
+          chatMessages.length === 0 ? (
+            <p className="text-poker-yellow/40 text-xs text-center mt-4">No messages yet</p>
+          ) : (
+            chatMessages.map((m) => {
+              const isMine = m.senderSessionToken === mySessionToken;
+              const isReaction = m.type === 'reaction';
+              return (
+                <div key={m.id} className={`flex ${isMine ? 'justify-end' : 'justify-start'}`}>
+                  <div className={isReaction ? 'text-xl' : `max-w-[85%] px-2.5 py-1 rounded-xl text-[11px] ${isMine ? 'bg-poker-gold text-poker-bg' : 'bg-poker-yellow/10 text-poker-yellow border border-poker-gold/15'}`}>
+                    {!isMine && !isReaction && <p className="text-[9px] opacity-70 leading-tight">{m.senderNick}</p>}
+                    <p className={isReaction ? '' : 'break-words leading-tight'}>{m.content}</p>
+                  </div>
                 </div>
-              </div>
-            );
-          })
+              );
+            })
+          )
         ) : (
-          displayed.map((m) => (
-            <div key={m.id} className="flex items-start gap-1.5 py-0.5">
-              <span className="text-poker-gold/30 text-[9px] font-mono flex-shrink-0 mt-0.5">
-                {formatTime(m.timestamp)}
-              </span>
-              <p className="text-poker-yellow/70 text-[11px] leading-snug">{m.content}</p>
-            </div>
-          ))
+          actionMessages.length === 0 ? (
+            <p className="text-poker-yellow/40 text-xs text-center mt-4">No game events yet</p>
+          ) : (
+            actionMessages.map((m) => (
+              <div key={m.id} className="flex items-start gap-1.5 py-0.5">
+                <span className="text-poker-gold/30 text-[9px] font-mono flex-shrink-0 mt-0.5">{formatTime(m.timestamp)}</span>
+                <p className="text-poker-yellow/70 text-[11px] leading-snug">{m.content}</p>
+              </div>
+            ))
+          )
         )}
       </div>
 
       {tab === 'chat' && (
-        <div className="flex gap-1 justify-center mt-2 pt-2 border-t border-poker-gold/10">
-          {['👍', '😂', '🔥', '😎', '😠'].map((e) => (
-            <button key={e} onClick={() => onSendReaction(e)} className="bg-poker-yellow/5 hover:bg-poker-yellow/15 px-2 py-1 rounded-full text-sm active:scale-90 transition">{e}</button>
-          ))}
-        </div>
-      )}
-
-      {tab === 'chat' && (
-        <div className="flex gap-1.5 mt-2">
-          <input
-            type="text"
-            value={text}
-            onChange={(e) => setText(e.target.value)}
-            onKeyDown={(e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleSend(); } }}
-            maxLength={200}
-            placeholder="Message..."
-            className="flex-1 bg-poker-yellow/10 border border-poker-gold/20 px-3 py-1.5 rounded-full text-poker-yellow text-xs outline-none placeholder:text-poker-yellow/40"
-          />
-          <button onClick={handleSend} disabled={!text.trim()} className="bg-poker-gold text-poker-bg w-7 h-7 rounded-full text-xs font-medium disabled:opacity-40 active:scale-95 flex items-center justify-center">↑</button>
-        </div>
+        <>
+          <div className="flex gap-1 justify-center mt-2 pt-2 border-t border-poker-gold/10">
+            {['👍', '😂', '🔥', '😎', '😠'].map((e) => (
+              <button key={e} onClick={() => onSendReaction(e)} className="bg-poker-yellow/5 hover:bg-poker-yellow/15 px-2 py-1 rounded-full text-sm active:scale-90 transition">{e}</button>
+            ))}
+          </div>
+          <div className="flex gap-1.5 mt-2">
+            <input type="text" value={text} onChange={(e) => setText(e.target.value)} onKeyDown={(e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleSend(); } }} maxLength={200} placeholder="Message..." className="flex-1 bg-poker-yellow/10 border border-poker-gold/20 px-3 py-1.5 rounded-full text-poker-yellow text-xs outline-none placeholder:text-poker-yellow/40" />
+            <button onClick={handleSend} disabled={!text.trim()} className="bg-poker-gold text-poker-bg w-7 h-7 rounded-full text-xs font-medium disabled:opacity-40 active:scale-95 flex items-center justify-center">↑</button>
+          </div>
+        </>
       )}
     </div>
   );
@@ -431,7 +464,17 @@ export function PokerTable({ initialRoom, mySessionToken, onLeave }: Props) {
     if (eligible[0]) nextDealerVariant = eligible[0].preferredVariant || 'texas';
   }
 
-  const otherPlayers = room.players.filter((p) => p.sessionToken !== mySessionToken);
+  // Sort other players by seat in clockwise order relative to my seat.
+  // This ensures the left player is to my left and right to my right.
+  const mySeat = me.seat;
+  const otherPlayers = room.players
+    .filter((p) => p.sessionToken !== mySessionToken)
+    .sort((a, b) => {
+      // Rotate seats so mine = 0, then sort ascending
+      const aSeat = (a.seat - mySeat + 100) % room.players.length;
+      const bSeat = (b.seat - mySeat + 100) % room.players.length;
+      return aSeat - bSeat;
+    });
 
   return (
     <main className="min-h-screen">
@@ -640,7 +683,7 @@ export function PokerTable({ initialRoom, mySessionToken, onLeave }: Props) {
               })}
             </div>
           </div>
-          <DesktopChat messages={messages} mySessionToken={mySessionToken} onSend={sendChat} onSendReaction={sendReaction} />
+          <DesktopChat messages={messages} mySessionToken={mySessionToken} room={room} onSend={sendChat} onSendReaction={sendReaction} />
         </aside>
 
         <div className="flex flex-col">
@@ -742,7 +785,7 @@ export function PokerTable({ initialRoom, mySessionToken, onLeave }: Props) {
       <HandLog logs={logs} />
 
       {showAdminPanel && <AdminPanel room={room} mySessionToken={mySessionToken} onClose={() => setShowAdminPanel(false)} />}
-      {showChat && <ChatModal messages={messages} mySessionToken={mySessionToken} onClose={() => setShowChat(false)} />}
+      {showChat && <ChatModal messages={messages} mySessionToken={mySessionToken} room={room} onClose={() => setShowChat(false)} />}
       {showVariantPicker && (
         <VariantPicker
           currentVariant={me.preferredVariant || 'texas'}

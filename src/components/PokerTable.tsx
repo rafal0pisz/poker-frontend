@@ -477,11 +477,17 @@ export function PokerTable({ initialRoom, mySessionToken, onLeave }: Props) {
     if (!gameState || activeSeatsSorted.length < 2) return { sbSeat: -1, bbSeat: -1 };
     const dealer = gameState.dealerSeat;
     const maxS = room.settings.maxSeats;
-    // Get seats in clockwise order from dealer
-    const afterDealer = [...activeSeatsSorted, ...activeSeatsSorted]
-      .filter((s) => ((s - dealer + maxS) % maxS) > 0)
-      .sort((a, b) => ((a - dealer + maxS) % maxS) - ((b - dealer + maxS) % maxS));
-    return { sbSeat: afterDealer[0] ?? -1, bbSeat: afterDealer[1] ?? -1 };
+    // Sort active seats by clockwise distance from dealer.
+    // Distance 0 = dealer himself → skip. First two remaining = SB, BB.
+    // No duplication — each seat appears exactly once in activeSeatsSorted.
+    const clockwise = [...activeSeatsSorted]
+      .map((s) => ({ seat: s, dist: (s - dealer + maxS) % maxS }))
+      .filter(({ dist }) => dist > 0)          // exclude dealer's own seat
+      .sort((a, b) => a.dist - b.dist);        // nearest clockwise first
+    return {
+      sbSeat: clockwise[0]?.seat ?? -1,
+      bbSeat: clockwise[1]?.seat ?? -1,
+    };
   };
   const { sbSeat, bbSeat } = getSbBbSeats();
 

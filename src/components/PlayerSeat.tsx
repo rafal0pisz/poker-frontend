@@ -14,8 +14,6 @@ interface Props {
   lastMessage?: ChatMessage | null;
   handName?: string;
   winningCards?: Set<CardType>;
-  // How many hole cards to show facedown for this player (when not revealed)
-  // Default: 2 (Texas). For Omaha: 4. For Drawmaha: 5.
   cardCount?: number;
 }
 
@@ -42,27 +40,25 @@ export function PlayerSeat({
   winningCards,
   cardCount = 2,
 }: Props) {
-  const dimmed = player.status === 'folded' || player.status === 'sitting-out' || player.status === 'disconnected' || player.status === 'spectator';
+  const dimmed =
+    player.status === 'folded' ||
+    player.status === 'sitting-out' ||
+    player.status === 'disconnected' ||
+    player.status === 'spectator';
 
   const revealedCards = player.holeCards || [];
   const hasRevealedCards = revealedCards.length > 0;
-
-  // For tighter layout when many cards (4+ in Omaha, 5 in Drawmaha)
   const useSmallGap = cardCount >= 4 || revealedCards.length >= 4;
 
   return (
     <div className={`relative flex flex-col items-center ${dimmed ? 'opacity-50' : ''}`}>
       <FloatingBubble message={lastMessage || null} position="above" />
 
+      {/* Hole cards */}
       {hasRevealedCards ? (
         <div className={`flex mb-1 ${useSmallGap ? '-space-x-1.5' : 'gap-0.5'}`}>
           {revealedCards.map((c, i) => (
-            <Card
-              key={`${c}-${i}`}
-              card={c}
-              size="sm"
-              winning={!!winningCards?.has(c)}
-            />
+            <Card key={`${c}-${i}`} card={c} size="sm" winning={!!winningCards?.has(c)} />
           ))}
         </div>
       ) : player.status === 'playing' || player.status === 'all-in' || player.status === 'folded' ? (
@@ -75,6 +71,7 @@ export function PlayerSeat({
         <div className="h-12 mb-1" />
       )}
 
+      {/* Avatar */}
       <div
         className={`relative w-12 h-12 rounded-full flex items-center justify-center text-sm font-medium ${
           isCurrent
@@ -86,40 +83,49 @@ export function PlayerSeat({
       >
         {player.nick.slice(0, 2).toUpperCase()}
 
+        {/* Dealer badge — bottom right */}
         {isDealer && (
-          <span className="absolute -bottom-1 -right-1 bg-poker-gold text-poker-bg text-[9px] font-bold w-5 h-5 rounded-full flex items-center justify-center">
+          <span className="absolute -bottom-1.5 -right-1.5 bg-poker-gold text-poker-bg text-[9px] font-bold w-5 h-5 rounded-full flex items-center justify-center shadow-sm z-10">
             D
           </span>
         )}
-        {isSb && (
-          <span className="absolute -bottom-1 -right-1 bg-blue-400 text-poker-bg text-[8px] font-bold w-5 h-5 rounded-full flex items-center justify-center">
+
+        {/* SB badge — bottom left (separate position from D) */}
+        {isSb && !isDealer && (
+          <span className="absolute -bottom-1.5 -left-1.5 bg-blue-400 text-white text-[8px] font-bold w-5 h-5 rounded-full flex items-center justify-center shadow-sm z-10">
             SB
           </span>
         )}
+
+        {/* BB badge — bottom left */}
         {isBb && (
-          <span className="absolute -bottom-1 -right-1 bg-purple-400 text-poker-bg text-[8px] font-bold w-5 h-5 rounded-full flex items-center justify-center">
+          <span className="absolute -bottom-1.5 -left-1.5 bg-purple-400 text-white text-[8px] font-bold w-5 h-5 rounded-full flex items-center justify-center shadow-sm z-10">
             BB
           </span>
         )}
       </div>
 
+      {/* Name & chips */}
       <div className="text-center mt-1">
         <p className="text-xs text-poker-yellow truncate max-w-[80px]">{player.nick}</p>
         <p className="text-[10px] text-poker-yellow/60">{player.chips}</p>
       </div>
 
+      {/* Showdown hand name */}
       {handName && hasRevealedCards && (
         <div className="mt-0.5 bg-poker-gold/15 border border-poker-gold/30 px-2 py-0.5 rounded text-[9px] text-poker-gold font-medium max-w-[90px] truncate">
           {handName}
         </div>
       )}
 
+      {/* Status badge */}
       {STATUS_LABEL[player.status] && (
         <div className="absolute -top-1 -right-1 bg-poker-bg-light px-1.5 py-0.5 rounded text-[9px] text-poker-yellow/70 border border-poker-gold/20">
           {STATUS_LABEL[player.status]}
         </div>
       )}
 
+      {/* Current bet */}
       {player.currentBet > 0 && (
         <div className="mt-1 bg-poker-gold/20 border border-poker-gold/30 px-2 py-0.5 rounded-full text-[10px] text-poker-yellow font-medium">
           {player.currentBet}

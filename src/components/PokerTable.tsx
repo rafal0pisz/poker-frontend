@@ -14,6 +14,8 @@ import { VariantPicker, VARIANT_LABELS } from './VariantPicker';
 import { DrawmahaDraw } from './DrawmahaDraw';
 import { DrawmahaReveal } from './DrawmahaReveal';
 import { useSounds, enableAudio } from '@/hooks/useSounds';
+import { useHandLog } from '@/hooks/useHandLog';
+import { HandLog } from './HandLog';
 
 interface Props {
   initialRoom: Room;
@@ -175,6 +177,7 @@ export function PokerTable({ initialRoom, mySessionToken, onLeave }: Props) {
   const [dismissedBubbleIds, setDismissedBubbleIds] = useState(new Set<string>());
 
   const { playChip, playDeal, playYourTurn, playWin, playFold, playSelect, muted, toggleMute } = useSounds();
+  const { logs, processRoomState, processHandResult } = useHandLog();
 
   const showChatRef = useRef(showChat);
   const messagesLengthRef = useRef(messages.length);
@@ -200,6 +203,7 @@ export function PokerTable({ initialRoom, mySessionToken, onLeave }: Props) {
 
     const handleRoomState = (updated: Room) => {
       setRoom(updated);
+      processRoomState(updated, mySessionToken);
       const myUpdated = updated.players.find((p) => p.sessionToken === mySessionToken);
       if (myUpdated?.holeCards) setMyHoleCards(myUpdated.holeCards);
       if (!updated.gameState) setMyHoleCards([]);
@@ -225,6 +229,7 @@ export function PokerTable({ initialRoom, mySessionToken, onLeave }: Props) {
       setLastResult(result);
       setTimeout(() => setLastResult(null), 6000);
       if (result.winnings.some((w) => w.sessionToken === mySessionToken && w.amount > 0)) playWin();
+      processHandResult(result, room.players);
     };
 
     const handleClosed = (reason: string) => { alert(reason); clearSessionToken(room.id); onLeave(); };
@@ -384,7 +389,9 @@ export function PokerTable({ initialRoom, mySessionToken, onLeave }: Props) {
               title="Tap to enable sounds / mute"
               className="bg-poker-yellow/5 border border-poker-gold/20 text-poker-yellow/70 text-xs px-2.5 py-1.5 rounded-lg"
             >
-              {muted ? '🔇' : '🔊'}
+              {muted ? (
+                <span className="flex items-center gap-1">🔇 <span className="text-[9px]">tap to enable</span></span>
+              ) : '🔊'}
             </button>
             <button onClick={() => { setShowChat(true); setUnreadCount(0); }} className="md:hidden relative bg-poker-gold/10 border border-poker-gold/30 text-poker-gold text-xs px-2.5 py-1.5 rounded-lg">
               💬
@@ -669,6 +676,8 @@ export function PokerTable({ initialRoom, mySessionToken, onLeave }: Props) {
           </div>
         </div>
       </div>
+
+      <HandLog logs={logs} />
 
       {showAdminPanel && <AdminPanel room={room} mySessionToken={mySessionToken} onClose={() => setShowAdminPanel(false)} />}
       {showChat && <ChatModal messages={messages} mySessionToken={mySessionToken} onClose={() => setShowChat(false)} />}

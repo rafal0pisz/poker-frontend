@@ -125,7 +125,6 @@ function DesktopChat({ messages, mySessionToken, onSend, onSendReaction }: {
 
   return (
     <div className="bg-poker-yellow/5 border border-poker-gold/25 rounded-xl p-3 flex-1 flex flex-col min-h-0">
-      {/* Tab switcher */}
       <div className="flex gap-1.5 mb-2">
         <button
           onClick={() => setTab('chat')}
@@ -155,7 +154,6 @@ function DesktopChat({ messages, mySessionToken, onSend, onSendReaction }: {
         </button>
       </div>
 
-      {/* Messages */}
       <div
         ref={scrollRef}
         className="flex-1 overflow-y-auto space-y-1.5 min-h-[200px] chat-scroll"
@@ -179,19 +177,17 @@ function DesktopChat({ messages, mySessionToken, onSend, onSendReaction }: {
             );
           })
         ) : (
-          // Actions tab — timestamped game log
           displayed.map((m) => (
             <div key={m.id} className="flex items-start gap-1.5 py-0.5">
               <span className="text-poker-gold/30 text-[9px] font-mono flex-shrink-0 mt-0.5">
                 {formatTime(m.timestamp)}
               </span>
-              <p className="text-poker-yellow/65 text-[11px] leading-snug">{m.content}</p>
+              <p className="text-poker-yellow/70 text-[11px] leading-snug">{m.content}</p>
             </div>
           ))
         )}
       </div>
 
-      {/* Reactions — chat tab only */}
       {tab === 'chat' && (
         <div className="flex gap-1 justify-center mt-2 pt-2 border-t border-poker-gold/10">
           {['👍', '😂', '🔥', '😎', '😠'].map((e) => (
@@ -200,7 +196,6 @@ function DesktopChat({ messages, mySessionToken, onSend, onSendReaction }: {
         </div>
       )}
 
-      {/* Input — chat tab only */}
       {tab === 'chat' && (
         <div className="flex gap-1.5 mt-2">
           <input
@@ -217,71 +212,7 @@ function DesktopChat({ messages, mySessionToken, onSend, onSendReaction }: {
       )}
     </div>
   );
-}: {
-  messages: ChatMessage[];
-  mySessionToken: string;
-  onSend: (t: string) => void;
-  onSendReaction: (emoji: string) => void;
-}) {
-  const [text, setText] = useState('');
-  const scrollRef = useRef<HTMLDivElement>(null);
-  useEffect(() => {
-    if (scrollRef.current) scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
-  }, [messages.length]);
-  const handleSend = () => {
-    const t = text.trim();
-    if (!t) return;
-    onSend(t);
-    setText('');
-  };
-  return (
-    <div className="bg-poker-yellow/5 border border-poker-gold/25 rounded-xl p-3 flex-1 flex flex-col min-h-0">
-      <p className="font-serif italic text-poker-gold mb-2 text-sm">Chat</p>
-      <div ref={scrollRef} className="flex-1 overflow-y-auto space-y-1.5 min-h-[200px] chat-scroll" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
-        {messages.length === 0 ? (
-          <p className="text-poker-yellow/40 text-xs text-center mt-4">No messages yet</p>
-        ) : (
-          messages.map((m) => {
-            if (m.type === 'system') {
-              return <p key={m.id} className="text-center text-poker-gold/50 text-[10px] italic">{m.content}</p>;
-            }
-            const isMine = m.senderSessionToken === mySessionToken;
-            const isReaction = m.type === 'reaction';
-            return (
-              <div key={m.id} className={`flex ${isMine ? 'justify-end' : 'justify-start'}`}>
-                <div className={isReaction ? 'text-xl' : `max-w-[85%] px-2.5 py-1 rounded-xl text-[11px] ${isMine ? 'bg-poker-gold text-poker-bg' : 'bg-poker-yellow/10 text-poker-yellow border border-poker-gold/15'}`}>
-                  {!isMine && !isReaction && <p className="text-[9px] opacity-70 leading-tight">{m.senderNick}</p>}
-                  <p className={isReaction ? '' : 'break-words leading-tight'}>{m.content}</p>
-                </div>
-              </div>
-            );
-          })
-        )}
-      </div>
-      <div className="flex gap-1 justify-center mt-2 pt-2 border-t border-poker-gold/10">
-        {['👍', '😂', '🔥', '😎', '😠'].map((e) => (
-          <button key={e} onClick={() => onSendReaction(e)} className="bg-poker-yellow/5 hover:bg-poker-yellow/15 px-2 py-1 rounded-full text-sm active:scale-90 transition">{e}</button>
-        ))}
-      </div>
-      <div className="flex gap-1.5 mt-2">
-        <input
-          type="text"
-          value={text}
-          onChange={(e) => setText(e.target.value)}
-          onKeyDown={(e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleSend(); } }}
-          maxLength={200}
-          placeholder="Message..."
-          className="flex-1 bg-poker-yellow/10 border border-poker-gold/20 px-3 py-1.5 rounded-full text-poker-yellow text-xs outline-none placeholder:text-poker-yellow/40"
-        />
-        <button onClick={handleSend} disabled={!text.trim()} className="bg-poker-gold text-poker-bg w-7 h-7 rounded-full text-xs font-medium disabled:opacity-40 active:scale-95 flex items-center justify-center">↑</button>
-      </div>
-    </div>
-  );
 }
-
-// ──────────────────────────────────────────────
-// Main component
-// ──────────────────────────────────────────────
 
 export function PokerTable({ initialRoom, mySessionToken, onLeave }: Props) {
   const [room, setRoom] = useState<Room>(initialRoom);

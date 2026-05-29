@@ -90,7 +90,7 @@ export function useHandLog() {
       ? `${lastAction.playerSessionToken}-${lastAction.type}-${lastAction.timestamp}`
       : null;
 
-    if (actionKey && actionKey !== prevLastActionRef.current) {
+    if (actionKey && lastAction && actionKey !== prevLastActionRef.current) {
       prevLastActionRef.current = actionKey;
       const nick = getPlayerNick(lastAction.playerSessionToken);
       const chips = getChips(lastAction.playerSessionToken);

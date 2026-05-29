@@ -71,35 +71,45 @@ export function PlayerSeat({
         <div className="h-12 mb-1" />
       )}
 
-      {/* Avatar */}
-      <div
-        className={`relative w-12 h-12 rounded-full flex items-center justify-center text-sm font-medium ${
-          isCurrent
-            ? 'bg-poker-gold/25 border-2 border-poker-gold text-poker-gold animate-pulse'
-            : isYou
-            ? 'bg-poker-yellow/20 border-2 border-poker-yellow text-poker-yellow'
-            : 'bg-poker-yellow/10 border border-poker-gold/30 text-poker-yellow'
-        }`}
-      >
-        {player.nick.slice(0, 2).toUpperCase()}
-
-        {/* Dealer badge — bottom right */}
-        {isDealer && (
-          <span className="absolute -bottom-1.5 -right-1.5 bg-poker-gold text-poker-bg text-[9px] font-bold w-5 h-5 rounded-full flex items-center justify-center shadow-sm z-10">
-            D
-          </span>
-        )}
-
-        {/* SB badge — bottom left (separate position from D) */}
+      {/* Avatar + position badges row */}
+      <div className="relative flex items-center justify-center">
+        {/* SB badge — left of avatar */}
         {isSb && !isDealer && (
-          <span className="absolute -bottom-1.5 -left-1.5 bg-blue-400 text-white text-[8px] font-bold w-5 h-5 rounded-full flex items-center justify-center shadow-sm z-10">
+          <span className="absolute -left-5 bottom-0 bg-blue-400 text-white text-[8px] font-bold w-5 h-5 rounded-full flex items-center justify-center shadow-sm">
             SB
           </span>
         )}
 
-        {/* BB badge — bottom left */}
-        {isBb && (
-          <span className="absolute -bottom-1.5 -left-1.5 bg-purple-400 text-white text-[8px] font-bold w-5 h-5 rounded-full flex items-center justify-center shadow-sm z-10">
+        {/* Avatar circle */}
+        <div
+          className={`w-12 h-12 rounded-full flex items-center justify-center text-sm font-medium ${
+            isCurrent
+              ? 'bg-poker-gold/25 border-2 border-poker-gold text-poker-gold animate-pulse'
+              : isYou
+              ? 'bg-poker-yellow/20 border-2 border-poker-yellow text-poker-yellow'
+              : 'bg-poker-yellow/10 border border-poker-gold/30 text-poker-yellow'
+          }`}
+        >
+          {player.nick.slice(0, 2).toUpperCase()}
+        </div>
+
+        {/* D badge — right of avatar */}
+        {isDealer && (
+          <span className="absolute -right-5 bottom-0 bg-poker-gold text-poker-bg text-[9px] font-bold w-5 h-5 rounded-full flex items-center justify-center shadow-sm">
+            D
+          </span>
+        )}
+
+        {/* BB badge — right of avatar (when not also dealer) */}
+        {isBb && !isDealer && (
+          <span className="absolute -right-5 bottom-0 bg-purple-400 text-white text-[8px] font-bold w-5 h-5 rounded-full flex items-center justify-center shadow-sm">
+            BB
+          </span>
+        )}
+
+        {/* BB badge when also dealer (below avatar) */}
+        {isBb && isDealer && (
+          <span className="absolute -bottom-5 left-1/2 -translate-x-1/2 bg-purple-400 text-white text-[8px] font-bold w-5 h-5 rounded-full flex items-center justify-center shadow-sm">
             BB
           </span>
         )}

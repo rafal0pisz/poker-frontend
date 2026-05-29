@@ -115,7 +115,7 @@ function DesktopChat({ messages, mySessionToken, onSend, onSendReaction }: {
   return (
     <div className="bg-poker-yellow/5 border border-poker-gold/25 rounded-xl p-3 flex-1 flex flex-col min-h-0">
       <p className="font-serif italic text-poker-gold mb-2 text-sm">Chat</p>
-      <div ref={scrollRef} className="flex-1 overflow-y-auto space-y-1.5 min-h-[200px]">
+      <div ref={scrollRef} className="flex-1 overflow-y-auto space-y-1.5 min-h-[200px] chat-scroll" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
         {messages.length === 0 ? (
           <p className="text-poker-yellow/40 text-xs text-center mt-4">No messages yet</p>
         ) : (

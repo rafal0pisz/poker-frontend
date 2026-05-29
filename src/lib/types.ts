@@ -41,6 +41,7 @@ export interface Player {
   hasActedThisRound: boolean;
   preferredVariant: GameVariant;
   totalBuyIn: number;
+  pendingChipsAdjustment: number;
 }
 
 export interface RoomSettings {
@@ -137,6 +138,7 @@ export interface Room {
   gameState: GameState | null;
   messages: ChatMessage[];
   sessionSummary: SessionResult[];
+  paused: boolean;
 }
 
 // Reactions available as quick-tap buttons

@@ -271,6 +271,7 @@ export function PokerTable({ initialRoom, mySessionToken, onLeave }: Props) {
   const roomRef = useRef(room); // always-fresh room for closures
   const prevCurrentSeatRef = useRef<number | null>(null);
   const prevHandNumberRef = useRef<number | null>(null);
+  const prevCommCardCountRef = useRef<number>(0);
 
   useEffect(() => { showChatRef.current = showChat; }, [showChat]);
   useEffect(() => { messagesLengthRef.current = messages.length; }, [messages.length]);
@@ -292,6 +293,7 @@ export function PokerTable({ initialRoom, mySessionToken, onLeave }: Props) {
 
     const handleRoomState = (updated: Room) => {
       setRoom(updated);
+      prevCommCardCountRef.current = updated.gameState?.communityCards.length ?? 0;
       processRoomState(updated, mySessionToken);
       const myUpdated = updated.players.find((p) => p.sessionToken === mySessionToken);
       if (myUpdated?.holeCards) setMyHoleCards(myUpdated.holeCards);
@@ -552,8 +554,11 @@ export function PokerTable({ initialRoom, mySessionToken, onLeave }: Props) {
           <div className="flex justify-center gap-1">
             {[0, 1, 2, 3, 4].map((i) => {
               const card = gameState?.communityCards[i];
+              // Cards that just appeared get dealIndex for flip animation
+              const commPrevCount = prevCommCardCountRef.current;
+              const isNew = card && i >= commPrevCount;
               return card
-                ? <Card key={i} card={card} size="md" winning={winningCardsSet.has(card)} />
+                ? <Card key={i} card={card} size="md" winning={winningCardsSet.has(card)} dealIndex={isNew ? i - commPrevCount : undefined} />
                 : <CardPlaceholder key={i} size="md" />;
             })}
           </div>
@@ -742,8 +747,9 @@ export function PokerTable({ initialRoom, mySessionToken, onLeave }: Props) {
             <div className="flex justify-center gap-1">
               {[0, 1, 2, 3, 4].map((i) => {
                 const card = gameState?.communityCards[i];
+                const isNewDesktop = card && i >= prevCommCardCountRef.current;
                 return card
-                  ? <Card key={i} card={card} size="md" winning={winningCardsSet.has(card)} />
+                  ? <Card key={i} card={card} size="md" winning={winningCardsSet.has(card)} dealIndex={isNewDesktop ? i - prevCommCardCountRef.current : undefined} />
                   : <CardPlaceholder key={i} size="md" />;
               })}
             </div>

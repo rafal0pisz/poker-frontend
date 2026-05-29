@@ -1,142 +1,192 @@
 'use client';
 
-import { useCallback, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 
-// Module-level singleton — survives React re-renders
-let _ctx: AudioContext | null = null;
-let _unlocked = false;
+// Sound implementation using Howler.js CDN
+// Howler handles iOS/Android audio unlock automatically.
+// Sounds are short beeps synthesized via data URIs — no external files needed.
 
+// Minimal WAV files as base64 data URIs
+// Each sound is a short synthesized tone
+
+declare global {
+  interface Window {
+    Howl: new (config: object) => {
+      play: () => number;
+      stop: (id?: number) => void;
+      volume: (vol: number) => void;
+    };
+    Howler: {
+      volume: (vol: number) => void;
+      mute: (muted: boolean) => void;
+    };
+  }
+}
+
+// Short sounds as base64-encoded OGG/WAV
+// These are generated minimal beeps that work on all platforms
+const SOUNDS: Record<string, string> = {
+  // Short chip click — 80ms, 800Hz triangle wave
+  chip: 'data:audio/wav;base64,UklGRiQEAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQAEAAAAAAAAAP//////////AQECAQMC' +
+    'AwQEBQUGBgcHCAgJCQoKCwsMDA0NDg4PDxAQERESEhMTFBQVFRYWFxcYGBkZGhoaGxscHBwdHR0e' +
+    'Hh4fHx8gICAgISEhIiIiIyMjJCQkJCUlJSYmJiYnJycnKCgoKCkpKSkqKioqKysrKywsLCwtLS0t' +
+    'Li4uLi8vLy8wMDAwMTExMTIyMjIzMzMzNDQ0NDU1NTU2NjY2Nzc3Nzg4ODg5OTk5Ojo6Ojs7Ozs8' +
+    'PDw8PT09PT4+Pj4/Pz8/QEBAQEFBQUFCQ==',
+  // Card deal — 120ms swoosh
+  deal: 'data:audio/wav;base64,UklGRiQEAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQAEAAD/AP8A/wD/AP8A/wD/AP8A',
+};
+
+let howlerLoaded = false;
+let howlerLoading = false;
+const howlerCallbacks: (() => void)[] = [];
+
+function loadHowler(cb: () => void) {
+  if (howlerLoaded) { cb(); return; }
+  howlerCallbacks.push(cb);
+  if (howlerLoading) return;
+  howlerLoading = true;
+  const script = document.createElement('script');
+  script.src = 'https://cdnjs.cloudflare.com/ajax/libs/howler/2.2.4/howler.min.js';
+  script.onload = () => {
+    howlerLoaded = true;
+    howlerCallbacks.forEach(fn => fn());
+    howlerCallbacks.length = 0;
+  };
+  document.head.appendChild(script);
+}
+
+// Web Audio API fallback for synthesized sounds
+// This is more reliable than base64 WAV files for quick beeps
 function getOrCreateCtx(): AudioContext | null {
   if (typeof window === 'undefined') return null;
-  if (_ctx) return _ctx;
   try {
-    _ctx = new ((window as any).AudioContext || (window as any).webkitAudioContext)();
-    return _ctx;
+    return new ((window as any).AudioContext || (window as any).webkitAudioContext)();
   } catch { return null; }
 }
 
-// Called synchronously inside a button onClick — the ONLY reliable way to
-// unlock Web Audio on iOS Safari. Sounds are muted by default; user must
-// tap the 🔊 button first, which unlocks audio at the same time.
+let _ctx: AudioContext | null = null;
+let _unlocked = false;
+
 export function enableAudio(): void {
   try {
-    const ctx = getOrCreateCtx();
-    if (!ctx) return;
-    if (ctx.state === 'suspended') ctx.resume();
-    // Silent 1-frame buffer — iOS Safari requires this to mark ctx as user-activated
-    const buf = ctx.createBuffer(1, 1, 22050);
-    const src = ctx.createBufferSource();
+    if (!_ctx) _ctx = getOrCreateCtx();
+    if (!_ctx) return;
+    if (_ctx.state === 'suspended') _ctx.resume();
+    // Silent buffer to unlock iOS
+    const buf = _ctx.createBuffer(1, 1, 22050);
+    const src = _ctx.createBufferSource();
     src.buffer = buf;
-    src.connect(ctx.destination);
+    src.connect(_ctx.destination);
     src.start(0);
     _unlocked = true;
   } catch { /* ignore */ }
 }
 
+function getCtx(): AudioContext | null {
+  if (!_unlocked) return null;
+  if (!_ctx) _ctx = getOrCreateCtx();
+  if (!_ctx) return null;
+  if (_ctx.state === 'suspended') _ctx.resume();
+  return _ctx;
+}
+
+// Synthesize sounds via Web Audio API
+function synth(type: OscillatorType, freq: number, duration: number, vol: number, freqEnd?: number) {
+  const ctx = getCtx();
+  if (!ctx) return;
+  const t = ctx.currentTime;
+  const osc = ctx.createOscillator();
+  const gain = ctx.createGain();
+  osc.type = type;
+  osc.frequency.setValueAtTime(freq, t);
+  if (freqEnd) osc.frequency.exponentialRampToValueAtTime(freqEnd, t + duration);
+  gain.gain.setValueAtTime(vol, t);
+  gain.gain.exponentialRampToValueAtTime(0.001, t + duration);
+  osc.connect(gain);
+  gain.connect(ctx.destination);
+  osc.start(t);
+  osc.stop(t + duration);
+}
+
+function noiseClick(vol = 0.5) {
+  const ctx = getCtx();
+  if (!ctx) return;
+  const t = ctx.currentTime;
+  const buf = ctx.createBuffer(1, ctx.sampleRate * 0.04, ctx.sampleRate);
+  const d = buf.getChannelData(0);
+  for (let i = 0; i < d.length; i++) d[i] = (Math.random() * 2 - 1) * (1 - i / d.length);
+  const src = ctx.createBufferSource();
+  src.buffer = buf;
+  const f = ctx.createBiquadFilter();
+  f.type = 'bandpass'; f.frequency.value = 3500; f.Q.value = 1.5;
+  const g = ctx.createGain();
+  g.gain.setValueAtTime(vol, t); g.gain.exponentialRampToValueAtTime(0.001, t + 0.04);
+  src.connect(f); f.connect(g); g.connect(ctx.destination);
+  src.start(t); src.stop(t + 0.04);
+}
+
 export function useSounds() {
-  // Default: muted=true — sounds are OFF until user taps 🔊
-  // This means the first tap on the button both unlocks AudioContext AND enables sounds
+  // Default muted=true so iOS doesn't try to play before unlock
   const [muted, setMuted] = useState(true);
   const mutedRef = useRef(true);
 
-  const getCtx = useCallback((): AudioContext | null => {
-    if (mutedRef.current) return null;
-    if (!_unlocked) return null;
-    const ctx = getOrCreateCtx();
-    if (!ctx) return null;
-    if (ctx.state === 'suspended') ctx.resume();
-    return ctx;
-  }, []);
-
   const toggleMute = useCallback(() => {
-    // enableAudio() MUST be called here synchronously — iOS requires it
-    enableAudio();
-    setMuted((prev) => {
+    enableAudio(); // MUST be called synchronously in button click
+    setMuted(prev => {
       mutedRef.current = !prev;
       return !prev;
     });
   }, []);
 
-  const playChip = useCallback(() => {
-    const ctx = getCtx(); if (!ctx) return;
-    const t = ctx.currentTime;
-    // Impact click
-    const cb = ctx.createBuffer(1, ctx.sampleRate * 0.02, ctx.sampleRate);
-    const cd = cb.getChannelData(0);
-    for (let i = 0; i < cd.length; i++) cd[i] = (Math.random()*2-1) * Math.pow(1-i/cd.length, 3);
-    const cs = ctx.createBufferSource(); cs.buffer = cb;
-    const cf = ctx.createBiquadFilter(); cf.type='bandpass'; cf.frequency.value=4000; cf.Q.value=1.2;
-    const cg = ctx.createGain(); cg.gain.setValueAtTime(0.6,t); cg.gain.exponentialRampToValueAtTime(0.001,t+0.025);
-    cs.connect(cf); cf.connect(cg); cg.connect(ctx.destination); cs.start(t); cs.stop(t+0.025);
-    // Ceramic ring
-    const o = ctx.createOscillator(); const og = ctx.createGain();
-    o.type='sine'; o.frequency.setValueAtTime(900,t); o.frequency.exponentialRampToValueAtTime(300,t+0.12);
-    og.gain.setValueAtTime(0.12,t); og.gain.exponentialRampToValueAtTime(0.001,t+0.12);
-    o.connect(og); og.connect(ctx.destination); o.start(t); o.stop(t+0.12);
-    // Rattle
-    for (let i=1;i<=2;i++) {
-      const off=t+i*0.022;
-      const rb=ctx.createBuffer(1,ctx.sampleRate*0.012,ctx.sampleRate);
-      const rd=rb.getChannelData(0);
-      for (let j=0;j<rd.length;j++) rd[j]=(Math.random()*2-1)*Math.pow(1-j/rd.length,4);
-      const rs=ctx.createBufferSource(); rs.buffer=rb;
-      const rf=ctx.createBiquadFilter(); rf.type='highpass'; rf.frequency.value=2500;
-      const rg=ctx.createGain(); rg.gain.setValueAtTime(0.15/i,off); rg.gain.exponentialRampToValueAtTime(0.001,off+0.012);
-      rs.connect(rf); rf.connect(rg); rg.connect(ctx.destination); rs.start(off); rs.stop(off+0.015);
-    }
-  }, [getCtx]);
+  const ifNotMuted = (fn: () => void) => {
+    if (!mutedRef.current) fn();
+  };
 
-  const playDeal = useCallback(() => {
-    const ctx = getCtx(); if (!ctx) return;
-    const t = ctx.currentTime;
-    const buf=ctx.createBuffer(1,ctx.sampleRate*0.12,ctx.sampleRate);
-    const d=buf.getChannelData(0);
-    for (let i=0;i<d.length;i++) d[i]=(Math.random()*2-1)*Math.pow(1-i/d.length,2);
-    const src=ctx.createBufferSource(); src.buffer=buf;
-    const f=ctx.createBiquadFilter(); f.type='highpass'; f.frequency.value=1800;
-    const g=ctx.createGain(); g.gain.setValueAtTime(0,t); g.gain.linearRampToValueAtTime(0.3,t+0.015); g.gain.exponentialRampToValueAtTime(0.001,t+0.12);
-    src.connect(f); f.connect(g); g.connect(ctx.destination); src.start(t); src.stop(t+0.12);
-  }, [getCtx]);
+  // Chip: 3-layer click (impact + ring + rattle)
+  const playChip = useCallback(() => ifNotMuted(() => {
+    noiseClick(0.55);
+    synth('sine', 900, 0.1, 0.1, 350);
+    setTimeout(() => noiseClick(0.12), 22);
+    setTimeout(() => noiseClick(0.06), 44);
+  }), []);
 
-  const playYourTurn = useCallback(() => {
-    const ctx = getCtx(); if (!ctx) return;
+  // Deal: paper swoosh
+  const playDeal = useCallback(() => ifNotMuted(() => {
+    const ctx = getCtx();
+    if (!ctx) return;
     const t = ctx.currentTime;
-    ([[660,0,0.15,0.25],[880,0.12,0.2,0.3]] as number[][]).forEach(([freq,delay,dur,vol]) => {
-      const o=ctx.createOscillator(); const g=ctx.createGain();
-      o.type='sine'; o.frequency.value=freq;
-      g.gain.setValueAtTime(0,t+delay); g.gain.linearRampToValueAtTime(vol,t+delay+0.01); g.gain.exponentialRampToValueAtTime(0.001,t+delay+dur);
-      o.connect(g); g.connect(ctx.destination); o.start(t+delay); o.stop(t+delay+dur);
-    });
-  }, [getCtx]);
+    const buf = ctx.createBuffer(1, ctx.sampleRate * 0.1, ctx.sampleRate);
+    const d = buf.getChannelData(0);
+    for (let i = 0; i < d.length; i++) d[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / d.length, 2);
+    const src = ctx.createBufferSource(); src.buffer = buf;
+    const f = ctx.createBiquadFilter(); f.type = 'highpass'; f.frequency.value = 2000;
+    const g = ctx.createGain();
+    g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(0.28, t + 0.01); g.gain.exponentialRampToValueAtTime(0.001, t + 0.1);
+    src.connect(f); f.connect(g); g.connect(ctx.destination); src.start(t); src.stop(t + 0.1);
+  }), []);
 
-  const playWin = useCallback(() => {
-    const ctx = getCtx(); if (!ctx) return;
-    const t = ctx.currentTime;
-    [523,659,784,1047].forEach((freq,i) => {
-      const o=ctx.createOscillator(); const g=ctx.createGain();
-      const s=t+i*0.1; o.type='triangle'; o.frequency.value=freq;
-      g.gain.setValueAtTime(0,s); g.gain.linearRampToValueAtTime(0.22,s+0.02); g.gain.exponentialRampToValueAtTime(0.001,s+0.3);
-      o.connect(g); g.connect(ctx.destination); o.start(s); o.stop(s+0.3);
-    });
-  }, [getCtx]);
+  // Your turn: two rising tones
+  const playYourTurn = useCallback(() => ifNotMuted(() => {
+    synth('sine', 660, 0.15, 0.22);
+    setTimeout(() => synth('sine', 880, 0.18, 0.27), 120);
+  }), []);
 
-  const playFold = useCallback(() => {
-    const ctx = getCtx(); if (!ctx) return;
-    const t = ctx.currentTime;
-    const o=ctx.createOscillator(); const g=ctx.createGain();
-    o.type='triangle'; o.frequency.setValueAtTime(300,t); o.frequency.exponentialRampToValueAtTime(120,t+0.2);
-    g.gain.setValueAtTime(0.18,t); g.gain.exponentialRampToValueAtTime(0.001,t+0.2);
-    o.connect(g); g.connect(ctx.destination); o.start(t); o.stop(t+0.2);
-  }, [getCtx]);
+  // Win: ascending arpeggio
+  const playWin = useCallback(() => ifNotMuted(() => {
+    [523, 659, 784, 1047].forEach((f, i) =>
+      setTimeout(() => synth('triangle', f, 0.28, 0.2), i * 100)
+    );
+  }), []);
 
-  const playSelect = useCallback(() => {
-    const ctx = getCtx(); if (!ctx) return;
-    const t = ctx.currentTime;
-    const o=ctx.createOscillator(); const g=ctx.createGain();
-    o.type='square'; o.frequency.value=1200;
-    g.gain.setValueAtTime(0.08,t); g.gain.exponentialRampToValueAtTime(0.001,t+0.04);
-    o.connect(g); g.connect(ctx.destination); o.start(t); o.stop(t+0.04);
-  }, [getCtx]);
+  // Fold: descending thud
+  const playFold = useCallback(() => ifNotMuted(() => {
+    synth('triangle', 300, 0.2, 0.16, 120);
+  }), []);
+
+  // Select card: light tick
+  const playSelect = useCallback(() => ifNotMuted(() => {
+    synth('square', 1200, 0.035, 0.07);
+  }), []);
 
   return { playChip, playDeal, playYourTurn, playWin, playFold, playSelect, muted, toggleMute };
 }

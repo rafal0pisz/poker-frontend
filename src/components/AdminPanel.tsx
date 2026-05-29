@@ -76,6 +76,14 @@ export function AdminPanel({ room, mySessionToken, onClose }: Props) {
     });
   };
 
+  const handlePause = () => {
+    const socket = getSocket();
+    const isPaused = room.paused;
+    socket.emit(isPaused ? 'game:unpause' : 'game:pause', (response: ActionResponse) => {
+      if (response && !response.ok) alert(response.error || 'Failed');
+    });
+  };
+
   const handleNextHand = () => {
     if (!confirm('Force start a new hand now?')) return;
     const socket = getSocket();
@@ -129,6 +137,21 @@ export function AdminPanel({ room, mySessionToken, onClose }: Props) {
               <p className="text-poker-yellow/40 text-[11px] text-center">
                 Use if the game seems stuck after chip adjustments
               </p>
+              <button
+                onClick={handlePause}
+                className={`w-full font-medium py-2.5 rounded-xl text-sm active:scale-95 border ${
+                  room.paused
+                    ? 'bg-poker-gold text-poker-bg border-poker-gold'
+                    : 'border-poker-coral/40 text-poker-coral bg-poker-coral/5'
+                }`}
+              >
+                {room.paused ? '▶ Resume game' : '⏸ Pause game'}
+              </button>
+              {room.paused && (
+                <p className="text-poker-gold text-[11px] text-center font-medium animate-pulse">
+                  ⏸ Game paused — players cannot act
+                </p>
+              )}
             </div>
           )}
 

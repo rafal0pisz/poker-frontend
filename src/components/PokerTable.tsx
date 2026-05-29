@@ -13,7 +13,7 @@ import { FloatingBubble } from './FloatingBubble';
 import { VariantPicker, VARIANT_LABELS } from './VariantPicker';
 import { DrawmahaDraw } from './DrawmahaDraw';
 import { DrawmahaReveal } from './DrawmahaReveal';
-import { useSounds } from '@/hooks/useSounds';
+import { useSounds, enableAudio } from '@/hooks/useSounds';
 
 interface Props {
   initialRoom: Room;
@@ -379,7 +379,11 @@ export function PokerTable({ initialRoom, mySessionToken, onLeave }: Props) {
             <span className="text-poker-gold/40 text-[10px]">{codeCopied ? '✓' : '⧉'}</span>
           </button>
           <div className="flex items-center gap-1.5 flex-wrap justify-end">
-            <button onClick={toggleMute} title={muted ? 'Unmute' : 'Mute'} className="bg-poker-yellow/5 border border-poker-gold/20 text-poker-yellow/70 text-xs px-2.5 py-1.5 rounded-lg">
+            <button
+              onClick={() => { enableAudio(); toggleMute(); }}
+              title="Tap to enable sounds / mute"
+              className="bg-poker-yellow/5 border border-poker-gold/20 text-poker-yellow/70 text-xs px-2.5 py-1.5 rounded-lg"
+            >
               {muted ? '🔇' : '🔊'}
             </button>
             <button onClick={() => { setShowChat(true); setUnreadCount(0); }} className="md:hidden relative bg-poker-gold/10 border border-poker-gold/30 text-poker-gold text-xs px-2.5 py-1.5 rounded-lg">
@@ -579,7 +583,7 @@ export function PokerTable({ initialRoom, mySessionToken, onLeave }: Props) {
               <span className="text-poker-gold/40 text-[10px]">{codeCopied ? '✓' : '⧉'}</span>
             </button>
             <div className="flex items-center gap-1.5">
-              <button onClick={toggleMute} className="bg-poker-yellow/5 border border-poker-gold/20 text-poker-yellow/70 text-xs px-2.5 py-1.5 rounded-lg">{muted ? '🔇' : '🔊'}</button>
+              <button onClick={() => { enableAudio(); toggleMute(); }} className="bg-poker-yellow/5 border border-poker-gold/20 text-poker-yellow/70 text-xs px-2.5 py-1.5 rounded-lg">{muted ? '🔇' : '🔊'}</button>
               {isSittingOut
                 ? <button onClick={() => getSocket().emit('game:sit-back')} className="bg-poker-gold/20 border border-poker-gold/50 text-poker-gold text-xs px-2.5 py-1.5 rounded-lg">▶ Sit back</button>
                 : canSitOut

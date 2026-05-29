@@ -1,234 +1,170 @@
 'use client';
 
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useRef, useState } from 'react';
 
-function createCtx(): AudioContext | null {
+// ─── Module-level singleton ───────────────────────────────────────────
+// Lives outside React — survives component remounts and Strict Mode
+// double-invocation. iOS requires AudioContext to be created during a
+// synchronous user gesture; we unlock it explicitly via enableAudio().
+// ─────────────────────────────────────────────────────────────────────
+
+let _ctx: AudioContext | null = null;
+let _unlocked = false;
+
+function getOrCreateCtx(): AudioContext | null {
   if (typeof window === 'undefined') return null;
+  if (_ctx) return _ctx;
   try {
-    return new (window.AudioContext || (window as any).webkitAudioContext)();
+    _ctx = new ((window as any).AudioContext || (window as any).webkitAudioContext)();
+    return _ctx;
   } catch {
     return null;
   }
 }
 
-// Play a silent 1-frame buffer — required to "unlock" audio on iOS Safari.
-// Must be called inside a user-gesture handler (touchstart / click).
-function playSilentBuffer(ctx: AudioContext) {
+/**
+ * MUST be called directly inside a user-gesture handler (click / touchend).
+ * Creates AudioContext if needed, resumes it, and plays a silent 1-frame
+ * buffer — the only reliable way to unlock audio on iOS Safari.
+ */
+export function enableAudio(): void {
   try {
+    const ctx = getOrCreateCtx();
+    if (!ctx) return;
+
+    // Resume suspended context synchronously
+    if (ctx.state === 'suspended') {
+      ctx.resume();
+    }
+
+    // Play a silent 1-frame buffer — required on iOS to mark context as
+    // "user-activated". Must happen in the same call stack as the gesture.
     const buf = ctx.createBuffer(1, 1, 22050);
     const src = ctx.createBufferSource();
     src.buffer = buf;
     src.connect(ctx.destination);
     src.start(0);
+
+    _unlocked = true;
   } catch { /* ignore */ }
 }
+
+// ─────────────────────────────────────────────────────────────────────
 
 export function useSounds() {
   const [muted, setMuted] = useState(false);
   const mutedRef = useRef(false);
-  const ctxRef = useRef<AudioContext | null>(null);
-  const unlockedRef = useRef(false);
-
-  // Unlock AudioContext on first user interaction.
-  // This is required on iOS Safari and some Android browsers —
-  // AudioContext can only be created/resumed inside a user-gesture handler.
-  useEffect(() => {
-    const unlock = () => {
-      if (unlockedRef.current) return;
-      if (!ctxRef.current) ctxRef.current = createCtx();
-      const ctx = ctxRef.current;
-      if (!ctx) return;
-      if (ctx.state === 'suspended') {
-        ctx.resume().catch(() => {});
-      }
-      playSilentBuffer(ctx);
-      unlockedRef.current = true;
-    };
-
-    // Listen on both touch and click to cover all mobile browsers
-    document.addEventListener('touchstart', unlock, { passive: true, once: true });
-    document.addEventListener('click', unlock, { once: true });
-
-    return () => {
-      document.removeEventListener('touchstart', unlock);
-      document.removeEventListener('click', unlock);
-    };
-  }, []);
 
   const getCtx = useCallback((): AudioContext | null => {
     if (mutedRef.current) return null;
-    if (!ctxRef.current) ctxRef.current = createCtx();
-    const ctx = ctxRef.current;
+    const ctx = getOrCreateCtx();
     if (!ctx) return null;
-    // Resume if suspended (e.g. tab backgrounded)
-    if (ctx.state === 'suspended') ctx.resume().catch(() => {});
+    if (!_unlocked) return null; // not yet unlocked — skip silently
+    if (ctx.state === 'suspended') ctx.resume();
     return ctx;
   }, []);
 
+  // Mute toggle — also unlocks audio on iOS on the first tap.
+  // This is why the mute button must be the FIRST interaction on mobile.
   const toggleMute = useCallback(() => {
+    enableAudio(); // unlock on first tap
     setMuted((prev) => {
       mutedRef.current = !prev;
       return !prev;
     });
   }, []);
 
-  // ── Poker chip stack ──
+  // ── Chip ──
   const playChip = useCallback(() => {
     const ctx = getCtx();
     if (!ctx) return;
     const t = ctx.currentTime;
 
+    // Impact click
     const clickBuf = ctx.createBuffer(1, ctx.sampleRate * 0.02, ctx.sampleRate);
-    const clickData = clickBuf.getChannelData(0);
-    for (let i = 0; i < clickData.length; i++) {
-      clickData[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / clickData.length, 3);
-    }
+    const cd = clickBuf.getChannelData(0);
+    for (let i = 0; i < cd.length; i++) cd[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / cd.length, 3);
     const click = ctx.createBufferSource();
     click.buffer = clickBuf;
-    const clickFilter = ctx.createBiquadFilter();
-    clickFilter.type = 'bandpass';
-    clickFilter.frequency.value = 4000;
-    clickFilter.Q.value = 1.2;
-    const clickGain = ctx.createGain();
-    clickGain.gain.setValueAtTime(0.6, t);
-    clickGain.gain.exponentialRampToValueAtTime(0.001, t + 0.025);
-    click.connect(clickFilter);
-    clickFilter.connect(clickGain);
-    clickGain.connect(ctx.destination);
-    click.start(t);
-    click.stop(t + 0.025);
+    const cf = ctx.createBiquadFilter(); cf.type = 'bandpass'; cf.frequency.value = 4000; cf.Q.value = 1.2;
+    const cg = ctx.createGain(); cg.gain.setValueAtTime(0.6, t); cg.gain.exponentialRampToValueAtTime(0.001, t + 0.025);
+    click.connect(cf); cf.connect(cg); cg.connect(ctx.destination);
+    click.start(t); click.stop(t + 0.025);
 
-    const osc = ctx.createOscillator();
-    const oscGain = ctx.createGain();
-    osc.type = 'sine';
-    osc.frequency.setValueAtTime(900, t);
-    osc.frequency.exponentialRampToValueAtTime(300, t + 0.12);
-    oscGain.gain.setValueAtTime(0.12, t);
-    oscGain.gain.exponentialRampToValueAtTime(0.001, t + 0.12);
-    osc.connect(oscGain);
-    oscGain.connect(ctx.destination);
-    osc.start(t);
-    osc.stop(t + 0.12);
+    // Ceramic resonance
+    const osc = ctx.createOscillator(); const og = ctx.createGain();
+    osc.type = 'sine'; osc.frequency.setValueAtTime(900, t); osc.frequency.exponentialRampToValueAtTime(300, t + 0.12);
+    og.gain.setValueAtTime(0.12, t); og.gain.exponentialRampToValueAtTime(0.001, t + 0.12);
+    osc.connect(og); og.connect(ctx.destination); osc.start(t); osc.stop(t + 0.12);
 
+    // Rattle
     for (let i = 1; i <= 2; i++) {
-      const offset = t + i * 0.022;
-      const rattleBuf = ctx.createBuffer(1, ctx.sampleRate * 0.012, ctx.sampleRate);
-      const d = rattleBuf.getChannelData(0);
-      for (let j = 0; j < d.length; j++) d[j] = (Math.random() * 2 - 1) * Math.pow(1 - j / d.length, 4);
-      const rattle = ctx.createBufferSource();
-      rattle.buffer = rattleBuf;
-      const rf = ctx.createBiquadFilter();
-      rf.type = 'highpass';
-      rf.frequency.value = 2500;
-      const rg = ctx.createGain();
-      rg.gain.setValueAtTime(0.15 / i, offset);
-      rg.gain.exponentialRampToValueAtTime(0.001, offset + 0.012);
-      rattle.connect(rf);
-      rf.connect(rg);
-      rg.connect(ctx.destination);
-      rattle.start(offset);
-      rattle.stop(offset + 0.015);
+      const off = t + i * 0.022;
+      const rb = ctx.createBuffer(1, ctx.sampleRate * 0.012, ctx.sampleRate);
+      const rd = rb.getChannelData(0);
+      for (let j = 0; j < rd.length; j++) rd[j] = (Math.random() * 2 - 1) * Math.pow(1 - j / rd.length, 4);
+      const rs = ctx.createBufferSource(); rs.buffer = rb;
+      const rf = ctx.createBiquadFilter(); rf.type = 'highpass'; rf.frequency.value = 2500;
+      const rg = ctx.createGain(); rg.gain.setValueAtTime(0.15 / i, off); rg.gain.exponentialRampToValueAtTime(0.001, off + 0.012);
+      rs.connect(rf); rf.connect(rg); rg.connect(ctx.destination); rs.start(off); rs.stop(off + 0.015);
     }
   }, [getCtx]);
 
-  // ── Card deal ──
+  // ── Deal ──
   const playDeal = useCallback(() => {
-    const ctx = getCtx();
-    if (!ctx) return;
+    const ctx = getCtx(); if (!ctx) return;
     const t = ctx.currentTime;
     const buf = ctx.createBuffer(1, ctx.sampleRate * 0.12, ctx.sampleRate);
-    const data = buf.getChannelData(0);
-    for (let i = 0; i < data.length; i++) data[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / data.length, 2);
-    const src = ctx.createBufferSource();
-    src.buffer = buf;
-    const filter = ctx.createBiquadFilter();
-    filter.type = 'highpass';
-    filter.frequency.value = 1800;
-    const gain = ctx.createGain();
-    gain.gain.setValueAtTime(0, t);
-    gain.gain.linearRampToValueAtTime(0.3, t + 0.015);
-    gain.gain.exponentialRampToValueAtTime(0.001, t + 0.12);
-    src.connect(filter);
-    filter.connect(gain);
-    gain.connect(ctx.destination);
-    src.start(t);
-    src.stop(t + 0.12);
+    const d = buf.getChannelData(0);
+    for (let i = 0; i < d.length; i++) d[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / d.length, 2);
+    const src = ctx.createBufferSource(); src.buffer = buf;
+    const f = ctx.createBiquadFilter(); f.type = 'highpass'; f.frequency.value = 1800;
+    const g = ctx.createGain(); g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(0.3, t + 0.015); g.gain.exponentialRampToValueAtTime(0.001, t + 0.12);
+    src.connect(f); f.connect(g); g.connect(ctx.destination); src.start(t); src.stop(t + 0.12);
   }, [getCtx]);
 
   // ── Your turn ──
   const playYourTurn = useCallback(() => {
-    const ctx = getCtx();
-    if (!ctx) return;
+    const ctx = getCtx(); if (!ctx) return;
     const t = ctx.currentTime;
     [[660, 0, 0.15, 0.25], [880, 0.12, 0.2, 0.3]].forEach(([freq, delay, dur, vol]) => {
-      const osc = ctx.createOscillator();
-      const gain = ctx.createGain();
-      osc.type = 'sine';
-      osc.frequency.value = freq;
-      gain.gain.setValueAtTime(0, t + delay);
-      gain.gain.linearRampToValueAtTime(vol, t + delay + 0.01);
-      gain.gain.exponentialRampToValueAtTime(0.001, t + delay + dur);
-      osc.connect(gain);
-      gain.connect(ctx.destination);
-      osc.start(t + delay);
-      osc.stop(t + delay + dur);
+      const osc = ctx.createOscillator(); const g = ctx.createGain();
+      osc.type = 'sine'; osc.frequency.value = freq;
+      g.gain.setValueAtTime(0, t + delay); g.gain.linearRampToValueAtTime(vol, t + delay + 0.01); g.gain.exponentialRampToValueAtTime(0.001, t + delay + dur);
+      osc.connect(g); g.connect(ctx.destination); osc.start(t + delay); osc.stop(t + delay + dur);
     });
   }, [getCtx]);
 
   // ── Win ──
   const playWin = useCallback(() => {
-    const ctx = getCtx();
-    if (!ctx) return;
+    const ctx = getCtx(); if (!ctx) return;
     const t = ctx.currentTime;
     [523, 659, 784, 1047].forEach((freq, i) => {
-      const osc = ctx.createOscillator();
-      const gain = ctx.createGain();
-      const start = t + i * 0.1;
-      osc.type = 'triangle';
-      osc.frequency.value = freq;
-      gain.gain.setValueAtTime(0, start);
-      gain.gain.linearRampToValueAtTime(0.22, start + 0.02);
-      gain.gain.exponentialRampToValueAtTime(0.001, start + 0.3);
-      osc.connect(gain);
-      gain.connect(ctx.destination);
-      osc.start(start);
-      osc.stop(start + 0.3);
+      const osc = ctx.createOscillator(); const g = ctx.createGain();
+      const s = t + i * 0.1; osc.type = 'triangle'; osc.frequency.value = freq;
+      g.gain.setValueAtTime(0, s); g.gain.linearRampToValueAtTime(0.22, s + 0.02); g.gain.exponentialRampToValueAtTime(0.001, s + 0.3);
+      osc.connect(g); g.connect(ctx.destination); osc.start(s); osc.stop(s + 0.3);
     });
   }, [getCtx]);
 
   // ── Fold ──
   const playFold = useCallback(() => {
-    const ctx = getCtx();
-    if (!ctx) return;
+    const ctx = getCtx(); if (!ctx) return;
     const t = ctx.currentTime;
-    const osc = ctx.createOscillator();
-    const gain = ctx.createGain();
-    osc.type = 'triangle';
-    osc.frequency.setValueAtTime(300, t);
-    osc.frequency.exponentialRampToValueAtTime(120, t + 0.2);
-    gain.gain.setValueAtTime(0.18, t);
-    gain.gain.exponentialRampToValueAtTime(0.001, t + 0.2);
-    osc.connect(gain);
-    gain.connect(ctx.destination);
-    osc.start(t);
-    osc.stop(t + 0.2);
+    const osc = ctx.createOscillator(); const g = ctx.createGain();
+    osc.type = 'triangle'; osc.frequency.setValueAtTime(300, t); osc.frequency.exponentialRampToValueAtTime(120, t + 0.2);
+    g.gain.setValueAtTime(0.18, t); g.gain.exponentialRampToValueAtTime(0.001, t + 0.2);
+    osc.connect(g); g.connect(ctx.destination); osc.start(t); osc.stop(t + 0.2);
   }, [getCtx]);
 
-  // ── Draw select ──
+  // ── Select ──
   const playSelect = useCallback(() => {
-    const ctx = getCtx();
-    if (!ctx) return;
+    const ctx = getCtx(); if (!ctx) return;
     const t = ctx.currentTime;
-    const osc = ctx.createOscillator();
-    const gain = ctx.createGain();
-    osc.type = 'square';
-    osc.frequency.value = 1200;
-    gain.gain.setValueAtTime(0.08, t);
-    gain.gain.exponentialRampToValueAtTime(0.001, t + 0.04);
-    osc.connect(gain);
-    gain.connect(ctx.destination);
-    osc.start(t);
-    osc.stop(t + 0.04);
+    const osc = ctx.createOscillator(); const g = ctx.createGain();
+    osc.type = 'square'; osc.frequency.value = 1200;
+    g.gain.setValueAtTime(0.08, t); g.gain.exponentialRampToValueAtTime(0.001, t + 0.04);
+    osc.connect(g); g.connect(ctx.destination); osc.start(t); osc.stop(t + 0.04);
   }, [getCtx]);
 
   return { playChip, playDeal, playYourTurn, playWin, playFold, playSelect, muted, toggleMute };

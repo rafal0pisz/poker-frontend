@@ -84,6 +84,8 @@ export interface DrawState {
   openCards: Record<string, Card>;
   decideDeadline: number | null;
   currentDecidingSeat: number | null;
+  // Timer for the draw submission phase (shown in DrawmahaDraw)
+  drawSubmitDeadline: number | null;
 }
 
 // ========================

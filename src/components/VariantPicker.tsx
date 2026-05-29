@@ -11,7 +11,7 @@ export const VARIANT_LABELS: Record<GameVariant, string> = {
 const VARIANT_DESCRIPTIONS: Record<GameVariant, string> = {
   texas: 'Classic · 2 hole + 5 board',
   omaha: '4 hole · must use 2 + 3 board',
-  drawmaha: '5 hole · draw · split pot (Omaha + Texas)',
+  drawmaha: '5 hole · Five-card Draw · split pot (Omaha + Draw)',
 };
 
 // All variants are now fully implemented

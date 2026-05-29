@@ -95,10 +95,11 @@ function DrawCardsDisplay({ holeCards, discardIndices, submitted, onToggle }: {
   );
 }
 
-function DesktopChat({ messages, mySessionToken, onSend }: {
+function DesktopChat({ messages, mySessionToken, onSend, onSendReaction }: {
   messages: ChatMessage[];
   mySessionToken: string;
   onSend: (t: string) => void;
+  onSendReaction: (emoji: string) => void;
 }) {
   const [text, setText] = useState('');
   const scrollRef = useRef<HTMLDivElement>(null);
@@ -137,7 +138,7 @@ function DesktopChat({ messages, mySessionToken, onSend }: {
       </div>
       <div className="flex gap-1 justify-center mt-2 pt-2 border-t border-poker-gold/10">
         {['👍', '😂', '🔥', '😎', '😠'].map((e) => (
-          <button key={e} onClick={() => onSend(e)} className="bg-poker-yellow/5 hover:bg-poker-yellow/15 px-2 py-1 rounded-full text-sm active:scale-90 transition">{e}</button>
+          <button key={e} onClick={() => onSendReaction(e)} className="bg-poker-yellow/5 hover:bg-poker-yellow/15 px-2 py-1 rounded-full text-sm active:scale-90 transition">{e}</button>
         ))}
       </div>
       <div className="flex gap-1.5 mt-2">
@@ -181,11 +182,13 @@ export function PokerTable({ initialRoom, mySessionToken, onLeave }: Props) {
 
   const showChatRef = useRef(showChat);
   const messagesLengthRef = useRef(messages.length);
+  const roomRef = useRef(room); // always-fresh room for closures
   const prevCurrentSeatRef = useRef<number | null>(null);
   const prevHandNumberRef = useRef<number | null>(null);
 
   useEffect(() => { showChatRef.current = showChat; }, [showChat]);
   useEffect(() => { messagesLengthRef.current = messages.length; }, [messages.length]);
+  useEffect(() => { roomRef.current = room; }, [room]);
 
   const me = room.players.find((p) => p.sessionToken === mySessionToken);
 
@@ -229,7 +232,7 @@ export function PokerTable({ initialRoom, mySessionToken, onLeave }: Props) {
       setLastResult(result);
       setTimeout(() => setLastResult(null), 6000);
       if (result.winnings.some((w) => w.sessionToken === mySessionToken && w.amount > 0)) playWin();
-      processHandResult(result, room.players);
+      processHandResult(result, roomRef.current.players);
     };
 
     const handleClosed = (reason: string) => { alert(reason); clearSessionToken(room.id); onLeave(); };
@@ -297,6 +300,12 @@ export function PokerTable({ initialRoom, mySessionToken, onLeave }: Props) {
       setCodeCopied(true);
       setTimeout(() => setCodeCopied(false), 2500);
     } catch { /* ignore */ }
+  };
+
+  const sendReaction = (emoji: string) => {
+    getSocket().emit('chat:send', { type: 'reaction', content: emoji }, (r: { ok: boolean; error?: string } | undefined) => {
+      if (r && !r.ok) console.warn('Reaction failed:', r.error);
+    });
   };
 
   const sendChat = (text: string) => {
@@ -578,7 +587,7 @@ export function PokerTable({ initialRoom, mySessionToken, onLeave }: Props) {
               })}
             </div>
           </div>
-          <DesktopChat messages={messages} mySessionToken={mySessionToken} onSend={sendChat} />
+          <DesktopChat messages={messages} mySessionToken={mySessionToken} onSend={sendChat} onSendReaction={sendReaction} />
         </aside>
 
         <div className="flex flex-col">

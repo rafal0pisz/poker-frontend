@@ -265,13 +265,13 @@ export function PokerTable({ initialRoom, mySessionToken, onLeave }: Props) {
   const handleDrawDiscard = () => {
     if (drawSubmitted) return;
     setDrawSubmitted(true);
-    getSocket().emit('game:draw-discard', { discardIndices: [...discardIndices] }, (res) => {
+    getSocket().emit('game:draw-discard', { discardIndices: [...discardIndices] }, (res: { ok: boolean; error?: string } | undefined) => {
       if (res && !res.ok) { console.error('[draw-discard]', res.error); setDrawSubmitted(false); }
     });
   };
 
   const handleDrawDecide = (accept: boolean) => {
-    getSocket().emit('game:draw-decide', { accept }, (res) => {
+    getSocket().emit('game:draw-decide', { accept }, (res: { ok: boolean; error?: string } | undefined) => {
       if (res && !res.ok) console.error('[draw-decide]', res.error);
     });
   };

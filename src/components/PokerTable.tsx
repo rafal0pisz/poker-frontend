@@ -466,15 +466,38 @@ export function PokerTable({ initialRoom, mySessionToken, onLeave }: Props) {
     if (eligible[0]) nextDealerVariant = eligible[0].preferredVariant || 'texas';
   }
 
+  // Calculate SB and BB seats from dealerSeat
+  // SB = first active seat after dealer, BB = second active seat after dealer
+  const activeSeatsSorted = room.players
+    .filter((p) => ['playing', 'all-in', 'folded'].includes(p.status))
+    .map((p) => p.seat)
+    .sort((a, b) => a - b);
+
+  const getSbBbSeats = () => {
+    if (!gameState || activeSeatsSorted.length < 2) return { sbSeat: -1, bbSeat: -1 };
+    const dealer = gameState.dealerSeat;
+    const maxS = room.settings.maxSeats;
+    // Get seats in clockwise order from dealer
+    const afterDealer = [...activeSeatsSorted, ...activeSeatsSorted]
+      .filter((s) => ((s - dealer + maxS) % maxS) > 0)
+      .sort((a, b) => ((a - dealer + maxS) % maxS) - ((b - dealer + maxS) % maxS));
+    return { sbSeat: afterDealer[0] ?? -1, bbSeat: afterDealer[1] ?? -1 };
+  };
+  const { sbSeat, bbSeat } = getSbBbSeats();
+
   // Sort other players by seat in clockwise order relative to my seat.
-  // This ensures the left player is to my left and right to my right.
+  // Uses maxSeats as the rotation base to handle non-consecutive seat numbers.
+  // Example with maxSeats=9, mySeat=3, others at 1,5,7:
+  //   seat 5 → (5-3+9)%9 = 2  (first clockwise from me)
+  //   seat 7 → (7-3+9)%9 = 4  (second)
+  //   seat 1 → (1-3+9)%9 = 7  (third, wraps around)
   const mySeat = me.seat;
+  const maxSeats = room.settings.maxSeats;
   const otherPlayers = room.players
     .filter((p) => p.sessionToken !== mySessionToken)
     .sort((a, b) => {
-      // Rotate seats so mine = 0, then sort ascending
-      const aSeat = (a.seat - mySeat + 100) % room.players.length;
-      const bSeat = (b.seat - mySeat + 100) % room.players.length;
+      const aSeat = (a.seat - mySeat + maxSeats) % maxSeats;
+      const bSeat = (b.seat - mySeat + maxSeats) % maxSeats;
       return aSeat - bSeat;
     });
 
@@ -536,8 +559,8 @@ export function PokerTable({ initialRoom, mySessionToken, onLeave }: Props) {
                   player={p}
                   isCurrent={gameState?.currentPlayerSeat === p.seat}
                   isDealer={gameState?.dealerSeat === p.seat}
-                  isSb={false}
-                  isBb={false}
+                  isSb={p.seat === sbSeat}
+                  isBb={p.seat === bbSeat}
                   isYou={false}
                   lastMessage={getBubble(p.sessionToken)}
                   handName={activeResult?.showdownCards.find((sc) => sc.sessionToken === p.sessionToken)?.handName}
@@ -729,8 +752,8 @@ export function PokerTable({ initialRoom, mySessionToken, onLeave }: Props) {
                 player={p}
                 isCurrent={gameState?.currentPlayerSeat === p.seat}
                 isDealer={gameState?.dealerSeat === p.seat}
-                isSb={false}
-                isBb={false}
+                isSb={p.seat === sbSeat}
+                isBb={p.seat === bbSeat}
                 isYou={false}
                 lastMessage={getBubble(p.sessionToken)}
                 handName={activeResult?.showdownCards.find((sc) => sc.sessionToken === p.sessionToken)?.handName}

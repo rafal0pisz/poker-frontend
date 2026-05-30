@@ -12,7 +12,7 @@ interface Props {
 
 type ChipsMode = 'add' | 'remove' | null;
 
-type ActionResponse = { ok: boolean; error?: string } | undefined;
+type ActionResponse = { ok: boolean; error?: string; queued?: boolean } | undefined;
 
 export function AdminPanel({ room, mySessionToken, onClose }: Props) {
   const [chipsAction, setChipsAction] = useState<{ token: string; mode: ChipsMode }>({
@@ -20,6 +20,7 @@ export function AdminPanel({ room, mySessionToken, onClose }: Props) {
     mode: null,
   });
   const [chipsAmount, setChipsAmount] = useState(1000);
+  const [pendingMsg, setPendingMsg] = useState<string | null>(null);
 
   const handleAddChips = (target: Player) => {
     const socket = getSocket();
@@ -32,6 +33,10 @@ export function AdminPanel({ room, mySessionToken, onClose }: Props) {
           return;
         }
         setChipsAction({ token: '', mode: null });
+        if (response?.queued) {
+          setPendingMsg(`+${chipsAmount} chips queued for ${target.nick} — will apply after current hand`);
+          setTimeout(() => setPendingMsg(null), 8000);
+        }
       },
     );
   };
@@ -152,6 +157,13 @@ export function AdminPanel({ room, mySessionToken, onClose }: Props) {
                   ⏸ Game paused — players cannot act
                 </p>
               )}
+            </div>
+          )}
+
+          {pendingMsg && (
+            <div className="bg-poker-gold/15 border border-poker-gold/40 rounded-lg px-3 py-2.5 flex items-start gap-2">
+              <span className="text-poker-gold text-base flex-shrink-0">⏳</span>
+              <p className="text-poker-yellow/80 text-xs leading-snug">{pendingMsg}</p>
             </div>
           )}
 

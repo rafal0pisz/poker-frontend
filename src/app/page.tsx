@@ -101,15 +101,16 @@ export default function HomePage() {
         {/* Logo */}
         <div className="text-center mb-10 mt-8">
           <div className="flex justify-center mb-3">
-            <svg width="210" height="50" viewBox="0 0 210 50" xmlns="http://www.w3.org/2000/svg">
-              <text x="0" y="42" fontFamily="Rajdhani,'Arial Narrow',sans-serif" fontWeight="700" fontSize="40" fill="#d4af37" letterSpacing="5">POKER</text>
-              <g transform="translate(178, 4)">
-                <circle cx="16" cy="21" r="17" fill="none" stroke="#d4af37" strokeWidth="2.8"/>
-                <circle cx="16" cy="21" r="11" fill="#6b1414"/>
-                <circle cx="16" cy="21" r="14.5" fill="none" stroke="#f5d76e" strokeWidth="0.9" strokeDasharray="2.5 2.2" opacity="0.7"/>
-                <circle cx="16" cy="21" r="7.2" fill="none" stroke="#d4af37" strokeWidth="1"/>
-                <text x="16" y="25.5" textAnchor="middle" fontSize="10" fill="#f5d76e" fontFamily="serif">♥</text>
-              </g>
+            <svg width="186" height="46" viewBox="0 0 186 46" xmlns="http://www.w3.org/2000/svg">
+              <text x="4" y="38"
+                fontFamily="Rajdhani,'Arial Narrow',sans-serif"
+                fontWeight="700" fontSize="40" fill="#d4af37"
+                textLength="140" lengthAdjust="spacingAndGlyphs">POKER</text>
+              <circle cx="159" cy="24" r="14.5" fill="#0d0d14" stroke="#d4af37" strokeWidth="2.3"/>
+              <circle cx="159" cy="24" r="9.5" fill="#7a1414"/>
+              <circle cx="159" cy="24" r="12.2" fill="none" stroke="#f5d76e" strokeWidth="0.8" strokeDasharray="2.2 1.9" opacity="0.75"/>
+              <circle cx="159" cy="24" r="6.2" fill="none" stroke="#d4af37" strokeWidth="1"/>
+              <text x="159" y="28.5" textAnchor="middle" fontSize="8.5" fill="#f5d76e" fontFamily="serif">♥</text>
             </svg>
           </div>
           <p className="text-poker-yellow/50 text-xs tracking-widest uppercase">Play with friends online</p>

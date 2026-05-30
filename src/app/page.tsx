@@ -110,7 +110,7 @@ export default function HomePage() {
               <circle cx="159" cy="24" r="9.5" fill="#7a1414"/>
               <circle cx="159" cy="24" r="12.2" fill="none" stroke="#f5d76e" strokeWidth="0.8" strokeDasharray="2.2 1.9" opacity="0.75"/>
               <circle cx="159" cy="24" r="6.2" fill="none" stroke="#d4af37" strokeWidth="1"/>
-              <text x="159" y="28.5" textAnchor="middle" fontSize="8.5" fill="#f5d76e" fontFamily="serif">♥</text>
+
             </svg>
           </div>
           <p className="text-poker-yellow/50 text-xs tracking-widest uppercase">Play with friends online</p>

@@ -8,23 +8,54 @@ interface Props {
   me: Player;
   gameState: GameState;
   settings: RoomSettings;
+  players: Player[];
 }
 
 type ActionResponse = { ok: boolean; error?: string } | undefined;
 type PreAction = 'check-fold' | 'fold' | null;
 
-export function ActionPanel({ me, gameState, settings }: Props) {
+export function ActionPanel({ me, gameState, settings, players }: Props) {
   const isMyTurn = gameState.currentPlayerSeat === me.seat && me.status === 'playing';
   const toCall = gameState.currentBet - me.currentBet;
   const canCheck = toCall === 0;
   const canCall = toCall > 0 && me.chips > 0;
 
+  // Effective max bet = the most I can put at risk meaningfully.
+  // In heads-up or when opponents have fewer chips, going all-in
+  // for more than they can cover is equivalent to calling/betting their stack.
+  // Formula: sum of min(myChips, opponent.chips + opponent.currentBet - me.currentBet) for each active opponent.
+  const activeOpponents = players.filter(
+    (p) =>
+      p.sessionToken !== me.sessionToken &&
+      (p.status === 'playing' || p.status === 'all-in')
+  );
+
+  // Max I can win from each opponent = min(my total chips in, their total chips in)
+  const effectiveMaxBet = activeOpponents.length === 0
+    ? me.currentBet + me.chips // no opponents (shouldn't happen)
+    : activeOpponents.reduce((sum, opp) => {
+        // What opponent can cover = their remaining chips + what they already put in
+        const oppMaxContrib = opp.currentBet + opp.chips;
+        // My effective bet vs this opponent = min(my max, their max)
+        return sum + Math.min(me.currentBet + me.chips, oppMaxContrib);
+      }, 0);
+
+  // All-in button value: capped at effectiveMaxBet (so we don't show 200 when only 100 matters)
+  const allInAmount = Math.min(me.currentBet + me.chips, effectiveMaxBet);
+
   const minRaiseAmount = gameState.currentBet + gameState.minRaise;
-  const maxRaiseAmount = me.currentBet + me.chips; // = total chips in if going all-in
-  // Can raise normally only if player has enough chips for minimum raise
+  // Cap maxRaiseAmount to what's actually meaningful (opponent can cover)
+  const maxRaiseAmount = Math.min(me.currentBet + me.chips, effectiveMaxBet);
+
+  // Can raise normally = have enough chips AND there's value in raising
   const canRaiseNormally = me.chips > 0 && maxRaiseAmount >= minRaiseAmount;
-  // All-in is ALWAYS allowed as long as player has chips
-  const canAllIn = me.chips > 0;
+
+  // Show standalone All-in button:
+  // - Can't do a normal raise (not enough chips for minRaise)
+  // - BUT going all-in is still > toCall (would create a side pot or cover call)
+  // - AND the all-in amount is actually different from just calling
+  const allInIsDistinctFromCall = allInAmount > toCall;
+  const canAllIn = me.chips > 0 && !canRaiseNormally && allInIsDistinctFromCall;
 
   const [raiseAmount, setRaiseAmount] = useState(minRaiseAmount);
   const [raiseInput, setRaiseInput] = useState(String(minRaiseAmount));
@@ -36,7 +67,8 @@ export function ActionPanel({ me, gameState, settings }: Props) {
 
   useEffect(() => {
     if (!isMyTurn || !gameState.actionDeadline) { setSecondsLeft(null); return; }
-    const update = () => setSecondsLeft(Math.max(0, Math.ceil((gameState.actionDeadline! - Date.now()) / 1000)));
+    const update = () =>
+      setSecondsLeft(Math.max(0, Math.ceil((gameState.actionDeadline! - Date.now()) / 1000)));
     update();
     const interval = setInterval(update, 200);
     return () => clearInterval(interval);
@@ -49,7 +81,6 @@ export function ActionPanel({ me, gameState, settings }: Props) {
     setRaiseInput(String(initial));
   }, [isMyTurn]);
 
-  // Sync pending action from server state
   useEffect(() => {
     setPendingAction((me.pendingAction as PreAction) ?? null);
   }, [me.pendingAction]);
@@ -82,18 +113,21 @@ export function ActionPanel({ me, gameState, settings }: Props) {
     });
   };
 
-  const sendPreAction = useCallback((action: PreAction) => {
-    const next = action === pendingAction ? null : action; // toggle off
-    setPendingAction(next);
-    getSocket().emit('game:pre-action', { action: next }, (response: ActionResponse) => {
-      if (response && !response.ok) {
-        setPendingAction(null);
-        alert(response.error);
-      }
-    });
-  }, [pendingAction]);
+  const sendPreAction = useCallback(
+    (action: PreAction) => {
+      const next = action === pendingAction ? null : action;
+      setPendingAction(next);
+      getSocket().emit('game:pre-action', { action: next }, (response: ActionResponse) => {
+        if (response && !response.ok) {
+          setPendingAction(null);
+          alert(response.error);
+        }
+      });
+    },
+    [pendingAction]
+  );
 
-  // ── NOT MY TURN: show pre-action selector ────────────────────────────
+  // ── NOT MY TURN ───────────────────────────────────────────────────────
   if (!isMyTurn) {
     const waitingMsg =
       me.status === 'folded' ? 'You folded — waiting for end of hand' :
@@ -111,7 +145,7 @@ export function ActionPanel({ me, gameState, settings }: Props) {
       );
     }
 
-    // Player is active but waiting for their turn — show pre-action
+    // Playing but waiting for turn — show pre-action
     return (
       <div className="bg-poker-yellow/5 border border-poker-gold/20 rounded-xl p-3 space-y-2">
         <p className="text-poker-yellow/50 text-[10px] uppercase tracking-wider text-center">
@@ -142,7 +176,7 @@ export function ActionPanel({ me, gameState, settings }: Props) {
         {pendingAction && (
           <p className="text-[10px] text-poker-yellow/40 text-center">
             {pendingAction === 'fold'
-              ? 'Will fold automatically when it\'s your turn'
+              ? "Will fold automatically when it's your turn"
               : 'Will check if possible, otherwise fold'}
           </p>
         )}
@@ -151,12 +185,15 @@ export function ActionPanel({ me, gameState, settings }: Props) {
     );
   }
 
-  // ── MY TURN: raise UI ─────────────────────────────────────────────────
+  // ── RAISE UI ──────────────────────────────────────────────────────────
   if (showRaiseUI) {
+    const isAllInConfirm = raiseAmount >= maxRaiseAmount;
     return (
       <div className="bg-poker-yellow/5 border border-poker-gold/25 rounded-xl p-3 space-y-3">
         <div className="flex items-center justify-between gap-3">
-          <span className="text-poker-yellow/70 text-xs whitespace-nowrap">Raise to:</span>
+          <span className="text-poker-yellow/70 text-xs whitespace-nowrap">
+            {gameState.currentBet === 0 ? 'Bet:' : 'Raise to:'}
+          </span>
           <input
             type="text"
             inputMode="numeric"
@@ -169,53 +206,51 @@ export function ActionPanel({ me, gameState, settings }: Props) {
           />
         </div>
 
-        {canRaiseNormally ? (
-          <>
-            <div className="flex justify-between text-[10px] text-poker-yellow/40 px-1">
-              <span>min {minRaiseAmount}</span>
-              <span>max {maxRaiseAmount}</span>
-            </div>
-            <input
-              type="range"
-              min={minRaiseAmount}
-              max={maxRaiseAmount}
-              step={settings.bigBlind}
-              value={raiseAmount}
-              onChange={(e) => updateRaise(Number(e.target.value))}
-              className="w-full accent-poker-gold"
-            />
-            <div className="grid grid-cols-4 gap-1.5">
-              {[
-                { label: 'Min', value: minRaiseAmount },
-                { label: '½ pot', value: Math.floor(gameState.pot * 0.5) + gameState.currentBet },
-                { label: 'Pot', value: gameState.pot + gameState.currentBet },
-                { label: 'All-in', value: maxRaiseAmount },
-              ].map((preset) => {
-                const clamped = Math.min(Math.max(preset.value, minRaiseAmount), maxRaiseAmount);
-                return (
-                  <button key={preset.label} onClick={() => updateRaise(clamped)}
-                    className="bg-poker-yellow/10 text-poker-yellow text-[11px] py-1.5 rounded active:scale-95">
-                    {preset.label}
-                  </button>
-                );
-              })}
-            </div>
-          </>
-        ) : (
-          // Can't raise normally (not enough chips for min raise) — only all-in available
-          <p className="text-poker-yellow/50 text-xs text-center">
-            Not enough chips for minimum raise ({minRaiseAmount}) — all-in only
-          </p>
-        )}
+        <div className="flex justify-between text-[10px] text-poker-yellow/40 px-1">
+          <span>min {minRaiseAmount}</span>
+          <span>max {maxRaiseAmount}{maxRaiseAmount < me.currentBet + me.chips ? ' (capped)' : ''}</span>
+        </div>
+
+        <input
+          type="range"
+          min={minRaiseAmount}
+          max={maxRaiseAmount}
+          step={settings.bigBlind}
+          value={Math.min(raiseAmount, maxRaiseAmount)}
+          onChange={(e) => updateRaise(Number(e.target.value))}
+          className="w-full accent-poker-gold"
+        />
+
+        <div className="grid grid-cols-4 gap-1.5">
+          {[
+            { label: 'Min', value: minRaiseAmount },
+            { label: '½ pot', value: Math.floor(gameState.pot * 0.5) + gameState.currentBet },
+            { label: 'Pot', value: gameState.pot + gameState.currentBet },
+            { label: 'All-in', value: maxRaiseAmount },
+          ].map((preset) => {
+            const clamped = Math.min(Math.max(preset.value, minRaiseAmount), maxRaiseAmount);
+            return (
+              <button
+                key={preset.label}
+                onClick={() => updateRaise(clamped)}
+                className="bg-poker-yellow/10 text-poker-yellow text-[11px] py-1.5 rounded active:scale-95"
+              >
+                {preset.label}
+              </button>
+            );
+          })}
+        </div>
 
         <div className="grid grid-cols-2 gap-2">
-          <button onClick={() => setShowRaiseUI(false)}
-            className="bg-poker-yellow/10 text-poker-yellow font-medium py-3 rounded-lg">
+          <button
+            onClick={() => setShowRaiseUI(false)}
+            className="bg-poker-yellow/10 text-poker-yellow font-medium py-3 rounded-lg"
+          >
             Cancel
           </button>
           <button
             onClick={() => {
-              if (!canRaiseNormally || raiseAmount === maxRaiseAmount) {
+              if (isAllInConfirm) {
                 sendAction('all-in');
               } else {
                 sendAction(gameState.currentBet === 0 ? 'bet' : 'raise', raiseAmount);
@@ -223,17 +258,18 @@ export function ActionPanel({ me, gameState, settings }: Props) {
             }}
             className="bg-poker-gold text-poker-bg font-medium py-3 rounded-lg"
           >
-            {(!canRaiseNormally || raiseAmount === maxRaiseAmount) ? 'All-in' : `Confirm ${raiseAmount}`}
+            {isAllInConfirm ? 'All-in' : `Confirm ${raiseAmount}`}
           </button>
         </div>
       </div>
     );
   }
 
-  // ── MY TURN: main action buttons ──────────────────────────────────────
+  // ── MAIN ACTION BUTTONS ───────────────────────────────────────────────
   return (
     <div className="bg-poker-yellow/5 border border-poker-gold/25 rounded-xl p-3 space-y-2">
       <div className="grid grid-cols-3 gap-1.5">
+        {/* Fold */}
         <button
           onClick={() => sendAction('fold')}
           className="bg-poker-coral/20 border border-poker-coral/40 text-poker-coral py-3 rounded-lg text-sm font-medium active:scale-95"
@@ -241,6 +277,7 @@ export function ActionPanel({ me, gameState, settings }: Props) {
           Fold
         </button>
 
+        {/* Check or Call */}
         {canCheck ? (
           <button
             onClick={() => sendAction('check')}
@@ -254,12 +291,13 @@ export function ActionPanel({ me, gameState, settings }: Props) {
             onClick={() => sendAction('call')}
             className="bg-poker-yellow/10 border border-poker-gold/30 text-poker-yellow py-3 rounded-lg text-sm font-medium active:scale-95 disabled:opacity-40"
           >
-            Call {toCall > me.chips ? me.chips : toCall}
+            {/* Show actual call amount, capped at my chips */}
+            Call {Math.min(toCall, me.chips)}
           </button>
         )}
 
+        {/* Raise or All-in */}
         {canRaiseNormally ? (
-          // Normal raise — opens raise UI
           <button
             onClick={() => setShowRaiseUI(true)}
             className="bg-poker-gold text-poker-bg py-3 rounded-lg text-sm font-medium active:scale-95"
@@ -267,14 +305,17 @@ export function ActionPanel({ me, gameState, settings }: Props) {
             {gameState.currentBet === 0 ? 'Bet' : 'Raise'}
           </button>
         ) : canAllIn ? (
-          // Can't meet min raise but has chips — show All-in directly
+          // Can't raise normally but all-in is distinct from call
           <button
             onClick={() => sendAction('all-in')}
             className="bg-poker-gold text-poker-bg py-3 rounded-lg text-sm font-bold active:scale-95 animate-pulse"
           >
             All-in
           </button>
-        ) : null}
+        ) : (
+          // Can't raise and all-in = call → empty slot (call covers it)
+          <div />
+        )}
       </div>
 
       {secondsLeft !== null && (

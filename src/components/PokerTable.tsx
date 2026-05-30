@@ -679,7 +679,7 @@ export function PokerTable({ initialRoom, mySessionToken, onLeave }: Props) {
           )}
 
           {gameState && !isSpectator && !isDrawPhase && (
-            <ActionPanel me={me} gameState={gameState} settings={room.settings} />
+            <ActionPanel me={me} gameState={gameState} settings={room.settings} players={room.players} />
           )}
 
           {!gameState && !isSpectator && (
@@ -807,7 +807,7 @@ export function PokerTable({ initialRoom, mySessionToken, onLeave }: Props) {
             {showDiscardUI && drawState && <DrawCardsDisplay holeCards={myHoleCards} discardIndices={discardIndices} submitted={drawSubmitted} onToggle={toggleDiscardIndex} />}
             {showDiscardUI && drawState && <DrawmahaDraw discardCount={discardIndices.size} drawState={drawState} mySessionToken={mySessionToken} submitted={drawSubmitted} onSubmit={handleDrawDiscard} onClear={() => setDiscardIndices(new Set<number>())} />}
             {showRevealUI && drawState && <DrawmahaReveal drawState={drawState} mySessionToken={mySessionToken} myPlayer={me} players={room.players} onDecide={handleDrawDecide} />}
-            {gameState && !isSpectator && !isDrawPhase && <ActionPanel me={me} gameState={gameState} settings={room.settings} />}
+            {gameState && !isSpectator && !isDrawPhase && <ActionPanel me={me} gameState={gameState} settings={room.settings} players={room.players} />}
             {!gameState && !isSpectator && (
               <div className="bg-poker-yellow/5 border border-poker-gold/25 rounded-xl px-4 py-3 text-center">
                 <p className="text-poker-yellow/70 text-sm">{isAdmin ? 'Click Admin → Start game' : 'Waiting for admin to start…'}</p>

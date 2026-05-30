@@ -199,17 +199,36 @@ export function AdminPanel({ room, mySessionToken, onClose }: Props) {
 
                     {isAnyChipsActionOpen ? (
                       <div className="space-y-2 mt-2">
+                        <div className="flex gap-2 items-center">
+                          {/* Preset quick amounts */}
+                          <div className="flex gap-1 flex-wrap">
+                            {[100, 500, 1000, 2000].map((preset) => (
+                              <button
+                                key={preset}
+                                onClick={() => setChipsAmount(preset)}
+                                className={`text-[10px] px-2 py-1 rounded border ${
+                                  chipsAmount === preset
+                                    ? 'bg-poker-gold text-poker-bg border-poker-gold'
+                                    : 'border-poker-gold/30 text-poker-yellow/60'
+                                }`}
+                              >
+                                {preset}
+                              </button>
+                            ))}
+                          </div>
+                        </div>
                         <div className="flex gap-2">
                           <input
                             type="number"
                             value={chipsAmount}
                             onChange={(e) =>
-                              setChipsAmount(Math.max(1, Number(e.target.value)))
+                              setChipsAmount(Math.max(1, Number(e.target.value) || 1))
                             }
                             min={1}
                             step={100}
-                            className="flex-1 bg-poker-bg px-3 py-2 rounded-lg text-poker-yellow outline-none border border-poker-gold/20"
-                            autoFocus
+                            inputMode="numeric"
+                            pattern="[0-9]*"
+                            className="flex-1 bg-poker-bg px-3 py-2 rounded-lg text-poker-yellow outline-none border border-poker-gold/20 text-lg font-medium"
                           />
                           <button
                             onClick={() =>
@@ -217,25 +236,25 @@ export function AdminPanel({ room, mySessionToken, onClose }: Props) {
                                 ? handleAddChips(p)
                                 : handleRemoveChips(p)
                             }
-                            className={`px-3 py-2 rounded-lg font-medium text-sm ${
+                            className={`px-4 py-2 rounded-lg font-bold text-base active:scale-95 ${
                               isAddingChipsForThis
                                 ? 'bg-poker-gold text-poker-bg'
-                                : 'bg-poker-coral text-poker-bg'
+                                : 'bg-poker-coral text-white'
                             }`}
                           >
-                            {isAddingChipsForThis ? 'Add' : 'Remove'}
+                            {isAddingChipsForThis ? '+ Add' : '− Remove'}
                           </button>
                           <button
                             onClick={() => setChipsAction({ token: '', mode: null })}
-                            className="text-poker-yellow/60 px-2"
+                            className="text-poker-yellow/60 px-3 py-2 text-lg"
                           >
                             ×
                           </button>
                         </div>
-                        <p className="text-poker-yellow/40 text-[11px]">
+                        <p className="text-poker-yellow/40 text-[11px] text-center">
                           {isAddingChipsForThis
-                            ? 'Add chips to this player'
-                            : 'Remove chips (in case of mistake)'}
+                            ? `Adding ${chipsAmount} chips to ${p.nick}`
+                            : `Removing up to ${chipsAmount} chips from ${p.nick}`}
                         </p>
                       </div>
                     ) : (

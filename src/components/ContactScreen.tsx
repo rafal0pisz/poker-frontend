@@ -1,7 +1,5 @@
 'use client';
 
-import { useState } from 'react';
-
 const PokeroLogo = () => (
   <svg width="140" height="34" viewBox="0 0 186 46" xmlns="http://www.w3.org/2000/svg">
     <text x="4" y="38"
@@ -15,28 +13,12 @@ const PokeroLogo = () => (
   </svg>
 );
 
+import { useState } from 'react';
+
 
 interface Props {
   onBack: () => void;
 }
-
-const PokeroLogo = ({ size = 32 }: { size?: number }) => {
-  const scale = size / 46;
-  const w = Math.round(190 * scale);
-  const h = Math.round(46 * scale);
-  return (
-    <svg width={w} height={h} viewBox="0 0 190 46" xmlns="http://www.w3.org/2000/svg">
-      <text x="0" y="38" fontFamily="Rajdhani,'Arial Narrow',sans-serif" fontWeight="700" fontSize={Math.round(36 * scale)} fill="#d4af37" letterSpacing="5">POKER</text>
-      <g transform={`translate(${Math.round(161 * scale)}, ${Math.round(4 * scale)})`}>
-        <circle cx={Math.round(15 * scale)} cy={Math.round(19 * scale)} r={Math.round(15 * scale)} fill="none" stroke="#d4af37" strokeWidth={Math.round(2.5 * scale)}/>
-        <circle cx={Math.round(15 * scale)} cy={Math.round(19 * scale)} r={Math.round(10 * scale)} fill="#6b1414"/>
-        <circle cx={Math.round(15 * scale)} cy={Math.round(19 * scale)} r={Math.round(12.5 * scale)} fill="none" stroke="#f5d76e" strokeWidth={Math.round(0.8 * scale)} strokeDasharray={`${Math.round(2.3 * scale)} ${Math.round(2 * scale)}`} opacity="0.7"/>
-        <circle cx={Math.round(15 * scale)} cy={Math.round(19 * scale)} r={Math.round(6.5 * scale)} fill="none" stroke="#d4af37" strokeWidth={Math.round(0.9 * scale)}/>
-        <text x={Math.round(15 * scale)} y={Math.round(23 * scale)} textAnchor="middle" fontSize={Math.round(9 * scale)} fill="#f5d76e" fontFamily="serif">♥</text>
-      </g>
-    </svg>
-  );
-};
 
 export function ContactScreen({ onBack }: Props) {
   const [copied, setCopied] = useState(false);

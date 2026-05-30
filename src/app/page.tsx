@@ -5,9 +5,11 @@ import { useNick } from '@/lib/useNick';
 import { CreateRoomScreen } from '@/components/CreateRoomScreen';
 import { JoinRoomScreen } from '@/components/JoinRoomScreen';
 import { PokerTable } from '@/components/PokerTable';
+import { RulesScreen } from '@/components/RulesScreen';
+import { ContactScreen } from '@/components/ContactScreen';
 import type { Room } from '@/lib/types';
 
-type View = 'home' | 'create' | 'join' | 'table';
+type View = 'home' | 'create' | 'join' | 'table' | 'rules' | 'contact';
 
 export default function HomePage() {
   const [nick, setNick] = useNick();
@@ -17,32 +19,22 @@ export default function HomePage() {
   const [room, setRoom] = useState<Room | null>(null);
   const [mySessionToken, setMySessionToken] = useState<string>('');
   const [shakeHint, setShakeHint] = useState(false);
-  // Pre-filled room code from URL param ?room=CODE
   const [urlRoomCode, setUrlRoomCode] = useState<string>('');
 
   const nickInputRef = useRef<HTMLInputElement>(null);
 
-  // On mount: check for ?room=CODE in URL — auto-open join screen
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     const code = params.get('room')?.toUpperCase().trim();
     if (code) {
       setUrlRoomCode(code);
       setView('join');
-      // Clean URL without reloading
       window.history.replaceState({}, '', window.location.pathname);
     }
   }, []);
 
-  const startEditNick = () => {
-    setNickInput(nick);
-    setEditingNick(true);
-  };
-
-  const saveNick = () => {
-    setNick(nickInput);
-    setEditingNick(false);
-  };
+  const startEditNick = () => { setNickInput(nick); setEditingNick(true); };
+  const saveNick = () => { setNick(nickInput); setEditingNick(false); };
 
   const handleRoomReady = (newRoom: Room, sessionToken: string) => {
     setRoom(newRoom);
@@ -50,11 +42,7 @@ export default function HomePage() {
     setView('table');
   };
 
-  const goHome = () => {
-    setRoom(null);
-    setMySessionToken('');
-    setView('home');
-  };
+  const goHome = () => { setRoom(null); setMySessionToken(''); setView('home'); };
 
   const handleActionClick = (target: 'create' | 'join') => {
     if (!nick) {
@@ -88,6 +76,14 @@ export default function HomePage() {
     );
   }
 
+  if (view === 'rules') {
+    return <RulesScreen onBack={() => setView('home')} />;
+  }
+
+  if (view === 'contact') {
+    return <ContactScreen onBack={() => setView('home')} />;
+  }
+
   if (view === 'table' && room) {
     return (
       <PokerTable
@@ -101,20 +97,29 @@ export default function HomePage() {
   return (
     <main className="min-h-screen flex items-center justify-center p-4">
       <div className="w-full max-w-sm">
-        <div className="text-center mb-12 mt-8">
-          <div className="inline-flex items-center gap-2 mb-2">
-            <span className="text-3xl text-poker-gold">♠</span>
-            <span className="font-serif italic text-4xl text-poker-gold">Poker</span>
+
+        {/* Logo */}
+        <div className="text-center mb-10 mt-8">
+          <div className="flex justify-center mb-3">
+            <svg width="210" height="50" viewBox="0 0 210 50" xmlns="http://www.w3.org/2000/svg">
+              <text x="0" y="42" fontFamily="Rajdhani,'Arial Narrow',sans-serif" fontWeight="700" fontSize="40" fill="#d4af37" letterSpacing="5">POKER</text>
+              <g transform="translate(178, 4)">
+                <circle cx="16" cy="21" r="17" fill="none" stroke="#d4af37" strokeWidth="2.8"/>
+                <circle cx="16" cy="21" r="11" fill="#6b1414"/>
+                <circle cx="16" cy="21" r="14.5" fill="none" stroke="#f5d76e" strokeWidth="0.9" strokeDasharray="2.5 2.2" opacity="0.7"/>
+                <circle cx="16" cy="21" r="7.2" fill="none" stroke="#d4af37" strokeWidth="1"/>
+                <text x="16" y="25.5" textAnchor="middle" fontSize="10" fill="#f5d76e" fontFamily="serif">♥</text>
+              </g>
+            </svg>
           </div>
-          <p className="text-poker-yellow/60 text-sm">Play with friends in 30 seconds</p>
+          <p className="text-poker-yellow/50 text-xs tracking-widest uppercase">Play with friends online</p>
         </div>
 
+        {/* Main buttons */}
         <button
           onClick={() => handleActionClick('create')}
           className={`w-full font-medium py-4 rounded-xl mb-3 flex items-center justify-center gap-2 active:scale-95 transition ${
-            nick
-              ? 'bg-poker-gold text-poker-bg'
-              : 'bg-poker-gold/40 text-poker-bg/70'
+            nick ? 'bg-poker-gold text-poker-bg' : 'bg-poker-gold/40 text-poker-bg/70'
           }`}
         >
           <span className="text-xl">+</span>
@@ -124,15 +129,14 @@ export default function HomePage() {
         <button
           onClick={() => handleActionClick('join')}
           className={`w-full border font-medium py-4 rounded-xl flex items-center justify-center gap-2 active:scale-95 transition ${
-            nick
-              ? 'border-poker-gold/40 text-poker-gold'
-              : 'border-poker-gold/15 text-poker-gold/50'
+            nick ? 'border-poker-gold/40 text-poker-gold' : 'border-poker-gold/15 text-poker-gold/50'
           }`}
         >
           <span>→</span>
           Join room
         </button>
 
+        {/* Nick section */}
         <div
           className={`mt-8 pt-6 border-t transition-colors ${
             shakeHint ? 'border-poker-coral/60' : 'border-poker-gold/15'
@@ -149,9 +153,7 @@ export default function HomePage() {
             </div>
           )}
 
-          <p className="text-poker-yellow/50 text-xs mb-3 text-center">
-            Your nickname (remembered)
-          </p>
+          <p className="text-poker-yellow/50 text-xs mb-3 text-center">Your nickname (remembered)</p>
 
           {editingNick ? (
             <div className="flex gap-2">
@@ -188,6 +190,24 @@ export default function HomePage() {
         <p className="text-poker-yellow/30 text-xs text-center mt-12">
           Virtual chips · No monetary value
         </p>
+
+        {/* Footer links */}
+        <div className="mt-6 flex justify-center gap-6">
+          <button
+            onClick={() => setView('rules')}
+            className="text-poker-yellow/40 text-xs hover:text-poker-yellow/70 transition"
+          >
+            Game rules
+          </button>
+          <span className="text-poker-gold/20 text-xs">·</span>
+          <button
+            onClick={() => setView('contact')}
+            className="text-poker-yellow/40 text-xs hover:text-poker-yellow/70 transition"
+          >
+            Contact
+          </button>
+        </div>
+
       </div>
 
       <style jsx>{`

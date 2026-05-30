@@ -12,6 +12,8 @@ interface Props {
   onClick?: () => void;
   // Pass dealIndex (0,1,2…) to trigger staggered deal animation
   dealIndex?: number;
+  // slowFlip: used for community cards — slower, more dramatic reveal
+  slowFlip?: boolean;
 }
 
 const SUIT_SYMBOLS: Record<string, string> = {
@@ -29,19 +31,22 @@ const SIZE_CLASSES = {
 
 type AnimPhase = 'hidden' | 'sliding' | 'flipping' | 'done';
 
-export function Card({ card, size = 'md', facedown = false, winning = false, selectedForDiscard = false, onClick, dealIndex }: Props) {
+export function Card({ card, size = 'md', facedown = false, winning = false, selectedForDiscard = false, onClick, dealIndex, slowFlip = false }: Props) {
   const [phase, setPhase] = useState<AnimPhase>(dealIndex !== undefined ? 'hidden' : 'done');
 
   useEffect(() => {
     if (dealIndex === undefined) return;
-    const slideAt  = dealIndex * 80;
-    const flipAt   = slideAt + 180;
-    const doneAt   = flipAt + 220;
+    // slowFlip = community card reveal — more dramatic, slower timing
+    // Normal = hole card deal — quick stagger
+    const stagger  = slowFlip ? dealIndex * 200 : dealIndex * 80;
+    const slideAt  = slowFlip ? stagger + 100    : stagger;
+    const flipAt   = slowFlip ? slideAt + 250    : slideAt + 180;
+    const doneAt   = slowFlip ? flipAt  + 450    : flipAt  + 220;
     const t1 = setTimeout(() => setPhase('sliding'),  slideAt);
     const t2 = setTimeout(() => setPhase('flipping'), flipAt);
     const t3 = setTimeout(() => setPhase('done'),     doneAt);
     return () => { clearTimeout(t1); clearTimeout(t2); clearTimeout(t3); };
-  }, [dealIndex]);
+  }, [dealIndex, slowFlip]);
 
   if (!card || facedown) {
     return (
@@ -60,8 +65,14 @@ export function Card({ card, size = 'md', facedown = false, winning = false, sel
   // Inline style per phase — rotateY simulates card flip
   const phaseStyle: React.CSSProperties =
     phase === 'hidden'   ? { opacity: 0, transform: 'translateY(-20px) rotateY(90deg) scale(0.85)' }
-    : phase === 'sliding'  ? { opacity: 1, transform: 'translateY(0) rotateY(90deg) scale(1)',  transition: 'opacity 120ms ease-out, transform 180ms cubic-bezier(0.22,1,0.36,1)' }
-    : phase === 'flipping' ? { opacity: 1, transform: 'translateY(0) rotateY(0deg)  scale(1)',  transition: 'transform 220ms cubic-bezier(0.34,1.56,0.64,1)' }
+    : phase === 'sliding'  ? { opacity: 1, transform: 'translateY(0) rotateY(90deg) scale(1)',
+        transition: slowFlip
+          ? 'opacity 200ms ease-out, transform 300ms cubic-bezier(0.22,1,0.36,1)'
+          : 'opacity 120ms ease-out, transform 180ms cubic-bezier(0.22,1,0.36,1)' }
+    : phase === 'flipping' ? { opacity: 1, transform: 'translateY(0) rotateY(0deg) scale(1)',
+        transition: slowFlip
+          ? 'transform 450ms cubic-bezier(0.34,1.2,0.64,1)'
+          : 'transform 220ms cubic-bezier(0.34,1.56,0.64,1)' }
     :                        { transition: 'transform 150ms ease, box-shadow 150ms ease' };
 
   const winningCls = winning

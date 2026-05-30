@@ -293,7 +293,21 @@ export function PokerTable({ initialRoom, mySessionToken, onLeave }: Props) {
 
     const handleRoomState = (updated: Room) => {
       setRoom(updated);
-      prevCommCardCountRef.current = updated.gameState?.communityCards.length ?? 0;
+      // Update prevCommCardCountRef AFTER the flip animation completes.
+      // If we update it synchronously here, the render sees the new count and
+      // treats cards as "not new" → dealIndex undefined → no flip animation.
+      const newCommCount = updated.gameState?.communityCards.length ?? 0;
+      const oldCommCount = prevCommCardCountRef.current;
+      if (newCommCount > oldCommCount) {
+        // New cards just arrived — let the current render use the old count for animation,
+        // then update the ref after the animation (400ms per card + buffer)
+        const animDuration = (newCommCount - oldCommCount) * 300 + 600;
+        setTimeout(() => {
+          prevCommCardCountRef.current = newCommCount;
+        }, animDuration);
+      } else {
+        prevCommCardCountRef.current = newCommCount;
+      }
       processRoomState(updated, mySessionToken);
       const myUpdated = updated.players.find((p) => p.sessionToken === mySessionToken);
       if (myUpdated?.holeCards) setMyHoleCards(myUpdated.holeCards);
@@ -587,7 +601,7 @@ export function PokerTable({ initialRoom, mySessionToken, onLeave }: Props) {
               const commPrevCount = prevCommCardCountRef.current;
               const isNew = card && i >= commPrevCount;
               return card
-                ? <Card key={i} card={card} size="md" winning={winningCardsSet.has(card)} dealIndex={isNew ? i - commPrevCount : undefined} />
+                ? <Card key={i} card={card} size="md" winning={winningCardsSet.has(card)} dealIndex={isNew ? i - commPrevCount : undefined} slowFlip={isNew} />
                 : <CardPlaceholder key={i} size="md" />;
             })}
           </div>
@@ -778,7 +792,7 @@ export function PokerTable({ initialRoom, mySessionToken, onLeave }: Props) {
                 const card = gameState?.communityCards[i];
                 const isNewDesktop = card && i >= prevCommCardCountRef.current;
                 return card
-                  ? <Card key={i} card={card} size="md" winning={winningCardsSet.has(card)} dealIndex={isNewDesktop ? i - prevCommCardCountRef.current : undefined} />
+                  ? <Card key={i} card={card} size="md" winning={winningCardsSet.has(card)} dealIndex={isNewDesktop ? i - prevCommCardCountRef.current : undefined} slowFlip={isNewDesktop} />
                   : <CardPlaceholder key={i} size="md" />;
               })}
             </div>

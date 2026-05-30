@@ -15,6 +15,7 @@ const VARIANT_NAMES: Record<GameVariant, string> = {
   texas: "Texas Hold'em",
   omaha: 'Omaha',
   drawmaha: 'Drawmaha',
+  pineapple: 'Crazy Pineapple',
 };
 
 let _entryId = 0;

@@ -81,9 +81,19 @@ export function ActionPanel({ me, gameState, settings, players }: Props) {
     setRaiseInput(String(initial));
   }, [isMyTurn]);
 
+  // Clear pre-action when it's our turn (action was consumed or turn arrived)
   useEffect(() => {
-    setPendingAction((me.pendingAction as PreAction) ?? null);
-  }, [me.pendingAction]);
+    if (isMyTurn) {
+      setPendingAction(null);
+    }
+  }, [isMyTurn]);
+
+  // Sync from server state (for reconnects)
+  useEffect(() => {
+    if (!isMyTurn) {
+      setPendingAction((me.pendingAction as PreAction) ?? null);
+    }
+  }, [me.pendingAction, isMyTurn]);
 
   const updateRaise = (newValue: number) => {
     const clamped = Math.min(Math.max(newValue, minRaiseAmount), maxRaiseAmount);

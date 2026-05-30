@@ -81,6 +81,14 @@ export function AdminPanel({ room, mySessionToken, onClose }: Props) {
     });
   };
 
+  const handleTransferAdmin = (target: Player) => {
+    if (!confirm(`Transfer admin role to ${target.nick}? You will lose admin access.`)) return;
+    getSocket().emit('admin:transfer', { targetSessionToken: target.sessionToken }, (response: ActionResponse) => {
+      if (response && !response.ok) alert(response.error || 'Failed');
+      else onClose();
+    });
+  };
+
   const handlePause = () => {
     const socket = getSocket();
     const isPaused = room.paused;
@@ -214,7 +222,7 @@ export function AdminPanel({ room, mySessionToken, onClose }: Props) {
                         <div className="flex gap-2 items-center">
                           {/* Preset quick amounts */}
                           <div className="flex gap-1 flex-wrap">
-                            {[100, 500, 1000, 2000].map((preset) => (
+                            {[50, 100, 200, 400].map((preset) => (
                               <button
                                 key={preset}
                                 onClick={() => setChipsAmount(preset)}
@@ -299,6 +307,14 @@ export function AdminPanel({ room, mySessionToken, onClose }: Props) {
                           <div />
                         )}
                       </div>
+                      {!isMe && (
+                        <button
+                          onClick={() => handleTransferAdmin(p)}
+                          className="w-full mt-1.5 bg-poker-yellow/5 border border-poker-gold/20 text-poker-yellow/50 text-[10px] py-1.5 rounded-lg active:scale-95"
+                        >
+                          👑 Make admin
+                        </button>
+                      )}
                     )}
                   </div>
                 );

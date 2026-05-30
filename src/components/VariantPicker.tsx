@@ -6,16 +6,18 @@ export const VARIANT_LABELS: Record<GameVariant, string> = {
   texas: "Texas Hold'em",
   omaha: 'Omaha (4-card)',
   drawmaha: 'Drawmaha',
+  pineapple: 'Crazy Pineapple',
 };
 
 const VARIANT_DESCRIPTIONS: Record<GameVariant, string> = {
   texas: 'Classic · 2 hole + 5 board',
   omaha: '4 hole · must use 2 + 3 board',
   drawmaha: '5 hole · Five-card Draw · split pot (Omaha + Draw)',
+  pineapple: '3 hole cards · Texas Hold\'em rules',
 };
 
 // All variants are now fully implemented
-const AVAILABLE_VARIANTS: GameVariant[] = ['texas', 'omaha', 'drawmaha'];
+const AVAILABLE_VARIANTS: GameVariant[] = ['texas', 'omaha', 'drawmaha', 'pineapple'];
 
 interface Props {
   currentVariant: GameVariant;
@@ -24,7 +26,7 @@ interface Props {
 }
 
 export function VariantPicker({ currentVariant, onSelect, onClose }: Props) {
-  const variants: GameVariant[] = ['texas', 'omaha', 'drawmaha'];
+  const variants: GameVariant[] = ['texas', 'omaha', 'drawmaha', 'pineapple'];
 
   return (
     <div className="fixed inset-0 z-50 bg-black/70 flex items-end sm:items-center justify-center p-4">
@@ -80,7 +82,7 @@ export function VariantPicker({ currentVariant, onSelect, onClose }: Props) {
                   <div>
                     <p className={`text-sm font-medium ${isSelected ? 'text-poker-gold' : 'text-poker-yellow'}`}>
                       {VARIANT_LABELS[v]}
-                      {v === 'drawmaha' && (
+                      {(v === 'drawmaha' || v === 'pineapple') && (
                         <span className="ml-2 text-[9px] bg-poker-gold/20 text-poker-gold px-1.5 py-0.5 rounded tracking-wider">
                           NEW
                         </span>

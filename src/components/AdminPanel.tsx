@@ -315,7 +315,7 @@ export function AdminPanel({ room, mySessionToken, onClose }: Props) {
                           👑 Make admin
                         </button>
                       )}
-                    )}
+                    </div>
                   </div>
                 );
               })}

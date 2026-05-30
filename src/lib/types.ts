@@ -42,6 +42,7 @@ export interface Player {
   preferredVariant: GameVariant;
   totalBuyIn: number;
   pendingChipsAdjustment: number;
+  pendingAction: 'check-fold' | 'fold' | null;
 }
 
 export interface RoomSettings {

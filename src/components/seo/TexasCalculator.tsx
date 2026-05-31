@@ -24,19 +24,22 @@ function eval5(hand: Card[]): number {
   const suits = hand.map(c => c!.suit);
   const fl = suits.every(s => s === suits[0]);
   const u = [...new Set(rv)].sort((a, b) => b - a);
-  const st = u.length >= 5 && (u[0] - u[4] === 4 || (u[0] === 14 && u[1] === 5 && u[4] === 2));
+  const isWheel = u[0] === 14 && u[1] === 5 && u[4] === 2;
+  const st = u.length >= 5 && (u[0] - u[4] === 4 || isWheel);
   const cnt: Record<number, number> = {};
   rv.forEach(r => { cnt[r] = (cnt[r] || 0) + 1; });
   const fr = Object.values(cnt).sort((a, b) => b - a);
-  if (fl && st) return 8e6 + rv[0];
-  if (fr[0] === 4) return 7e6 + rv[0] * 100 + rv[4];
-  if (fr[0] === 3 && fr[1] === 2) return 6e6 + rv[0] * 100 + rv[3];
+  // Score bands: RF=8M, SF<8M, FK=7M, FH=6M, Fl=5M, St=4M, TK=3M, TP=2M, OP=1M, HC<1M
+  // Each band uses multipliers that stay within the band gap (1M per category)
+  if (fl && st) return 8e6 + (isWheel ? 5 : u[0]);
+  if (fr[0] === 4) return 7e6 + rv[0] * 1e2 + rv[4];
+  if (fr[0] === 3 && fr[1] === 2) return 6e6 + rv[0] * 1e2 + rv[3];
   if (fl) return 5e6 + rv[0] * 1e4 + rv[1] * 1e3 + rv[2] * 1e2 + rv[3] * 10 + rv[4];
-  if (st) return 4e6 + rv[0];
-  if (fr[0] === 3) return 3e6 + rv[0] * 1e4 + rv[1] * 100 + rv[2];
-  if (fr[0] === 2 && fr[1] === 2) return 2e6 + rv[0] * 1e4 + rv[1] * 1e2 + rv[2];
-  if (fr[0] === 2) return 1e6 + rv[0] * 1e6 + rv[1] * 1e4 + rv[2] * 1e2 + rv[3] * 10 + rv[4];
-  return rv[0] * 1e8 + rv[1] * 1e6 + rv[2] * 1e4 + rv[3] * 1e2 + rv[4];
+  if (st) return 4e6 + (isWheel ? 5 : u[0]);
+  if (fr[0] === 3) return 3e6 + rv[0] * 1e4 + rv[3] * 1e2 + rv[4];
+  if (fr[0] === 2 && fr[1] === 2) return 2e6 + rv[0] * 1e4 + rv[2] * 1e2 + rv[4];
+  if (fr[0] === 2) return 1e6 + rv[0] * 1e4 + rv[2] * 1e2 + rv[3] * 10 + rv[4];
+  return rv[0] * 1e4 + rv[1] * 1e3 + rv[2] * 1e2 + rv[3] * 10 + rv[4];
 }
 
 function bestHand(hole: Card[], board: Card[]): number {

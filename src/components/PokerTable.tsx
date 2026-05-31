@@ -586,6 +586,8 @@ export function PokerTable({ initialRoom, mySessionToken, onLeave }: Props) {
                   handName={activeResult?.showdownCards.find((sc) => sc.sessionToken === p.sessionToken)?.handName}
                   winningCards={winningCardsSet}
                   cardCount={currentCardCount}
+                  actionDeadline={gameState?.actionDeadline}
+                  actionTimeoutSec={room.settings.actionTimeoutSec}
                 />
               ))}
         </div>
@@ -779,6 +781,8 @@ export function PokerTable({ initialRoom, mySessionToken, onLeave }: Props) {
                 handName={activeResult?.showdownCards.find((sc) => sc.sessionToken === p.sessionToken)?.handName}
                 winningCards={winningCardsSet}
                 cardCount={currentCardCount}
+                actionDeadline={gameState?.actionDeadline}
+                actionTimeoutSec={room.settings.actionTimeoutSec}
               />
             ))}
           </div>

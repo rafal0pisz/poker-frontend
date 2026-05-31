@@ -1,5 +1,6 @@
 'use client';
 
+import { useEffect, useState } from 'react';
 import type { Player, PlayerStatus, ChatMessage, Card as CardType } from '@/lib/types';
 import { Card } from './Card';
 import { FloatingBubble } from './FloatingBubble';
@@ -15,6 +16,8 @@ interface Props {
   handName?: string;
   winningCards?: Set<CardType>;
   cardCount?: number;
+  actionDeadline?: number | null;
+  actionTimeoutSec?: number;
 }
 
 const STATUS_LABEL: Record<PlayerStatus, string> = {
@@ -28,6 +31,48 @@ const STATUS_LABEL: Record<PlayerStatus, string> = {
   spectator: 'SPECTATOR',
 };
 
+// SVG ring timer — animates circumference as time runs out
+function TimerRing({ deadline, timeoutSec }: { deadline: number; timeoutSec: number }) {
+  const [progress, setProgress] = useState(1); // 1 = full, 0 = empty
+
+  useEffect(() => {
+    const update = () => {
+      const remaining = Math.max(0, deadline - Date.now());
+      setProgress(remaining / (timeoutSec * 1000));
+    };
+    update();
+    const id = setInterval(update, 100);
+    return () => clearInterval(id);
+  }, [deadline, timeoutSec]);
+
+  // Avatar circle: w=48 h=48, ring r=23, circumference = 2π*23 ≈ 144.5
+  const R = 23;
+  const CIRC = 2 * Math.PI * R;
+  const dash = progress * CIRC;
+  const color = progress > 0.4 ? '#d4af37' : progress > 0.2 ? '#e07b39' : '#e05050';
+
+  return (
+    <svg
+      width="48" height="48" viewBox="0 0 48 48"
+      style={{ position: 'absolute', top: '-3px', left: '-3px', pointerEvents: 'none' }}
+    >
+      {/* Background track */}
+      <circle cx="24" cy="24" r={R} fill="none" stroke="rgba(212,175,55,0.12)" strokeWidth="3" />
+      {/* Progress arc */}
+      <circle
+        cx="24" cy="24" r={R}
+        fill="none"
+        stroke={color}
+        strokeWidth="3"
+        strokeDasharray={`${dash} ${CIRC - dash}`}
+        strokeDashoffset={CIRC / 4} // start at top
+        strokeLinecap="round"
+        style={{ transition: 'stroke-dasharray 0.1s linear, stroke 0.3s' }}
+      />
+    </svg>
+  );
+}
+
 export function PlayerSeat({
   player,
   isCurrent,
@@ -39,6 +84,8 @@ export function PlayerSeat({
   handName,
   winningCards,
   cardCount = 2,
+  actionDeadline,
+  actionTimeoutSec = 30,
 }: Props) {
   const dimmed =
     player.status === 'folded' ||
@@ -49,6 +96,9 @@ export function PlayerSeat({
   const revealedCards = player.holeCards || [];
   const hasRevealedCards = revealedCards.length > 0;
   const useSmallGap = cardCount >= 4 || revealedCards.length >= 4;
+
+  // Show timer ring only for non-self active players
+  const showRing = isCurrent && !isYou && !!actionDeadline;
 
   return (
     <div className={`relative flex flex-col items-center ${dimmed ? 'opacity-50' : ''}`}>
@@ -71,43 +121,50 @@ export function PlayerSeat({
         <div className="h-12 mb-1" />
       )}
 
-      {/* Avatar + position badges row */}
+      {/* Avatar + badges */}
       <div className="relative flex items-center justify-center">
-        {/* SB badge — left of avatar */}
+        {/* SB badge — left */}
         {isSb && !isDealer && (
           <span className="absolute -left-5 bottom-0 bg-blue-400 text-white text-[8px] font-bold w-5 h-5 rounded-full flex items-center justify-center shadow-sm">
             SB
           </span>
         )}
 
-        {/* Avatar circle */}
-        <div
-          className={`w-12 h-12 rounded-full flex items-center justify-center text-sm font-medium ${
-            isCurrent
-              ? 'bg-poker-gold/25 border-2 border-poker-gold text-poker-gold animate-pulse'
-              : isYou
-              ? 'bg-poker-yellow/20 border-2 border-poker-yellow text-poker-yellow'
-              : 'bg-poker-yellow/10 border border-poker-gold/30 text-poker-yellow'
-          }`}
-        >
-          {player.nick.slice(0, 2).toUpperCase()}
+        {/* Avatar circle wrapper (relative so SVG ring can overlay) */}
+        <div style={{ position: 'relative', width: 42, height: 42 }}>
+          {/* Timer ring SVG — behind avatar visually but layered via z */}
+          {showRing && (
+            <TimerRing deadline={actionDeadline!} timeoutSec={actionTimeoutSec} />
+          )}
+
+          <div
+            className={`w-[42px] h-[42px] rounded-full flex items-center justify-center text-sm font-medium ${
+              isCurrent
+                ? 'bg-poker-gold/25 border-2 border-poker-gold text-poker-gold animate-pulse'
+                : isYou
+                ? 'bg-poker-yellow/20 border-2 border-poker-yellow text-poker-yellow'
+                : 'bg-poker-yellow/10 border border-poker-gold/30 text-poker-yellow'
+            }`}
+          >
+            {player.nick.slice(0, 2).toUpperCase()}
+          </div>
         </div>
 
-        {/* D badge — right of avatar */}
+        {/* D badge — right */}
         {isDealer && (
           <span className="absolute -right-5 bottom-0 bg-poker-gold text-poker-bg text-[9px] font-bold w-5 h-5 rounded-full flex items-center justify-center shadow-sm">
             D
           </span>
         )}
 
-        {/* BB badge — right of avatar (when not also dealer) */}
+        {/* BB badge — right (when not dealer) */}
         {isBb && !isDealer && (
           <span className="absolute -right-5 bottom-0 bg-purple-400 text-white text-[8px] font-bold w-5 h-5 rounded-full flex items-center justify-center shadow-sm">
             BB
           </span>
         )}
 
-        {/* BB badge when also dealer (below avatar) */}
+        {/* BB + Dealer edge case */}
         {isBb && isDealer && (
           <span className="absolute -bottom-5 left-1/2 -translate-x-1/2 bg-purple-400 text-white text-[8px] font-bold w-5 h-5 rounded-full flex items-center justify-center shadow-sm">
             BB

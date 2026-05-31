@@ -40,9 +40,17 @@ export default function HomePage() {
     setRoom(newRoom);
     setMySessionToken(sessionToken);
     setView('table');
+    // Update URL to reflect active room — GTM is suppressed when ?room= is present
+    window.history.replaceState({}, '', `/?room=${newRoom.id}`);
   };
 
-  const goHome = () => { setRoom(null); setMySessionToken(''); setView('home'); };
+  const goHome = () => {
+    setRoom(null);
+    setMySessionToken('');
+    setView('home');
+    // Clear room from URL
+    window.history.replaceState({}, '', '/');
+  };
 
   const handleActionClick = (target: 'create' | 'join') => {
     if (!nick) {

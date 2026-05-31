@@ -1,7 +1,5 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
-import { Nav } from '@/components/seo/Nav';
-import { Footer } from '@/components/seo/Footer';
 
 export const metadata: Metadata = {
   title: 'Poker ze znajomymi online — jak to zorganizować krok po kroku',
@@ -17,9 +15,6 @@ export const metadata: Metadata = {
 
 export default function Post2() {
   return (
-    <>
-      <Nav />
-      <main style={{ padding: '3rem 0 4rem' }}>
     <div className="container">
       <div style={{ marginBottom: '0.5rem' }}>
         <Link href="/" style={{ fontSize: '0.85rem', color: 'rgba(245,230,192,0.4)' }}>Strona główna</Link>

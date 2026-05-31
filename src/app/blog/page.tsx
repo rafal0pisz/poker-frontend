@@ -1,7 +1,5 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
-import { Nav } from '@/components/seo/Nav';
-import { Footer } from '@/components/seo/Footer';
 
 export const metadata: Metadata = {
   title: 'Blog o pokerze — zasady, strategia, organizacja gier',
@@ -35,10 +33,7 @@ const posts = [
 
 export default function BlogPage() {
   return (
-    <>
-      <Nav />
-      <main style={{ padding: '3rem 0 4rem' }}>
-        <div className="container">
+    <div className="container">
           <div style={{ marginBottom: '0.5rem' }}>
             <Link href="/" style={{ fontSize: '0.85rem', color: 'rgba(245,230,192,0.4)' }}>Strona główna</Link>
             <span style={{ color: 'rgba(245,230,192,0.2)', margin: '0 0.5rem' }}>›</span>
@@ -62,9 +57,6 @@ export default function BlogPage() {
               </Link>
             ))}
           </div>
-        </div>
-      </main>
-      <Footer />
-    </>
+    </div>
   );
 }

@@ -55,7 +55,7 @@ export default function ZasadyPage() {
 
           <div className="card" style={{ marginTop: '2.5rem', textAlign: 'center', padding: '2rem' }}>
             <p style={{ color: 'rgba(245,230,192,0.6)', marginBottom: '1.25rem' }}>Znasz zasady? Czas zagrać.</p>
-            <Link href="/graj/" className="btn-primary">🎰 Zagraj teraz — za darmo</Link>
+            <Link href="/" className="btn-primary">🎰 Zagraj teraz — za darmo</Link>
           </div>
         </div>
       </main>

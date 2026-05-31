@@ -80,7 +80,7 @@ export default function HomePage() {
           </p>
 
           <div style={{ display: 'flex', gap: '1rem', justifyContent: 'center', flexWrap: 'wrap' }}>
-            <Link href="/graj/" className="btn-primary" style={{ fontSize: '1.05rem', padding: '0.9rem 2.25rem' }}>
+            <Link href="/" className="btn-primary" style={{ fontSize: '1.05rem', padding: '0.9rem 2.25rem' }}>
               🎰 Zagraj teraz — za darmo
             </Link>
             <Link href="/zasady/" className="btn-outline">
@@ -157,7 +157,7 @@ export default function HomePage() {
             <p style={{ color: 'rgba(245,230,192,0.6)', marginBottom: '2rem', maxWidth: 480, margin: '0 auto 2rem' }}>
               Stwórz pokój w 30 sekund i zaproś znajomych. Działa na każdym telefonie.
             </p>
-            <Link href="/graj/" className="btn-primary" style={{ fontSize: '1.05rem' }}>
+            <Link href="/" className="btn-primary" style={{ fontSize: '1.05rem' }}>
               🎰 Zagraj teraz — za darmo
             </Link>
           </div>

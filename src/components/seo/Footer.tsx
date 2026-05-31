@@ -15,7 +15,7 @@ export function Footer() {
           <div>
             <p style={{ fontWeight: 600, color: 'rgba(245,230,192,0.6)', marginBottom: '0.75rem', fontSize: '0.8rem', letterSpacing: '0.08em', textTransform: 'uppercase' }}>Gra</p>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem' }}>
-              <Link href="/graj/" style={{ fontSize: '0.9rem', color: 'rgba(245,230,192,0.6)' }}>Zagraj teraz</Link>
+              <Link href="/" style={{ fontSize: '0.9rem', color: 'rgba(245,230,192,0.6)' }}>Zagraj teraz</Link>
               <Link href="/zasady/" style={{ fontSize: '0.9rem', color: 'rgba(245,230,192,0.6)' }}>Zasady gry</Link>
             </div>
           </div>

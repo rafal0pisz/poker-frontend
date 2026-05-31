@@ -22,7 +22,7 @@ export function Nav() {
           <Link href="/zasady/" style={{ color: 'rgba(245,230,192,0.7)', fontSize: '0.9rem', textDecoration: 'none' }}>Zasady gry</Link>
           <Link href="/blog/" style={{ color: 'rgba(245,230,192,0.7)', fontSize: '0.9rem', textDecoration: 'none' }}>Blog</Link>
           <Link href="/kontakt/" style={{ color: 'rgba(245,230,192,0.7)', fontSize: '0.9rem', textDecoration: 'none' }}>Kontakt</Link>
-          <Link href="/graj/" className="btn-primary" style={{ padding: '0.5rem 1.25rem', fontSize: '0.9rem' }}>Zagraj teraz</Link>
+          <Link href="/" className="btn-primary" style={{ padding: '0.5rem 1.25rem', fontSize: '0.9rem' }}>Zagraj teraz</Link>
         </div>
 
         {/* Mobile hamburger */}
@@ -39,7 +39,7 @@ export function Nav() {
               {label}
             </Link>
           ))}
-          <Link href="/graj/" className="btn-primary" onClick={() => setOpen(false)}
+          <Link href="/" className="btn-primary" onClick={() => setOpen(false)}
             style={{ display: 'inline-flex', marginTop: '1rem', width: '100%', justifyContent: 'center' }}>
             🎰 Zagraj teraz
           </Link>

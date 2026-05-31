@@ -1,5 +1,7 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
+import { Nav } from '@/components/seo/Nav';
+import { Footer } from '@/components/seo/Footer';
 
 export const metadata: Metadata = {
   title: 'Poker ze znajomymi online — jak to zorganizować krok po kroku',
@@ -15,6 +17,9 @@ export const metadata: Metadata = {
 
 export default function Post2() {
   return (
+    <>
+      <Nav />
+      <main style={{ padding: '3rem 0 4rem' }}>
     <div className="container">
       <div style={{ marginBottom: '0.5rem' }}>
         <Link href="/" style={{ fontSize: '0.85rem', color: 'rgba(245,230,192,0.4)' }}>Strona główna</Link>
@@ -48,7 +53,7 @@ export default function Post2() {
 
           <h2>Krok 1 — Stwórz pokój</h2>
           <p>
-            Wejdź na <Link href="/graj/">pokero.pl/graj</Link>, wpisz swój nick i kliknij „Create room". Zajmuje to dosłownie 20 sekund. Zostaniesz adminem — masz pełną kontrolę nad grą.
+            Wejdź na <Link href="/">pokero.pl/graj</Link>, wpisz swój nick i kliknij „Create room". Zajmuje to dosłownie 20 sekund. Zostaniesz adminem — masz pełną kontrolę nad grą.
           </p>
           <p>
             Jako admin ustawiasz:
@@ -111,7 +116,7 @@ export default function Post2() {
         <div style={{ marginTop: '2rem', padding: '1.5rem', background: 'rgba(212,175,55,0.06)', border: '1px solid rgba(212,175,55,0.2)', borderRadius: 14 }}>
           <p style={{ fontWeight: 600, color: '#d4af37', marginBottom: '0.5rem' }}>Gotowy na wieczór pokerowy?</p>
           <p style={{ color: 'rgba(245,230,192,0.6)', fontSize: '0.9rem', marginBottom: '1.25rem' }}>Stwórz pokój w 30 sekund i zaproś znajomych. Działa na telefonie.</p>
-          <Link href="/graj/" className="btn-primary">🎰 Zagraj teraz — za darmo</Link>
+          <Link href="/" className="btn-primary">🎰 Zagraj teraz — za darmo</Link>
         </div>
 
         <hr className="divider" style={{ marginTop: '2.5rem' }} />

@@ -1,5 +1,7 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
+import { Nav } from '@/components/seo/Nav';
+import { Footer } from '@/components/seo/Footer';
 
 export const metadata: Metadata = {
   title: 'Układy kart w pokerze — pełna tabela z przykładami i FAQ',
@@ -14,6 +16,9 @@ export const metadata: Metadata = {
 
 export default function Post3() {
   return (
+    <>
+      <Nav />
+      <main style={{ padding: '3rem 0 4rem' }}>
     <div className="container">
       <div style={{ marginBottom: '0.5rem' }}>
         <Link href="/" style={{ fontSize: '0.85rem', color: 'rgba(245,230,192,0.4)' }}>Strona główna</Link>
@@ -96,7 +101,7 @@ export default function Post3() {
 
         <div style={{ marginTop: '2rem', display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
           <Link href="/zasady/uklady-kart/" className="btn-outline">Pełna tabela układów →</Link>
-          <Link href="/graj/" className="btn-primary">🎰 Zagraj teraz</Link>
+          <Link href="/" className="btn-primary">🎰 Zagraj teraz</Link>
         </div>
 
         <hr className="divider" style={{ marginTop: '2.5rem' }} />

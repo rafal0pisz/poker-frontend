@@ -4,10 +4,27 @@ import { Nav } from '@/components/seo/Nav';
 import { Footer } from '@/components/seo/Footer';
 
 export const metadata: Metadata = {
-  title: 'Kalkulatory pokerowe — szanse na wygraną, equity, outs',
-  description: 'Darmowe kalkulatory pokerowe. Sprawdź swoje szanse na wygraną w Texas Hold\'em, oblicz equity i outs. Narzędzia dla graczy każdego poziomu.',
+  title: 'Kalkulatory pokerowe — szanse na wygraną Texas Hold\'em i Omaha',
+  description: 'Darmowe kalkulatory pokerowe. Sprawdź swoje equity w Texas Hold\'em i Omaha. Symulacja Monte Carlo, zasada 2+3, pre-flop i post-flop.',
   alternates: { canonical: 'https://pokero.pl/kalkulatory/' },
 };
+
+const calcs = [
+  {
+    href: '/kalkulatory/texas-holdem/',
+    icon: '♠',
+    name: "Kalkulator Texas Hold'em",
+    desc: 'Wybierz 2 karty, ustaw liczbę rywali — sprawdź equity pre-flop, na flopie, turnie i riverze. Symulacja 5000 rozdań.',
+    badge: null,
+  },
+  {
+    href: '/kalkulatory/omaha/',
+    icon: '♦',
+    name: 'Kalkulator Omaha',
+    desc: '4 karty na rękę, zasada dokładnie 2+3. Kalkulator sprawdza wszystkie 60 kombinacji. Symulacja 4000 rozdań.',
+    badge: null,
+  },
+];
 
 export default function KalkulatoryPage() {
   return (
@@ -22,37 +39,37 @@ export default function KalkulatoryPage() {
           </div>
           <h1 style={{ fontSize: '2rem', margin: '1.5rem 0 0.75rem' }}>Kalkulatory pokerowe</h1>
           <p style={{ color: 'rgba(245,230,192,0.6)', marginBottom: '2.5rem', maxWidth: 560 }}>
-            Darmowe narzędzia które pomogą Ci lepiej rozumieć matematykę pokera.
-            Sprawdź swoje szanse na wygraną jeszcze przed siadaniem do stołu.
+            Darmowe narzędzia które pomogą Ci lepiej rozumieć matematykę pokera. Sprawdź swoje szanse na wygraną przed siadaniem do stołu w <Link href="/">Pokero</Link>.
           </p>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', maxWidth: 560 }}>
-            <Link href="/kalkulatory/texas-holdem/" style={{ textDecoration: 'none' }}>
-              <div className="card card-hover" style={{ display: 'flex', gap: '1.25rem', alignItems: 'center' }}>
-                <div style={{ fontSize: '2.5rem', flexShrink: 0 }}>♠</div>
-                <div>
-                  <p style={{ fontWeight: 700, color: '#d4af37', margin: '0 0 0.25rem', fontSize: '1.05rem' }}>
-                    Kalkulator Texas Hold&apos;em
-                  </p>
-                  <p style={{ margin: 0, fontSize: '0.9rem', color: 'rgba(245,230,192,0.55)' }}>
-                    Wybierz karty, ustaw liczbę rywali — sprawdź swoje equity pre-flop, na flopie, turnie i riverze.
-                  </p>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', maxWidth: 580 }}>
+            {calcs.map(c => (
+              <Link key={c.href} href={c.href} style={{ textDecoration: 'none' }}>
+                <div className="card card-hover" style={{ display: 'flex', gap: '1.25rem', alignItems: 'center' }}>
+                  <div style={{ fontSize: '2.5rem', flexShrink: 0, color: '#d4af37' }}>{c.icon}</div>
+                  <div style={{ flex: 1 }}>
+                    <p style={{ fontWeight: 700, color: '#d4af37', margin: '0 0 0.3rem', fontSize: '1.05rem' }}>{c.name}</p>
+                    <p style={{ margin: 0, fontSize: '0.875rem', color: 'rgba(245,230,192,0.55)' }}>{c.desc}</p>
+                  </div>
+                  <span style={{ color: '#d4af37', flexShrink: 0 }}>→</span>
                 </div>
-                <span style={{ color: '#d4af37', flexShrink: 0 }}>→</span>
-              </div>
-            </Link>
-            <div className="card" style={{ opacity: 0.5, cursor: 'default' }}>
-              <div style={{ display: 'flex', gap: '1.25rem', alignItems: 'center' }}>
-                <div style={{ fontSize: '2.5rem', flexShrink: 0 }}>♦</div>
-                <div>
-                  <p style={{ fontWeight: 700, color: '#d4af37', margin: '0 0 0.25rem', fontSize: '1.05rem' }}>
-                    Kalkulator Omaha <span style={{ fontSize: '0.75rem', background: 'rgba(212,175,55,0.15)', padding: '2px 8px', borderRadius: 20, marginLeft: 6 }}>wkrótce</span>
-                  </p>
-                  <p style={{ margin: 0, fontSize: '0.9rem', color: 'rgba(245,230,192,0.55)' }}>
-                    Equity dla Omaha z zasadą dokładnie 2+3 kart.
-                  </p>
-                </div>
-              </div>
-            </div>
+              </Link>
+            ))}
+          </div>
+
+          <div className="prose" style={{ marginTop: '3rem', maxWidth: 640 }}>
+            <h2>Po co używać kalkulatora pokerowego?</h2>
+            <p>
+              Kalkulator pokerowy to narzędzie treningowe — pokaże Ci jak silna jest Twoja ręka
+              w konkretnej sytuacji zanim zasiądziesz do prawdziwej gry. Szczególnie przydatny
+              gdy uczysz się nowych wariantów jak Omaha gdzie intuicja z Texas może Cię mylić.
+            </p>
+            <h2>Texas Hold&apos;em vs Omaha — różne kalkulatory</h2>
+            <p>
+              Oba kalkulatory używają symulacji Monte Carlo ale z różnymi regułami ewaluacji.
+              W Texas możesz użyć dowolnych kart. W Omaha obowiązuje zasada 2+3 —
+              kalkulator sprawdza wszystkie C(4,2)×C(5,3)=60 kombinacji i wybiera najlepszą.
+              To dlatego intuicja z Texas nie działa w Omaha.
+            </p>
           </div>
         </div>
       </main>

@@ -70,7 +70,7 @@ export function ActionPanel({ me, gameState, settings, players }: Props) {
     const update = () =>
       setSecondsLeft(Math.max(0, Math.ceil((gameState.actionDeadline! - Date.now()) / 1000)));
     update();
-    const interval = setInterval(update, 200);
+    const interval = setInterval(update, 1000);
     return () => clearInterval(interval);
   }, [isMyTurn, gameState.actionDeadline]);
 
@@ -329,25 +329,15 @@ export function ActionPanel({ me, gameState, settings, players }: Props) {
       </div>
 
       {secondsLeft !== null && (
-        <div className="space-y-1.5">
-          <div className="flex items-center justify-between px-0.5">
-            <span className="text-[10px] text-poker-yellow/50">Your turn</span>
-            <span
-              className="text-sm font-bold tabular-nums"
-              style={{ color: secondsLeft > 10 ? '#d4af37' : secondsLeft > 5 ? '#e07b39' : '#e05050' }}
-            >
-              {secondsLeft}s
-            </span>
-          </div>
-          <div className="h-1 w-full bg-poker-yellow/10 rounded-full overflow-hidden">
-            <div
-              className="h-1 rounded-full transition-all duration-200"
-              style={{
-                width: `${Math.min(100, (secondsLeft / settings.actionTimeoutSec) * 100)}%`,
-                background: secondsLeft > 10 ? '#d4af37' : secondsLeft > 5 ? '#e07b39' : '#e05050',
-              }}
-            />
-          </div>
+        <div className="h-1 w-full bg-poker-yellow/10 rounded-full overflow-hidden">
+          <div
+            className="h-1 rounded-full"
+            style={{
+              width: `${Math.min(100, (secondsLeft / settings.actionTimeoutSec) * 100)}%`,
+              background: secondsLeft > 10 ? '#d4af37' : secondsLeft > 5 ? '#e07b39' : '#e05050',
+              transition: 'width 0.9s linear, background 0.3s',
+            }}
+          />
         </div>
       )}
     </div>

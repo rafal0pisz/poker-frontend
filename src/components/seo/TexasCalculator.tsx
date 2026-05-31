@@ -279,7 +279,7 @@ export function TexasCalculator() {
               const col = PLAYER_COLORS[i + 1] || PLAYER_COLORS[PLAYER_COLORS.length - 1];
               return (
                 <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '8px 0', borderBottom: i < numOpp - 1 ? '1px solid rgba(212,175,55,0.08)' : 'none' }}>
-                  <div style={{ width: 28, height: 28, borderRadius: '50%', background: 'rgba(212,175,55,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 11, fontWeight: 700, color, flexShrink: 0 }}>{i + 1}</div>
+                  <div style={{ width: 28, height: 28, borderRadius: '50%', background: 'rgba(212,175,55,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 11, fontWeight: 700, color: col, flexShrink: 0 }}>{i + 1}</div>
                   <div style={{ fontSize: 13, color: 'rgba(245,230,192,0.5)', flex: '0 0 64px' }}>Rywal {i + 1}</div>
                   <div style={{ flex: 1, height: 8, background: '#2d2d3f', borderRadius: 4, overflow: 'hidden' }}>
                     <div style={{ height: 8, width: `${result.oppAvg.toFixed(1)}%`, background: col, borderRadius: 4, transition: 'width 0.4s' }} />

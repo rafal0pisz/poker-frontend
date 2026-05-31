@@ -25,6 +25,8 @@ export default function sitemap(): MetadataRoute.Sitemap {
     { url: `${base}/blog/uklady-kart-poker/`, lastModified: '2026-05-15', changeFrequency: 'monthly', priority: 0.75 },
     { url: `${base}/blog/poker-ze-znajomymi-online/`, lastModified: '2026-05-08', changeFrequency: 'monthly', priority: 0.75 },
     { url: `${base}/blog/zasady-pokera-texas-holdem/`, lastModified: '2026-05-01', changeFrequency: 'monthly', priority: 0.75 },
+    { url: `${base}/kalkulatory/`, lastModified: now, changeFrequency: 'monthly', priority: 0.9 },
+    { url: `${base}/kalkulatory/texas-holdem/`, lastModified: now, changeFrequency: 'monthly', priority: 0.9 },
     { url: `${base}/kontakt/`, lastModified: now, changeFrequency: 'yearly', priority: 0.4 },
   ];
 }

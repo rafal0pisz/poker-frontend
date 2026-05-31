@@ -20,6 +20,7 @@ export function Nav() {
         {/* Desktop menu */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '1.5rem' }} className="desktop-nav">
           <Link href="/pl/" style={{ color: 'rgba(245,230,192,0.7)', fontSize: '0.9rem', textDecoration: 'none' }}>Strona główna</Link>
+          <Link href="/kalkulatory/" style={{ color: 'rgba(245,230,192,0.7)', fontSize: '0.9rem', textDecoration: 'none' }}>Kalkulatory</Link>
           <Link href="/zasady/" style={{ color: 'rgba(245,230,192,0.7)', fontSize: '0.9rem', textDecoration: 'none' }}>Zasady gry</Link>
           <Link href="/blog/" style={{ color: 'rgba(245,230,192,0.7)', fontSize: '0.9rem', textDecoration: 'none' }}>Blog</Link>
           <Link href="/kontakt/" style={{ color: 'rgba(245,230,192,0.7)', fontSize: '0.9rem', textDecoration: 'none' }}>Kontakt</Link>
@@ -34,7 +35,7 @@ export function Nav() {
 
       {open && (
         <div style={{ background: '#13131f', borderTop: '1px solid rgba(212,175,55,0.1)', padding: '1rem 1.25rem' }}>
-          {[['/pl/', 'Strona główna'], ['/zasady/', 'Zasady gry'], ['/blog/', 'Blog'], ['/kontakt/', 'Kontakt']].map(([href, label]) => (
+          {[['/pl/', 'Strona główna'], ['/kalkulatory/', 'Kalkulatory'], ['/zasady/', 'Zasady gry'], ['/blog/', 'Blog'], ['/kontakt/', 'Kontakt']].map(([href, label]) => (
             <Link key={href} href={href} onClick={() => setOpen(false)}
               style={{ display: 'block', padding: '0.65rem 0', color: 'rgba(245,230,192,0.8)', borderBottom: '1px solid rgba(212,175,55,0.06)', textDecoration: 'none' }}>
               {label}

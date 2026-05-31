@@ -111,3 +111,12 @@ li { margin-bottom: 0.4rem; }
 .prose th { background: var(--gold-faint); color: var(--gold); padding: 0.6rem 1rem; text-align: left; font-size: 0.85rem; letter-spacing: 0.05em; }
 .prose td { padding: 0.6rem 1rem; border-bottom: 1px solid rgba(212,175,55,0.08); color: var(--text-muted); font-size: 0.95rem; }
 .prose td:first-child { font-weight: 600; color: var(--text); }
+
+/* Hover effects for cards (replaces JS onMouseEnter/Leave) */
+.card-hover {
+  transition: border-color 0.15s;
+  cursor: pointer;
+}
+.card-hover:hover {
+  border-color: rgba(212, 175, 55, 0.4) !important;
+}

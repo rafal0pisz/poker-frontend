@@ -1,6 +1,7 @@
 import '../seo-globals.css';
+import type { Metadata } from 'next';
 
-export const metadata = {
+export const metadata: Metadata = {
   metadataBase: new URL('https://pokero.pl'),
 };
 

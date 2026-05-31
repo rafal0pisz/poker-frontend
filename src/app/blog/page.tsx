@@ -50,9 +50,8 @@ export default function BlogPage() {
           <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
             {posts.map((p) => (
               <Link key={p.href} href={p.href} style={{ textDecoration: 'none' }}>
-                <div className="card" style={{ cursor: 'pointer', transition: 'border-color 0.15s' }}
-                  onMouseEnter={e => (e.currentTarget.style.borderColor = 'rgba(212,175,55,0.4)')}
-                  onMouseLeave={e => (e.currentTarget.style.borderColor = 'rgba(212,175,55,0.15)')}>
+                <div className="card card-hover"
+>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '0.6rem' }}>
                     <span className="badge">{p.tag}</span>
                     <span style={{ fontSize: '0.8rem', color: 'rgba(245,230,192,0.3)' }}>{new Date(p.date).toLocaleDateString('pl-PL', { day: 'numeric', month: 'long', year: 'numeric' })}</span>

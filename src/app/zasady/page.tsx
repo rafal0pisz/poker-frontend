@@ -38,8 +38,7 @@ export default function ZasadyPage() {
             {variants.map((v) => (
               <Link key={v.href} href={v.href} style={{ textDecoration: 'none' }}>
                 <div className="card" style={{ display: 'flex', gap: '1.25rem', alignItems: 'flex-start', cursor: 'pointer', transition: 'border-color 0.15s' }}
-                  onMouseEnter={e => (e.currentTarget.style.borderColor = 'rgba(212,175,55,0.4)')}
-                  onMouseLeave={e => (e.currentTarget.style.borderColor = 'rgba(212,175,55,0.15)')}>
+>
                   <div style={{ fontSize: '2rem', lineHeight: 1, flexShrink: 0, marginTop: '0.1rem' }}>{v.icon}</div>
                   <div style={{ flex: 1 }}>
                     <div style={{ display: 'flex', alignItems: 'baseline', gap: '0.75rem', flexWrap: 'wrap' }}>

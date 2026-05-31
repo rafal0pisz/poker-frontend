@@ -119,9 +119,8 @@ export default function HomePage() {
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1rem' }}>
             {variants.map((v) => (
               <Link key={v.href} href={v.href} style={{ textDecoration: 'none' }}>
-                <div className="card" style={{ height: '100%', transition: 'border-color 0.15s', cursor: 'pointer' }}
-                  onMouseEnter={e => (e.currentTarget.style.borderColor = 'rgba(212,175,55,0.4)')}
-                  onMouseLeave={e => (e.currentTarget.style.borderColor = 'rgba(212,175,55,0.15)')}>
+                <div className="card card-hover" style={{ height: '100%' }}
+>
                   <div style={{ fontSize: '1.75rem', marginBottom: '0.75rem' }}>{v.icon}</div>
                   <h3 style={{ fontSize: '1rem', marginBottom: '0.4rem', color: '#d4af37' }}>{v.name}</h3>
                   <p style={{ fontSize: '0.85rem', color: 'rgba(245,230,192,0.55)', margin: 0 }}>{v.desc}</p>
@@ -210,9 +209,8 @@ export default function HomePage() {
               { href: '/blog/uklady-kart-poker/', title: 'Układy kart w pokerze — pełna tabela z przykładami', tag: 'Zasady' },
             ].map((a) => (
               <Link key={a.href} href={a.href} style={{ textDecoration: 'none' }}>
-                <div className="card" style={{ height: '100%', cursor: 'pointer' }}
-                  onMouseEnter={e => (e.currentTarget.style.borderColor = 'rgba(212,175,55,0.35)')}
-                  onMouseLeave={e => (e.currentTarget.style.borderColor = 'rgba(212,175,55,0.15)')}>
+                <div className="card card-hover" style={{ height: '100%' }}
+>
                   <span className="badge" style={{ marginBottom: '0.75rem', display: 'inline-block' }}>{a.tag}</span>
                   <h3 style={{ fontSize: '0.95rem', lineHeight: 1.4, color: 'rgba(245,230,192,0.9)' }}>{a.title}</h3>
                 </div>

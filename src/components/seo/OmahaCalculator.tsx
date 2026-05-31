@@ -166,11 +166,11 @@ export function OmahaCalculator() {
         const deck = shuffle(buildDeck([...h, ...board]));
         let di = 0;
         const sb = [...board];
-        while (sb.length < 5) sb.push(deck[di++]);
-        const hs = bestOmahaHand(h, sb);
+        while (sb.length < 5) sb.push(deck[di++]!);
+        const hs = bestOmahaHand(h, sb as NonNullable<Card>[]);
         let ob = 0;
         for (let o = 0; o < numOpp; o++) {
-          const oh = [deck[di++], deck[di++], deck[di++], deck[di++]];
+          const oh = [deck[di++]!, deck[di++]!, deck[di++]!, deck[di++]!];
           const s = bestOmahaHand(oh, sb);
           if (s > ob) ob = s;
         }

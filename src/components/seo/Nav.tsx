@@ -7,7 +7,7 @@ export function Nav() {
   return (
     <nav style={{ borderBottom: '1px solid rgba(212,175,55,0.1)', background: 'rgba(13,13,20,0.95)', backdropFilter: 'blur(8px)', position: 'sticky', top: 0, zIndex: 100 }}>
       <div className="container-wide" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', height: 60 }}>
-        <Link href="/" style={{ textDecoration: 'none', display: 'flex', alignItems: 'center' }}>
+        <Link href="/pl/" style={{ textDecoration: 'none', display: 'flex', alignItems: 'center' }}>
           <svg width="110" height="28" viewBox="0 0 186 46" xmlns="http://www.w3.org/2000/svg">
             <text x="4" y="38" fontFamily="Rajdhani,'Arial Narrow',sans-serif" fontWeight="700" fontSize="40" fill="#d4af37" textLength="140" lengthAdjust="spacingAndGlyphs">POKER</text>
             <circle cx="159" cy="24" r="14.5" fill="#0d0d14" stroke="#d4af37" strokeWidth="2.3"/>
@@ -19,6 +19,7 @@ export function Nav() {
 
         {/* Desktop menu */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '1.5rem' }} className="desktop-nav">
+          <Link href="/pl/" style={{ color: 'rgba(245,230,192,0.7)', fontSize: '0.9rem', textDecoration: 'none' }}>Strona główna</Link>
           <Link href="/zasady/" style={{ color: 'rgba(245,230,192,0.7)', fontSize: '0.9rem', textDecoration: 'none' }}>Zasady gry</Link>
           <Link href="/blog/" style={{ color: 'rgba(245,230,192,0.7)', fontSize: '0.9rem', textDecoration: 'none' }}>Blog</Link>
           <Link href="/kontakt/" style={{ color: 'rgba(245,230,192,0.7)', fontSize: '0.9rem', textDecoration: 'none' }}>Kontakt</Link>
@@ -33,7 +34,7 @@ export function Nav() {
 
       {open && (
         <div style={{ background: '#13131f', borderTop: '1px solid rgba(212,175,55,0.1)', padding: '1rem 1.25rem' }}>
-          {[['/', 'Strona główna'], ['/zasady/', 'Zasady gry'], ['/blog/', 'Blog'], ['/kontakt/', 'Kontakt']].map(([href, label]) => (
+          {[['/pl/', 'Strona główna'], ['/zasady/', 'Zasady gry'], ['/blog/', 'Blog'], ['/kontakt/', 'Kontakt']].map(([href, label]) => (
             <Link key={href} href={href} onClick={() => setOpen(false)}
               style={{ display: 'block', padding: '0.65rem 0', color: 'rgba(245,230,192,0.8)', borderBottom: '1px solid rgba(212,175,55,0.06)', textDecoration: 'none' }}>
               {label}

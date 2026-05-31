@@ -284,7 +284,7 @@ export function TexasCalculator() {
                   <div style={{ flex: 1, height: 8, background: '#2d2d3f', borderRadius: 4, overflow: 'hidden' }}>
                     <div style={{ height: 8, width: `${result.oppAvg.toFixed(1)}%`, background: col, borderRadius: 4, transition: 'width 0.4s' }} />
                   </div>
-                  <div style={{ fontSize: 18, fontWeight: 700, minWidth: 52, textAlign: 'right', color }}>{result.oppAvg.toFixed(1)}%</div>
+                  <div style={{ fontSize: 18, fontWeight: 700, minWidth: 52, textAlign: 'right', color: col }}>{result.oppAvg.toFixed(1)}%</div>
                 </div>
               );
             })}

@@ -12,7 +12,7 @@ export const metadata: Metadata = {
 const variants = [
   { href: '/zasady/texas-holdem/', icon: '♠', name: "Texas Hold'em", sub: '2 karty na rękę', desc: 'Najпопуларniejszy wariant pokera na świecie. Dwie karty zakryte, pięć wspólnych. Klasyk obowiązkowy na każdym stole.' },
   { href: '/zasady/omaha/', icon: '♦', name: 'Omaha', sub: '4 karty na rękę', desc: 'Cztery karty na ręce — musisz użyć dokładnie 2 z nich. Więcej kombinacji, więcej emocji.' },
-  { href: '/zasady/crazy-pineapple/', icon: '🍍', name: 'Crazy Pineapple', sub: '3 karty na rękę', desc: 'Twist na Texas Hold\'em — trzy karty, ale grasz tylko 1 lub 2. Idealny dla tych co znają Texasa i szukają czegoś nowego.' },
+  { href: '/zasady/crazy-pineapple/', icon: '🍍', name: 'Crazy Pineapple', sub: '3 karty na rękę', desc: 'Texas Hold\'em z 3 kartami na ręce. Więcej opcji, więcej kombinacji — te same zasady ewaluacji.' },
   { href: '/zasady/drawmaha/', icon: '🃏', name: 'Drawmaha', sub: '5 kart + wymiana', desc: 'Unikalny wariant z wymianą kart i split potem. Łączy Omahę z Five-Card Draw — pula dzielona między dwóch zwycięzców.' },
   { href: '/zasady/uklady-kart/', icon: '🏆', name: 'Układy kart', sub: 'Od Royal Flush do Wysokiej karty', desc: 'Kompletna tabela układów pokerowych od najsilniejszego do najsłabszego. Z przykładami dla każdego.' },
 ];

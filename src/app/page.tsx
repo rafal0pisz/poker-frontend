@@ -201,7 +201,14 @@ export default function HomePage() {
         </p>
 
         {/* Footer links */}
-        <div className="mt-6 flex justify-center gap-6">
+        <div className="mt-6 flex justify-center gap-6 flex-wrap">
+          <a
+            href="/pl/"
+            className="text-poker-yellow/40 text-xs hover:text-poker-yellow/70 transition"
+          >
+            Homepage
+          </a>
+          <span className="text-poker-gold/20 text-xs">·</span>
           <button
             onClick={() => setView('rules')}
             className="text-poker-yellow/40 text-xs hover:text-poker-yellow/70 transition"

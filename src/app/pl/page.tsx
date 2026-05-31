@@ -21,7 +21,7 @@ const features = [
 const variants = [
   { name: "Texas Hold'em", icon: '♠', href: '/zasady/texas-holdem/', desc: '2 karty na rękę, najlepsze 5 z 7. Klasyk klasycznych.' },
   { name: 'Omaha', icon: '♦', href: '/zasady/omaha/', desc: '4 karty na rękę, musisz użyć dokładnie 2. Więcej kombinacji.' },
-  { name: 'Crazy Pineapple', icon: '🍍', href: '/zasady/crazy-pineapple/', desc: '3 karty na rękę, używasz 1 lub 2. Twist na Texas.' },
+  { name: 'Crazy Pineapple', icon: '🍍', href: '/zasady/crazy-pineapple/', desc: '3 karty na rękę, zasady Texas Hold\'em.' },
   { name: 'Drawmaha', icon: '🃏', href: '/zasady/drawmaha/', desc: 'Wymiana kart + split pot. Nasz autorski wariant.' },
 ];
 

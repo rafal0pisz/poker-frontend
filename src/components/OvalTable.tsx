@@ -393,7 +393,7 @@ export function OvalTable({
               {!showDiscardUI && (
                 <div style={{ display: 'flex', gap: 2 }}>
                   {myHoleCards.length > 0
-                    ? myHoleCards.slice(0, 2).map((c, i) => <Card key={i} card={c} size="sm" winning={winningCardsSet.has(c)} />)
+                    ? myHoleCards.map((c, i) => <Card key={i} card={c} size="sm" winning={winningCardsSet.has(c)} />)
                     : <><Card size="sm" facedown /><Card size="sm" facedown /></>
                   }
                 </div>
@@ -428,15 +428,9 @@ export function OvalTable({
 
         {/* ── BOTTOM BAR ── */}
         <div style={{ flexShrink: 0, background: 'rgba(7,7,9,0.97)', borderTop: '1px solid rgba(212,175,55,0.1)', padding: '10px 20px', display: 'flex', alignItems: 'center', gap: 16 }}>
-          {/* My cards */}
+          {/* FloatingBubble still shown, cards moved to oval YOU seat */}
           <div style={{ position: 'relative' }}>
             <FloatingBubble message={myBubbleToShow} position="above" />
-            <div style={{ display: 'flex', gap: 6 }}>
-              {!showDiscardUI && (myHoleCards.length > 0
-                ? myHoleCards.map((c, i) => <Card key={i} card={c} size={myHoleCards.length >= 5 ? 'sm' : myHoleCards.length >= 4 ? 'md' : 'lg'} winning={winningCardsSet.has(c)} dealIndex={i} />)
-                : <><CardPlaceholder size="lg" /><CardPlaceholder size="lg" /></>
-              )}
-            </div>
           </div>
 
           {/* My info */}

@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import type { Room, Card as CardType, HandResult, ChatMessage, GameVariant } from '@/lib/types';
 import { Card, CardPlaceholder } from './Card';
 import { PlayerSeat } from './PlayerSeat';
@@ -26,16 +26,17 @@ const SEAT_POSITIONS = [
   { top: '62%',  left: '3%'  },  // 6 = left
 ];
 
-interface BetChipProps { amount: number; side?: 'left' | 'right' | 'top' | 'bottom' }
+type BetSide = 'left' | 'right' | 'top' | 'bottom';
+interface BetChipProps { amount: number; side?: BetSide }
 function BetChip({ amount, side = 'bottom' }: BetChipProps) {
-  const pos = {
-    bottom: 'bottom: -18px; left: 50%; transform: translateX(-50%);',
-    top:    'top: -18px; left: 50%; transform: translateX(-50%);',
-    left:   'left: -36px; top: 50%; transform: translateY(-50%);',
-    right:  'right: -36px; top: 50%; transform: translateY(-50%);',
-  }[side];
+  const styleMap: Record<BetSide, React.CSSProperties> = {
+    bottom: { position: 'absolute', bottom: -18, left: '50%', transform: 'translateX(-50%)' },
+    top:    { position: 'absolute', top: -18, left: '50%', transform: 'translateX(-50%)' },
+    left:   { position: 'absolute', left: -36, top: '50%', transform: 'translateY(-50%)' },
+    right:  { position: 'absolute', right: -36, top: '50%', transform: 'translateY(-50%)' },
+  };
   return (
-    <div style={{ position: 'absolute', [side === 'bottom' ? 'bottom' : side === 'top' ? 'top' : side]: side === 'left' || side === 'right' ? '50%' : '-18px', left: side === 'left' ? '-36px' : side === 'right' ? 'auto' : '50%', right: side === 'right' ? '-36px' : 'auto', transform: side === 'left' || side === 'right' ? 'translateY(-50%)' : 'translateX(-50%)', background: '#d4af37', color: '#070709', fontSize: 9, fontWeight: 700, padding: '2px 6px', borderRadius: 8, whiteSpace: 'nowrap', zIndex: 20 }}>
+    <div style={{ ...styleMap[side], background: '#d4af37', color: '#070709', fontSize: 9, fontWeight: 700, padding: '2px 6px', borderRadius: 8, whiteSpace: 'nowrap', zIndex: 20 }}>
       {amount}
     </div>
   );
@@ -278,7 +279,7 @@ export function OvalTable({
             ? <p style={{ fontSize: 11, color: 'rgba(245,230,192,0.25)', textAlign: 'center', marginTop: 20 }}>No messages yet</p>
             : chatMessages.map(m => (
               <div key={m.id} style={{ fontSize: 11, lineHeight: 1.4 }}>
-                <span style={{ fontWeight: 600, color: m.senderSessionToken === mySessionToken ? '#d4af37' : 'rgba(212,175,55,0.6)' }}>{m.senderNick}: </span>
+                <span style={{ fontWeight: 600, color: m.senderSessionToken === mySessionToken ? '#d4af37' : 'rgba(212,175,55,0.6)' }}>{m.senderNick ?? 'You'}: </span>
                 <span style={{ color: 'rgba(245,230,192,0.7)' }}>{m.content}</span>
                 <span style={{ fontSize: 9, color: 'rgba(245,230,192,0.2)', marginLeft: 4 }}>{formatTime(m.timestamp)}</span>
               </div>

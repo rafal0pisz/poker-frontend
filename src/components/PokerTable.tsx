@@ -751,7 +751,7 @@ export function PokerTable({ initialRoom, mySessionToken, onLeave }: Props) {
           me={me}
           myHoleCards={myHoleCards}
           winningCardsSet={winningCardsSet}
-          activeResult={activeResult}
+          activeResult={activeResult ?? null}
           lastResult={lastResult}
           resultMessage={resultMessage}
           isShowdown={isShowdown}

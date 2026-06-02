@@ -254,6 +254,8 @@ export function PokerTable({ initialRoom, mySessionToken, onLeave }: Props) {
   const [showChat, setShowChat] = useState(false);
   const [showVariantPicker, setShowVariantPicker] = useState(false);
   const [lastResult, setLastResult] = useState<HandResult | null>(null);
+  const [revealedHands, setRevealedHands] = useState<Record<string, CardType[]>>({});
+  const [myHandShown, setMyHandShown] = useState(false);
   const [codeCopied, setCodeCopied] = useState(false);
   const [discardIndices, setDiscardIndices] = useState(new Set<number>());
   const [drawSubmitted, setDrawSubmitted] = useState(false);
@@ -310,7 +312,12 @@ export function PokerTable({ initialRoom, mySessionToken, onLeave }: Props) {
       }
       processRoomState(updated, mySessionToken);
       const myUpdated = updated.players.find((p) => p.sessionToken === mySessionToken);
-      if (myUpdated?.holeCards) setMyHoleCards(myUpdated.holeCards);
+      if (myUpdated?.holeCards) {
+        setMyHoleCards(myUpdated.holeCards);
+        // New hand started — reset show hand state
+        setMyHandShown(false);
+        setRevealedHands({});
+      }
       if (!updated.gameState) setMyHoleCards([]);
       if (updated.messages && updated.messages.length !== messagesLengthRef.current) {
         setMessages(updated.messages);
@@ -357,6 +364,9 @@ export function PokerTable({ initialRoom, mySessionToken, onLeave }: Props) {
     socket.on('room:state', handleRoomState);
     socket.on('game:your-cards', handleYourCards);
     socket.on('game:hand-result', handleHandResult);
+    socket.on('game:hand-revealed', (data: { sessionToken: string; nick: string; cards: CardType[] }) => {
+      setRevealedHands(prev => ({ ...prev, [data.sessionToken]: data.cards }));
+    });
     socket.on('room:closed', handleClosed);
     socket.on('chat:message', handleChatMessage);
     socket.on('game:draw-open-card', () => {});
@@ -365,6 +375,7 @@ export function PokerTable({ initialRoom, mySessionToken, onLeave }: Props) {
       socket.off('room:state', handleRoomState);
       socket.off('game:your-cards', handleYourCards);
       socket.off('game:hand-result', handleHandResult);
+      socket.off('game:hand-revealed');
       socket.off('room:closed', handleClosed);
       socket.off('chat:message', handleChatMessage);
       socket.off('game:draw-open-card');
@@ -434,6 +445,14 @@ export function PokerTable({ initialRoom, mySessionToken, onLeave }: Props) {
   const canSitOut = !!gameState && !['sitting-out', 'waiting', 'no-chips', 'spectator'].includes(me.status);
 
   const winningCardsSet = new Set<CardType>();
+  const isShowdown = gameState?.phase === 'showdown';
+
+  const handleShowHand = () => {
+    if (!isShowdown || myHandShown) return;
+    getSocket().emit('game:show-hand');
+    setMyHandShown(true);
+  };
+
   const activeResult = lastResult || gameState?.lastHandResult;
   if (activeResult?.winningCards) {
     for (const c of activeResult.winningCards) winningCardsSet.add(c);
@@ -588,6 +607,7 @@ export function PokerTable({ initialRoom, mySessionToken, onLeave }: Props) {
                   cardCount={currentCardCount}
                   actionDeadline={gameState?.actionDeadline}
                   actionTimeoutSec={room.settings.actionTimeoutSec}
+                  revealedCards={revealedHands[p.sessionToken]}
                 />
               ))}
         </div>
@@ -694,6 +714,16 @@ export function PokerTable({ initialRoom, mySessionToken, onLeave }: Props) {
             </div>
           )}
 
+          {isShowdown && !isSpectator && myHoleCards.length > 0 && (
+            <button
+              onClick={handleShowHand}
+              disabled={myHandShown}
+              className="w-full text-xs font-medium py-1.5 px-3 rounded-lg border transition-colors"
+              style={{ background: myHandShown ? 'rgba(212,175,55,0.15)' : 'rgba(212,175,55,0.06)', borderColor: myHandShown ? 'rgba(212,175,55,0.4)' : 'rgba(212,175,55,0.2)', color: myHandShown ? '#d4af37' : 'rgba(245,230,192,0.6)', cursor: myHandShown ? 'default' : 'pointer' }}
+            >
+              {myHandShown ? '✓ Hand shown' : 'Show Hand'}
+            </button>
+          )}
           {gameState && !isSpectator && !isDrawPhase && (
             <ActionPanel me={me} gameState={gameState} settings={room.settings} players={room.players} />
           )}
@@ -783,6 +813,7 @@ export function PokerTable({ initialRoom, mySessionToken, onLeave }: Props) {
                 cardCount={currentCardCount}
                 actionDeadline={gameState?.actionDeadline}
                 actionTimeoutSec={room.settings.actionTimeoutSec}
+                revealedCards={revealedHands[p.sessionToken]}
               />
             ))}
           </div>
@@ -825,6 +856,16 @@ export function PokerTable({ initialRoom, mySessionToken, onLeave }: Props) {
             {showDiscardUI && drawState && <DrawCardsDisplay holeCards={myHoleCards} discardIndices={discardIndices} submitted={drawSubmitted} onToggle={toggleDiscardIndex} />}
             {showDiscardUI && drawState && <DrawmahaDraw discardCount={discardIndices.size} drawState={drawState} mySessionToken={mySessionToken} submitted={drawSubmitted} onSubmit={handleDrawDiscard} onClear={() => setDiscardIndices(new Set<number>())} />}
             {showRevealUI && drawState && <DrawmahaReveal drawState={drawState} mySessionToken={mySessionToken} myPlayer={me} players={room.players} onDecide={handleDrawDecide} />}
+            {isShowdown && !isSpectator && myHoleCards.length > 0 && (
+              <button
+                onClick={handleShowHand}
+                disabled={myHandShown}
+                className="w-full text-xs font-medium py-1 px-3 rounded-lg border transition-colors mb-1"
+                style={{ background: myHandShown ? 'rgba(212,175,55,0.15)' : 'rgba(212,175,55,0.06)', borderColor: myHandShown ? 'rgba(212,175,55,0.4)' : 'rgba(212,175,55,0.2)', color: myHandShown ? '#d4af37' : 'rgba(245,230,192,0.6)', cursor: myHandShown ? 'default' : 'pointer' }}
+              >
+                {myHandShown ? '✓ Hand shown' : 'Show Hand'}
+              </button>
+            )}
             {gameState && !isSpectator && !isDrawPhase && <ActionPanel me={me} gameState={gameState} settings={room.settings} players={room.players} />}
             {!gameState && !isSpectator && (
               <div className="bg-poker-yellow/5 border border-poker-gold/25 rounded-xl px-4 py-3 text-center">

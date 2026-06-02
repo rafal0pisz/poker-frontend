@@ -18,6 +18,7 @@ interface Props {
   cardCount?: number;
   actionDeadline?: number | null;
   actionTimeoutSec?: number;
+  revealedCards?: CardType[];
 }
 
 const STATUS_LABEL: Record<PlayerStatus, string> = {
@@ -86,6 +87,7 @@ export function PlayerSeat({
   cardCount = 2,
   actionDeadline,
   actionTimeoutSec = 30,
+  revealedCards,
 }: Props) {
   const dimmed =
     player.status === 'folded' ||
@@ -93,8 +95,11 @@ export function PlayerSeat({
     player.status === 'disconnected' ||
     player.status === 'spectator';
 
-  const revealedCards = player.holeCards || [];
-  const hasRevealedCards = revealedCards.length > 0;
+  const playerRevealedCards = player.holeCards || [];
+  // Also show cards revealed via Show Hand button
+  const shownCards = revealedCards || playerRevealedCards;
+  const hasRevealedCards = shownCards.length > 0;
+  const isShowHandReveal = !!(revealedCards && revealedCards.length > 0 && playerRevealedCards.length === 0);
   const useSmallGap = cardCount >= 4 || revealedCards.length >= 4;
 
   // Show timer ring only for non-self active players
@@ -107,7 +112,7 @@ export function PlayerSeat({
       {/* Hole cards */}
       {hasRevealedCards ? (
         <div className={`flex mb-1 ${useSmallGap ? '-space-x-1.5' : 'gap-0.5'}`}>
-          {revealedCards.map((c, i) => (
+          {shownCards.map((c, i) => (
             <Card key={`${c}-${i}`} card={c} size="sm" winning={!!winningCards?.has(c)} />
           ))}
         </div>
@@ -171,6 +176,11 @@ export function PlayerSeat({
           </span>
         )}
       </div>
+
+      {/* "Showed hand" label */}
+      {isShowHandReveal && (
+        <p className="text-[9px] text-poker-gold/50 mt-0.5">showed hand</p>
+      )}
 
       {/* Name & chips */}
       <div className="text-center mt-1">

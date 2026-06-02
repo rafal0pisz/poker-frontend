@@ -9,6 +9,7 @@ import { PlayerSeat } from './PlayerSeat';
 import { ActionPanel } from './ActionPanel';
 import { AdminPanel } from './AdminPanel';
 import { ChatModal } from './ChatModal';
+import { OvalTable } from './OvalTable';
 import { FloatingBubble } from './FloatingBubble';
 import { VariantPicker, VARIANT_LABELS } from './VariantPicker';
 import { DrawmahaDraw } from './DrawmahaDraw';
@@ -741,141 +742,77 @@ export function PokerTable({ initialRoom, mySessionToken, onLeave }: Props) {
       </div>
 
       {/* ─── DESKTOP ─── */}
-      <div className="hidden md:grid p-4 gap-4 max-w-6xl mx-auto min-h-screen" style={{ gridTemplateColumns: '260px 1fr' }}>
-        <aside className="flex flex-col gap-3 h-[calc(100vh-2rem)] sticky top-4">
-          <div className="bg-poker-yellow/5 border border-poker-gold/25 rounded-xl p-3">
-            <p className="text-poker-gold/60 text-[11px] uppercase tracking-wider mb-2">Players ({room.players.length})</p>
-            <div className="flex flex-col gap-2">
-              {room.players.map((p) => {
-                const isYou = p.sessionToken === mySessionToken;
-                const isCurrent = gameState?.currentPlayerSeat === p.seat;
-                return (
-                  <div key={p.sessionToken} className={`flex items-center gap-2 p-1.5 rounded-lg ${isCurrent ? 'bg-poker-gold/10 border border-poker-gold/30' : ''} ${p.status === 'spectator' ? 'opacity-60' : ''}`}>
-                    <div className={`w-8 h-8 rounded-full flex items-center justify-center text-[11px] font-medium flex-shrink-0 ${isCurrent ? 'bg-poker-gold/25 border-2 border-poker-gold text-poker-gold' : isYou ? 'bg-poker-yellow/20 border border-poker-yellow text-poker-yellow' : 'bg-poker-yellow/10 border border-poker-gold/30 text-poker-yellow'}`}>
-                      {p.nick.slice(0, 2).toUpperCase()}
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <p className="text-poker-yellow text-xs truncate">{p.nick}{isYou ? ' (you)' : ''}{isCurrent ? ' ·turn' : ''}</p>
-                      <p className="text-poker-yellow/50 text-[10px]">{p.status === 'spectator' ? 'watching' : p.chips + ' · ' + (p.status !== 'playing' ? p.status : '')}</p>
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-          </div>
-          <DesktopChat messages={messages} mySessionToken={mySessionToken} room={room} onSend={sendChat} onSendReaction={sendReaction} />
-        </aside>
-
-        <div className="flex flex-col">
-          {/* TopBar (desktop duplicate) */}
-          <div className="flex items-center justify-between mb-2 gap-2">
-            <button onClick={copyCode} className="flex items-center gap-1.5 bg-poker-gold/10 border border-poker-gold/20 px-3 py-1.5 rounded-lg flex-shrink-0">
-              <span className="text-poker-gold/60 text-xs">#</span>
-              <span className="font-mono text-poker-gold text-sm tracking-wider">{room.id}</span>
-              <span className="text-poker-gold/40 text-[10px]">{codeCopied ? '✓' : '⧉'}</span>
-            </button>
-            <div className="flex items-center gap-1.5">
-              <button onClick={() => { enableAudio(); toggleMute(); }} className="bg-poker-yellow/5 border border-poker-gold/20 text-poker-yellow/70 text-xs px-2.5 py-1.5 rounded-lg">{muted ? '🔇' : '🔊'}</button>
-              {isSittingOut
-                ? <button onClick={() => getSocket().emit('game:sit-back')} className="bg-poker-gold/20 border border-poker-gold/50 text-poker-gold text-xs px-2.5 py-1.5 rounded-lg">▶ Sit back</button>
-                : canSitOut
-                ? <button onClick={() => getSocket().emit('game:sit-out')} className="bg-poker-yellow/5 border border-poker-gold/25 text-poker-yellow/70 text-xs px-2.5 py-1.5 rounded-lg">⏸ Sit out</button>
-                : null}
-              {isAdmin && <button onClick={() => setShowAdminPanel(true)} className="bg-poker-gold/15 border border-poker-gold/40 text-poker-gold text-xs px-2.5 py-1.5 rounded-lg">⚙ Admin</button>}
-              <button onClick={() => { if (confirm("Leave?")) { getSocket().emit('room:leave'); clearSessionToken(room.id); onLeave(); } }} className="text-poker-yellow/60 text-xs px-2 py-1.5">Leave</button>
-            </div>
-          </div>
-
-          {/* Variant bar (desktop) */}
-          <div className="flex items-center justify-between border border-poker-gold/30 px-3 py-1.5 rounded-lg mb-2" style={{ background: 'rgba(212,175,55,0.08)' }}>
-            <div className="flex items-center gap-2">
-              <span className="text-poker-gold/60 text-[9px] tracking-widest">NOW PLAYING</span>
-              <span className="text-poker-gold text-xs font-medium">{VARIANT_LABELS[currentVariant]}</span>
-              {isDrawPhase && <span className="text-[9px] bg-poker-gold/20 text-poker-gold px-1.5 py-0.5 rounded tracking-wider animate-pulse">DRAW</span>}
-            </div>
-            <button onClick={() => setShowVariantPicker(true)} className="bg-poker-gold text-poker-bg text-[11px] font-medium px-2 py-0.5 rounded">D ▾</button>
-          </div>
-
-          {/* Other players (desktop) */}
-          <div className="flex justify-around items-start py-3 flex-wrap gap-3 min-h-[110px]">
-            {otherPlayers.map((p) => (
-              <PlayerSeat
-                key={p.sessionToken}
-                player={p}
-                isCurrent={gameState?.currentPlayerSeat === p.seat}
-                isDealer={gameState?.dealerSeat === p.seat}
-                isSb={p.seat === sbSeat}
-                isBb={p.seat === bbSeat}
-                isYou={false}
-                lastMessage={getBubble(p.sessionToken)}
-                handName={activeResult?.showdownCards.find((sc) => sc.sessionToken === p.sessionToken)?.handName}
-                winningCards={winningCardsSet}
-                cardCount={currentCardCount}
-                actionDeadline={gameState?.actionDeadline}
-                actionTimeoutSec={room.settings.actionTimeoutSec}
-                revealedCards={revealedHands[p.sessionToken]}
-              />
-            ))}
-          </div>
-
-          {/* Table center (desktop) */}
-          <div className="poker-felt rounded-2xl p-6 my-2">
-            <p className="text-center text-[10px] text-poker-gold/70 tracking-widest mb-1">POT</p>
-            <p className="text-center text-3xl text-poker-yellow font-medium mb-3">{gameState ? gameState.pot : 0}</p>
-            <div className="flex justify-center gap-1">
-              {[0, 1, 2, 3, 4].map((i) => {
-                const card = gameState?.communityCards[i];
-                const isNewDesktop = card && i >= prevCommCardCountRef.current;
-                return card
-                  ? <Card key={i} card={card} size="md" winning={winningCardsSet.has(card)} dealIndex={isNewDesktop ? i - prevCommCardCountRef.current : undefined} slowFlip={isNewDesktop} />
-                  : <CardPlaceholder key={i} size="md" />;
-              })}
-            </div>
-            {gameState && <p className="text-center text-[10px] text-poker-gold/60 tracking-widest mt-2 uppercase">{gameState.phase} · hand #{gameState.handNumber}</p>}
-            <ResultPanel lastResult={lastResult} players={room.players} resultMessage={resultMessage} />
-          </div>
-
-          <div className="flex-1" />
-
-          {/* Player section (desktop) — same as mobile */}
-          <div className="relative bg-poker-yellow/5 rounded-2xl p-3 border border-poker-gold/25">
-            <div className="flex items-center justify-between mb-3">
-              <div>
-                <p className="text-poker-yellow font-medium text-sm">{me.nick} <span className="text-poker-yellow/50 text-xs">(you)</span></p>
-                <p className="text-poker-yellow/60 text-xs">Chips: <span className="text-poker-gold font-medium">{me.chips}</span></p>
-              </div>
-              {!showDiscardUI && (
-                <div className={myHoleCards.length >= 5 ? 'flex -space-x-2' : 'flex gap-0.5'}>
-                  {myHoleCards.length > 0
-                    ? myHoleCards.map((c, i) => <Card key={i} card={c} size={myHoleCards.length >= 5 ? 'sm' : 'md'} winning={winningCardsSet.has(c)} dealIndex={i} />)
-                    : <><CardPlaceholder size="lg" /><CardPlaceholder size="lg" /></>}
+      <div className="hidden md:block">
+        <OvalTable
+          room={room}
+          mySessionToken={mySessionToken}
+          gameState={gameState}
+          otherPlayers={otherPlayers}
+          me={me}
+          myHoleCards={myHoleCards}
+          winningCardsSet={winningCardsSet}
+          activeResult={activeResult}
+          lastResult={lastResult}
+          resultMessage={resultMessage}
+          isShowdown={isShowdown}
+          myHandShown={myHandShown}
+          isSpectator={isSpectator}
+          isAdmin={isAdmin}
+          isSittingOut={isSittingOut}
+          canSitOut={canSitOut}
+          muted={muted}
+          codeCopied={codeCopied}
+          currentVariant={currentVariant}
+          currentCardCount={currentCardCount}
+          isDrawPhase={isDrawPhase}
+          revealedHands={revealedHands}
+          sbSeat={sbSeat}
+          bbSeat={bbSeat}
+          prevCommCardCountRef={prevCommCardCountRef}
+          myBubbleToShow={myBubbleToShow}
+          getBubble={getBubble}
+          messages={messages}
+          sendChat={sendChat}
+          sendReaction={sendReaction}
+          showDiscardUI={showDiscardUI}
+          showRevealUI={showRevealUI}
+          nextDealerVariant={nextDealerVariant}
+          onLeave={() => { if (confirm('Leave? You\'ll lose your seat.')) { getSocket().emit('room:leave'); clearSessionToken(room.id); onLeave(); } }}
+          onShowHand={handleShowHand}
+          onCopyCode={copyCode}
+          onToggleMute={toggleMute}
+          onEnableAudio={enableAudio}
+          onShowAdmin={() => setShowAdminPanel(true)}
+          onShowVariantPicker={() => setShowVariantPicker(true)}
+          unreadCount={unreadCount}
+          onOpenChat={() => { setShowChat(true); setUnreadCount(0); }}
+          onSitBack={() => getSocket().emit('game:sit-back')}
+          onSitOut={() => getSocket().emit('game:sit-out')}
+          onTakeSeat={() => getSocket().emit('game:take-seat', (r: { ok: boolean; error?: string } | undefined) => { if (r && !r.ok) alert(r.error); })}
+          drawUI={
+            <>
+              {showDiscardUI && drawState && (
+                <>
+                  <DrawCardsDisplay holeCards={myHoleCards} discardIndices={discardIndices} submitted={drawSubmitted} onToggle={toggleDiscardIndex} />
+                  <DrawmahaDraw discardCount={discardIndices.size} drawState={drawState} mySessionToken={mySessionToken} submitted={drawSubmitted} onSubmit={handleDrawDiscard} onClear={() => setDiscardIndices(new Set<number>())} />
+                </>
+              )}
+              {showRevealUI && drawState && (
+                <DrawmahaReveal drawState={drawState} mySessionToken={mySessionToken} myPlayer={me} players={room.players} onDecide={handleDrawDecide} />
+              )}
+              {gameState && !isSpectator && isDrawPhase && !showDiscardUI && !showRevealUI && (
+                <div className="bg-poker-yellow/5 border border-poker-gold/25 rounded-xl px-4 py-3 text-center">
+                  <p className="text-poker-yellow/60 text-sm">{!myDrawPlayerState?.hasDrawn ? 'Waiting for draw phase…' : '✓ Draw submitted'}</p>
                 </div>
               )}
-            </div>
-
-            {showDiscardUI && drawState && <DrawCardsDisplay holeCards={myHoleCards} discardIndices={discardIndices} submitted={drawSubmitted} onToggle={toggleDiscardIndex} />}
-            {showDiscardUI && drawState && <DrawmahaDraw discardCount={discardIndices.size} drawState={drawState} mySessionToken={mySessionToken} submitted={drawSubmitted} onSubmit={handleDrawDiscard} onClear={() => setDiscardIndices(new Set<number>())} />}
-            {showRevealUI && drawState && <DrawmahaReveal drawState={drawState} mySessionToken={mySessionToken} myPlayer={me} players={room.players} onDecide={handleDrawDecide} />}
-            {isShowdown && !isSpectator && myHoleCards.length > 0 && (
-              <button
-                onClick={handleShowHand}
-                disabled={myHandShown}
-                className="w-full text-xs font-medium py-1 px-3 rounded-lg border transition-colors mb-1"
-                style={{ background: myHandShown ? 'rgba(212,175,55,0.15)' : 'rgba(212,175,55,0.06)', borderColor: myHandShown ? 'rgba(212,175,55,0.4)' : 'rgba(212,175,55,0.2)', color: myHandShown ? '#d4af37' : 'rgba(245,230,192,0.6)', cursor: myHandShown ? 'default' : 'pointer' }}
-              >
-                {myHandShown ? '✓ Hand shown' : 'Show Hand'}
-              </button>
-            )}
-            {gameState && !isSpectator && !isDrawPhase && <ActionPanel me={me} gameState={gameState} settings={room.settings} players={room.players} />}
-            {!gameState && !isSpectator && (
-              <div className="bg-poker-yellow/5 border border-poker-gold/25 rounded-xl px-4 py-3 text-center">
-                <p className="text-poker-yellow/70 text-sm">{isAdmin ? 'Click Admin → Start game' : 'Waiting for admin to start…'}</p>
-              </div>
-            )}
-          </div>
-        </div>
+            </>
+          }
+          actionPanel={gameState && !isSpectator && !isDrawPhase
+            ? <ActionPanel me={me} gameState={gameState} settings={room.settings} players={room.players} />
+            : null
+          }
+        />
       </div>
-
       <HandLog logs={logs} />
 
       {showAdminPanel && <AdminPanel room={room} mySessionToken={mySessionToken} onClose={() => setShowAdminPanel(false)} />}

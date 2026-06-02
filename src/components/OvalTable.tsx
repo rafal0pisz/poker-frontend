@@ -278,8 +278,8 @@ export function OvalTable({
             ? <p style={{ fontSize: 11, color: 'rgba(245,230,192,0.25)', textAlign: 'center', marginTop: 20 }}>No messages yet</p>
             : chatMessages.map(m => (
               <div key={m.id} style={{ fontSize: 11, lineHeight: 1.4 }}>
-                <span style={{ fontWeight: 600, color: m.senderSessionToken === mySessionToken ? '#d4af37' : 'rgba(212,175,55,0.6)' }}>{m.senderNick ?? 'You'}: </span>
-                <span style={{ color: 'rgba(245,230,192,0.7)' }}>{m.text}</span>
+                <span style={{ fontWeight: 600, color: m.senderSessionToken === mySessionToken ? '#d4af37' : 'rgba(212,175,55,0.6)' }}>{m.senderNick}: </span>
+                <span style={{ color: 'rgba(245,230,192,0.7)' }}>{m.content}</span>
                 <span style={{ fontSize: 9, color: 'rgba(245,230,192,0.2)', marginLeft: 4 }}>{formatTime(m.timestamp)}</span>
               </div>
             ))
@@ -287,7 +287,7 @@ export function OvalTable({
           {tab === 'actions' && (actionMessages.length === 0
             ? <p style={{ fontSize: 11, color: 'rgba(245,230,192,0.25)', textAlign: 'center', marginTop: 20 }}>No actions yet</p>
             : actionMessages.map(m => (
-              <p key={m.id} style={{ fontSize: 10, color: 'rgba(245,230,192,0.4)', textAlign: 'center', fontStyle: 'italic', lineHeight: 1.4 }}>{m.text}</p>
+              <p key={m.id} style={{ fontSize: 10, color: 'rgba(245,230,192,0.4)', textAlign: 'center', fontStyle: 'italic', lineHeight: 1.4 }}>{m.content}</p>
             ))
           )}
           {tab === 'summary' && (allSummary.length === 0

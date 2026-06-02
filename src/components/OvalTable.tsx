@@ -15,15 +15,16 @@ const VARIANT_LABELS: Record<GameVariant, string> = {
 };
 
 // 7 seat positions around the oval (as % of oval width/height)
-// Seat 0 = bottom-center (YOU), seats 1-6 clockwise from there
+// Seat 0 = YOU at bottom-center (on the oval edge)
+// Opponents fill starting opposite (top-center) and spread symmetrically
 const SEAT_POSITIONS = [
-  { top: '108%', left: '50%' },  // 0 = you (below oval, not shown on oval)
-  { top: '98%',  left: '78%' },  // 1 = bottom-right
-  { top: '62%',  left: '97%' },  // 2 = right
-  { top: '12%',  left: '82%' },  // 3 = top-right
-  { top: '4%',   left: '50%' },  // 4 = top-center
-  { top: '12%',  left: '18%' },  // 5 = top-left
-  { top: '62%',  left: '3%'  },  // 6 = left
+  { top: '96%',  left: '50%' },  // 0 = YOU — bottom-center
+  { top: '4%',   left: '50%' },  // 1 = top-center (opposite YOU — first seat filled)
+  { top: '12%',  left: '80%' },  // 2 = top-right
+  { top: '62%',  left: '97%' },  // 3 = right
+  { top: '12%',  left: '20%' },  // 4 = top-left
+  { top: '62%',  left: '3%'  },  // 5 = left
+  { top: '96%',  left: '78%' },  // 6 = bottom-right
 ];
 
 type BetSide = 'left' | 'right' | 'top' | 'bottom';
@@ -58,7 +59,14 @@ function OvalSeat({
   const hasCards = shownCards.length > 0;
 
   // Chip bet direction — push inward toward center
-  const betSide = seatIndex <= 1 ? 'top' : seatIndex <= 3 ? 'left' : seatIndex <= 5 ? 'bottom' : 'right';
+  // Bet chips pushed toward center based on seat position
+  const betSide: BetSide = seatIndex === 0 ? 'top'
+    : seatIndex === 1 ? 'bottom'
+    : seatIndex === 2 ? 'bottom'
+    : seatIndex === 3 ? 'left'
+    : seatIndex === 4 ? 'bottom'
+    : seatIndex === 5 ? 'right'
+    : 'top'; // 6 = bottom-right → top
 
   return (
     <div style={{ position: 'absolute', top: pos.top, left: pos.left, transform: 'translate(-50%, -50%)', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 3, zIndex: 10, opacity: isFolded ? 0.4 : 1 }}>
@@ -206,6 +214,7 @@ export function OvalTable({
 
   // Assign seat positions 1-6 to otherPlayers (up to 6 opponents)
   const seatedOpponents = otherPlayers.slice(0, 6).map((p, i) => ({ player: p, seatIndex: i + 1 }));
+  const youPos = SEAT_POSITIONS[0];
 
   // Chat tab state
   const [tab, setTab] = useState<'chat' | 'actions' | 'summary'>('chat');
@@ -245,7 +254,7 @@ export function OvalTable({
             <span style={{ fontSize: 9, color: 'rgba(212,175,55,0.35)' }}>{codeCopied ? '✓' : '⧉'}</span>
           </button>
           <button onClick={() => { onEnableAudio(); onToggleMute(); }} style={{ background: 'rgba(212,175,55,0.06)', border: '1px solid rgba(212,175,55,0.12)', borderRadius: 7, padding: '4px 8px', fontSize: 12, color: 'rgba(245,230,192,0.6)', cursor: 'pointer' }}>{muted ? '🔇' : '🔊'}</button>
-          {isAdmin && <button onClick={onShowAdmin} style={{ background: 'rgba(212,175,55,0.1)', border: '1px solid rgba(212,175,55,0.25)', borderRadius: 7, padding: '4px 8px', fontSize: 11, color: '#d4af37', cursor: 'pointer' }}>⚙</button>}
+          {isAdmin && <button onClick={onShowAdmin} style={{ background: 'rgba(212,175,55,0.12)', border: '1px solid rgba(212,175,55,0.35)', borderRadius: 8, padding: '5px 12px', fontSize: 12, fontWeight: 600, color: '#d4af37', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4 }}>⚙ Admin</button>}
           {isSittingOut
             ? <button onClick={() => onSitBack()} style={{ background: 'rgba(212,175,55,0.12)', border: '1px solid rgba(212,175,55,0.3)', borderRadius: 7, padding: '4px 8px', fontSize: 10, color: '#d4af37', cursor: 'pointer' }}>▶ Back</button>
             : canSitOut
@@ -377,6 +386,36 @@ export function OvalTable({
                 revealedCards={revealedHands[player.sessionToken]}
               />
             ))}
+
+            {/* YOU seat on oval — bottom-center */}
+            <div style={{ position: 'absolute', top: youPos.top, left: youPos.left, transform: 'translate(-50%, -50%)', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 3, zIndex: 10 }}>
+              {/* Cards above avatar (shown during hand) */}
+              {!showDiscardUI && (
+                <div style={{ display: 'flex', gap: 2 }}>
+                  {myHoleCards.length > 0
+                    ? myHoleCards.slice(0, 2).map((c, i) => <Card key={i} card={c} size="sm" winning={winningCardsSet.has(c)} />)
+                    : <><Card size="sm" facedown /><Card size="sm" facedown /></>
+                  }
+                </div>
+              )}
+              {/* Avatar */}
+              <div style={{ position: 'relative', width: 42, height: 42 }}>
+                <div style={{ width: 42, height: 42, borderRadius: '50%', background: 'rgba(99,179,237,0.15)', border: '2px solid rgba(99,179,237,0.6)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 11, fontWeight: 600, color: '#90cdf4', position: 'relative' }}>
+                  {me.nick.slice(0, 2).toUpperCase()}
+                  {gameState?.dealerSeat === me.seat && <span style={{ position: 'absolute', top: -4, right: -4, width: 14, height: 14, background: '#fff', borderRadius: '50%', fontSize: 7, fontWeight: 800, color: '#070709', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>D</span>}
+                  {me.seat === sbSeat && gameState?.dealerSeat !== me.seat && <span style={{ position: 'absolute', bottom: -4, left: -4, width: 14, height: 14, background: '#3b82f6', borderRadius: '50%', fontSize: 7, fontWeight: 800, color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>S</span>}
+                  {me.seat === bbSeat && gameState?.dealerSeat !== me.seat && <span style={{ position: 'absolute', bottom: -4, right: -4, width: 14, height: 14, background: '#7c3aed', borderRadius: '50%', fontSize: 7, fontWeight: 800, color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>B</span>}
+                </div>
+                {me.currentBet > 0 && (
+                  <div style={{ position: 'absolute', top: -18, left: '50%', transform: 'translateX(-50%)', background: '#d4af37', color: '#070709', fontSize: 9, fontWeight: 700, padding: '2px 6px', borderRadius: 8, whiteSpace: 'nowrap', zIndex: 20 }}>{me.currentBet}</div>
+                )}
+              </div>
+              {/* YOU badge */}
+              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 1 }}>
+                <span style={{ fontSize: 8, fontWeight: 700, color: 'rgba(99,179,237,0.7)', letterSpacing: '0.08em', textTransform: 'uppercase' }}>YOU</span>
+                <span style={{ fontSize: 9, fontWeight: 600, color: 'rgba(245,230,192,0.7)' }}>{me.chips}</span>
+              </div>
+            </div>
 
             {/* Waiting message */}
             {!gameState && otherPlayers.length === 0 && (

@@ -100,7 +100,7 @@ export function PlayerSeat({
   const shownCards = revealedCards || playerRevealedCards;
   const hasRevealedCards = shownCards.length > 0;
   const isShowHandReveal = !!(revealedCards && revealedCards.length > 0 && playerRevealedCards.length === 0);
-  const useSmallGap = cardCount >= 4 || revealedCards.length >= 4;
+  const useSmallGap = cardCount >= 4 || (shownCards.length >= 4);
 
   // Show timer ring only for non-self active players
   const showRing = isCurrent && !isYou && !!actionDeadline;

@@ -200,6 +200,7 @@ export function OvalTable({
   showDiscardUI, nextDealerVariant, onLeave, onShowHand,
   onCopyCode, onToggleMute, onEnableAudio, onShowAdmin, onShowVariantPicker,
   drawUI, actionPanel, unreadCount,
+  onSitBack, onSitOut, onTakeSeat,
 }: OvalTableProps) {
 
   // Assign seat positions 1-6 to otherPlayers (up to 6 opponents)

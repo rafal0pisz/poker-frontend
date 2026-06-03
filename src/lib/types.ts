@@ -62,7 +62,7 @@ export interface SidePot {
 }
 
 export interface HandResult {
-  winnings: { sessionToken: string; amount: number; handDescription?: string }[];
+  winnings: { sessionToken: string; amount: number; netAmount?: number; handDescription?: string }[];
   showdownCards: { sessionToken: string; cards: Card[]; handName: string }[];
   winningCards: Card[];
   // Present for Drawmaha — split pot details

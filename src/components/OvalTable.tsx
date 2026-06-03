@@ -76,9 +76,9 @@ function OvalSeat({
       {seatIndex >= 3 && (
         <div style={{ display: 'flex', gap: 2 }}>
           {hasCards
-            ? shownCards.map((c, i) => <Card key={i} card={c} size="sm" winning={winningCards.has(c)} />)
+            ? shownCards.map((c, i) => <Card key={i} card={c} size="xs" winning={winningCards.has(c)} />)
             : (player.status === 'playing' || player.status === 'all-in' || isFolded)
-              ? Array.from({ length: cardCount }).map((_, i) => <Card key={i} size="sm" facedown />)
+              ? Array.from({ length: cardCount }).map((_, i) => <Card key={i} size="xs" facedown />)
               : null}
         </div>
       )}
@@ -114,9 +114,9 @@ function OvalSeat({
       {seatIndex < 3 && (
         <div style={{ display: 'flex', gap: 2 }}>
           {hasCards
-            ? shownCards.map((c, i) => <Card key={i} card={c} size="sm" winning={winningCards.has(c)} />)
+            ? shownCards.map((c, i) => <Card key={i} card={c} size="xs" winning={winningCards.has(c)} />)
             : (player.status === 'playing' || player.status === 'all-in' || isFolded)
-              ? Array.from({ length: cardCount }).map((_, i) => <Card key={i} size="sm" facedown />)
+              ? Array.from({ length: cardCount }).map((_, i) => <Card key={i} size="xs" facedown />)
               : null}
         </div>
       )}
@@ -360,8 +360,8 @@ export function OvalTable({
                   const card = gameState?.communityCards[i];
                   const isNew = card && i >= (prevCommCardCountRef.current ?? 0);
                   return card
-                    ? <Card key={i} card={card} size="md" winning={winningCardsSet.has(card)} dealIndex={isNew ? i - (prevCommCardCountRef.current ?? 0) : undefined} slowFlip={isNew} />
-                    : <CardPlaceholder key={i} size="md" />;
+                    ? <Card key={i} card={card} size="lg" winning={winningCardsSet.has(card)} dealIndex={isNew ? i - (prevCommCardCountRef.current ?? 0) : undefined} slowFlip={isNew} />
+                    : <CardPlaceholder key={i} size="lg" />;
                 })}
               </div>
               {gameState && <p style={{ fontSize: 9, color: 'rgba(212,175,55,0.4)', letterSpacing: '0.06em', textTransform: 'uppercase' }}>{gameState.phase} · #{gameState.handNumber}</p>}
@@ -393,8 +393,8 @@ export function OvalTable({
               {!showDiscardUI && (
                 <div style={{ display: 'flex', gap: 2 }}>
                   {myHoleCards.length > 0
-                    ? myHoleCards.map((c, i) => <Card key={i} card={c} size="sm" winning={winningCardsSet.has(c)} />)
-                    : <><Card size="sm" facedown /><Card size="sm" facedown /></>
+                    ? myHoleCards.map((c, i) => <Card key={i} card={c} size="md" winning={winningCardsSet.has(c)} />)
+                    : <><Card size="md" facedown /><Card size="md" facedown /></>
                   }
                 </div>
               )}
@@ -428,10 +428,9 @@ export function OvalTable({
 
         {/* ── BOTTOM BAR ── */}
         <div style={{ flexShrink: 0, background: 'rgba(7,7,9,0.97)', borderTop: '1px solid rgba(212,175,55,0.1)', padding: '10px 20px', display: 'flex', alignItems: 'center', gap: 16 }}>
-          {/* FloatingBubble still shown, cards moved to oval YOU seat */}
-          <div style={{ position: 'relative' }}>
-            <FloatingBubble message={myBubbleToShow} position="above" />
-          </div>
+          {/* FloatingBubble for own player is intentionally hidden in bottom bar */}
+          {/* Own messages are visible to others via their FloatingBubbles */}
+          <div style={{ position: 'relative' }} />
 
           {/* My info */}
           <div style={{ display: 'flex', flexDirection: 'column', gap: 2, flexShrink: 0 }}>

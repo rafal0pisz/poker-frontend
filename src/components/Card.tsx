@@ -5,7 +5,7 @@ import type { Card as CardType } from '@/lib/types';
 
 interface Props {
   card?: CardType;
-  size?: 'sm' | 'md' | 'lg';
+  size?: 'xs' | 'sm' | 'md' | 'lg';
   facedown?: boolean;
   winning?: boolean;
   selectedForDiscard?: boolean;
@@ -24,6 +24,7 @@ const SUIT_COLORS: Record<string, string> = {
   h: 'text-red-600', d: 'text-red-600',
 };
 const SIZE_CLASSES = {
+  xs: 'w-7 h-9 text-xs',   // opponent cards — ~30% smaller than sm
   sm: 'w-9 h-12 text-sm',
   md: 'w-11 h-14 text-base',
   lg: 'w-14 h-20 text-xl',
@@ -98,7 +99,7 @@ export function Card({ card, size = 'md', facedown = false, winning = false, sel
   );
 }
 
-export function CardPlaceholder({ size = 'md' }: { size?: 'sm' | 'md' | 'lg' }) {
+export function CardPlaceholder({ size = 'md' }: { size?: 'xs' | 'sm' | 'md' | 'lg' }) {
   return (
     <div className={`${SIZE_CLASSES[size]} rounded-md bg-white/5 border border-dashed border-poker-gold/25`} />
   );

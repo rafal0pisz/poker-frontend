@@ -641,9 +641,7 @@ export function PokerTable({ initialRoom, mySessionToken, onLeave }: Props) {
 
         {/* Player section */}
         <div className="relative bg-poker-yellow/5 rounded-2xl p-3 border border-poker-gold/25">
-          <div className="absolute -top-2 right-4 z-10">
-            <FloatingBubble message={myBubbleToShow} position="above" />
-          </div>
+          {/* Own chat bubble hidden for self — others see it via their FloatingBubbles */}
 
           {/* Header row */}
           <div className="flex items-center justify-between mb-3">

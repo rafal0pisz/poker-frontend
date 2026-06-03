@@ -34,7 +34,7 @@ export function ChatModal({ messages, mySessionToken, room, onClose }: Props) {
     setSending(true);
     getSocket().emit('chat:send', { type: 'text', content: trimmed }, (response: ActionResponse) => {
       setSending(false);
-      if (response && !response.ok) { alert(response.error || 'Failed'); return; }
+      if (response && !response.ok) { console.warn('Chat send failed:', response.error); }
       setText('');
     });
   };
@@ -72,10 +72,10 @@ export function ChatModal({ messages, mySessionToken, room, onClose }: Props) {
   const displayed = tab === 'chat' ? chatMessages : actionMessages;
 
   return (
-    <div className="fixed inset-0 z-50 bg-black/70 flex items-end sm:items-center justify-center p-4">
+    <div className="fixed inset-0 z-50 bg-black/70 flex items-end sm:items-center justify-center p-4" style={{ paddingBottom: 'env(safe-area-inset-bottom, 0px)' }}>
       <div
         className="bg-poker-bg-light w-full max-w-md rounded-2xl border border-poker-gold/30 flex flex-col"
-        style={{ maxHeight: '85vh', minHeight: '60vh' }}
+        style={{ maxHeight: '85dvh', minHeight: '50vh' }}
       >
         {/* Header */}
         <div className="flex items-center justify-between px-4 pt-4 pb-2 flex-shrink-0">
@@ -110,7 +110,7 @@ export function ChatModal({ messages, mySessionToken, room, onClose }: Props) {
         {/* Content */}
         <div
           ref={scrollRef}
-          className="flex-1 overflow-y-auto px-4 py-2"
+          className="flex-1 overflow-y-auto px-4 py-2" onTouchMove={(e) => e.stopPropagation()}
           style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' } as React.CSSProperties}
         >
           {tab === 'summary' ? (
@@ -224,12 +224,16 @@ export function ChatModal({ messages, mySessionToken, room, onClose }: Props) {
             <div className="flex gap-2">
               <input
                 type="text"
+                inputMode="text"
+                autoComplete="off"
+                autoCorrect="off"
+                autoCapitalize="sentences"
                 value={text}
                 onChange={(e) => setText(e.target.value)}
                 onKeyDown={(e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendText(); } }}
                 maxLength={200}
                 placeholder="Type a message..."
-                className="flex-1 bg-poker-yellow/10 border border-poker-gold/20 px-4 py-2.5 rounded-full text-poker-yellow outline-none placeholder:text-poker-yellow/40"
+                className="flex-1 bg-poker-yellow/10 border border-poker-gold/20 px-4 py-2.5 rounded-full text-poker-yellow outline-none placeholder:text-poker-yellow/40" style={{ fontSize: 16 }}
               />
               <button onClick={sendText} disabled={sending || !text.trim()} className="bg-poker-gold text-poker-bg w-10 h-10 rounded-full font-medium disabled:opacity-40 active:scale-95 flex items-center justify-center">↑</button>
             </div>

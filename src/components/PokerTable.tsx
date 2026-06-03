@@ -349,7 +349,7 @@ export function PokerTable({ initialRoom, mySessionToken, onLeave }: Props) {
       processHandResult(result, roomRef.current.players);
     };
 
-    const handleClosed = (reason: string) => { alert(reason); clearSessionToken(room.id); onLeave(); };
+    const handleClosed = (reason: string) => { console.warn('Room closed:', reason); clearSessionToken(room.id); onLeave(); };
 
     const handleChatMessage = (msg: ChatMessage) => {
       setMessages((prev) => [...prev, msg]);
@@ -430,13 +430,13 @@ export function PokerTable({ initialRoom, mySessionToken, onLeave }: Props) {
     const t = text.trim();
     if (!t) return;
     getSocket().emit('chat:send', { type: 'text', content: t }, (r: { ok: boolean; error?: string } | undefined) => {
-      if (r && !r.ok) alert(r.error || 'Failed to send');
+      if (r && !r.ok) console.warn('Action failed:', r.error);
     });
   };
 
   const handleSetVariant = (variant: GameVariant) => {
     getSocket().emit('game:set-variant', { variant }, (r: { ok: boolean; error?: string } | undefined) => {
-      if (r && !r.ok) alert(r.error || 'Failed');
+      if (r && !r.ok) console.warn('Action failed:', r.error);
       setShowVariantPicker(false);
     });
   };
@@ -672,7 +672,7 @@ export function PokerTable({ initialRoom, mySessionToken, onLeave }: Props) {
               <p className="text-poker-gold text-base font-medium mb-1">👀 You are watching</p>
               <p className="text-poker-yellow/70 text-xs mb-3">Take a seat to join the game.</p>
               <button
-                onClick={() => getSocket().emit('game:take-seat', (r: { ok: boolean; error?: string } | undefined) => { if (r && !r.ok) alert(r.error); })}
+                onClick={() => getSocket().emit('game:take-seat', (r: { ok: boolean; error?: string } | undefined) => { if (r && !r.ok) console.warn('Take seat failed:', r.error); })}
                 className="w-full bg-poker-gold text-poker-bg font-medium py-3 rounded-lg active:scale-95"
               >
                 🪑 Take a seat
@@ -791,7 +791,7 @@ export function PokerTable({ initialRoom, mySessionToken, onLeave }: Props) {
           onOpenChat={() => { setShowChat(true); setUnreadCount(0); }}
           onSitBack={() => getSocket().emit('game:sit-back')}
           onSitOut={() => getSocket().emit('game:sit-out')}
-          onTakeSeat={() => getSocket().emit('game:take-seat', (r: { ok: boolean; error?: string } | undefined) => { if (r && !r.ok) alert(r.error); })}
+          onTakeSeat={() => getSocket().emit('game:take-seat', (r: { ok: boolean; error?: string } | undefined) => { if (r && !r.ok) console.warn('Take seat failed:', r.error); })}
           drawUI={
             <>
               {showDiscardUI && drawState && (

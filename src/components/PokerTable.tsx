@@ -319,6 +319,10 @@ export function PokerTable({ initialRoom, mySessionToken, onLeave }: Props) {
         setMyHandShown(false);
         setRevealedHands({});
       }
+      // Clear my cards when I fold (status becomes 'folded')
+      if (myUpdated?.status === 'folded' || myUpdated?.status === 'sitting-out') {
+        setMyHoleCards([]);
+      }
       if (!updated.gameState) setMyHoleCards([]);
       if (updated.messages && updated.messages.length !== messagesLengthRef.current) {
         setMessages(updated.messages);
@@ -489,7 +493,8 @@ export function PokerTable({ initialRoom, mySessionToken, onLeave }: Props) {
     } else {
       resultMessage = lastResult.winnings.map((w) => {
         const nick = room.players.find((p) => p.sessionToken === w.sessionToken)?.nick || '?';
-        return nick + ' (+' + w.amount + ')' + (w.handDescription ? ' · ' + w.handDescription : '');
+        const display = w.netAmount !== undefined ? w.netAmount : w.amount;
+        return nick + ' (+' + display + ')' + (w.handDescription ? ' · ' + w.handDescription : '');
       }).join(', ');
     }
   }

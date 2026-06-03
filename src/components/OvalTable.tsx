@@ -76,9 +76,9 @@ function OvalSeat({
       {seatIndex >= 3 && (
         <div style={{ display: 'flex', gap: 2 }}>
           {hasCards
-            ? shownCards.map((c, i) => <Card key={i} card={c} size="xs" winning={winningCards.has(c)} />)
+            ? shownCards.map((c, i) => <Card key={i} card={c} size="md" winning={winningCards.has(c)} />)
             : (player.status === 'playing' || player.status === 'all-in' || isFolded)
-              ? Array.from({ length: cardCount }).map((_, i) => <Card key={i} size="xs" facedown />)
+              ? Array.from({ length: cardCount }).map((_, i) => <Card key={i} size="md" facedown />)
               : null}
         </div>
       )}
@@ -114,9 +114,9 @@ function OvalSeat({
       {seatIndex < 3 && (
         <div style={{ display: 'flex', gap: 2 }}>
           {hasCards
-            ? shownCards.map((c, i) => <Card key={i} card={c} size="xs" winning={winningCards.has(c)} />)
+            ? shownCards.map((c, i) => <Card key={i} card={c} size="md" winning={winningCards.has(c)} />)
             : (player.status === 'playing' || player.status === 'all-in' || isFolded)
-              ? Array.from({ length: cardCount }).map((_, i) => <Card key={i} size="xs" facedown />)
+              ? Array.from({ length: cardCount }).map((_, i) => <Card key={i} size="md" facedown />)
               : null}
         </div>
       )}

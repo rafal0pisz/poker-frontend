@@ -13,6 +13,7 @@ import { OvalTable } from './OvalTable';
 import { FloatingBubble } from './FloatingBubble';
 import { VariantPicker, VARIANT_LABELS } from './VariantPicker';
 import { DrawmahaDraw } from './DrawmahaDraw';
+import { PineappleDiscard } from './PineappleDiscard';
 import { DrawmahaReveal } from './DrawmahaReveal';
 import { useSounds, enableAudio } from '@/hooks/useSounds';
 import { useHandLog } from '@/hooks/useHandLog';

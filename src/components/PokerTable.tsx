@@ -453,7 +453,7 @@ export function PokerTable({ initialRoom, mySessionToken, onLeave }: Props) {
   const isShowdown = gameState?.phase === 'showdown';
 
   const handlePineappleDiscard = (discardIndex: number) => {
-    getSocket().emit('game:pineapple-discard', { discardIndex }, (r) => {
+    getSocket().emit('game:pineapple-discard', { discardIndex }, (r: { ok: boolean; error?: string } | undefined) => {
       if (r && !r.ok) console.warn('Pineapple discard failed:', r.error);
     });
   };

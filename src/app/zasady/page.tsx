@@ -4,7 +4,7 @@ import { Nav } from '@/components/seo/Nav';
 import { Footer } from '@/components/seo/Footer';
 
 export const metadata: Metadata = {
-  title: 'Zasady gry w pokera — Texas Hold\'em, Omaha, Pineapple, Drawmaha',
+  title: 'Zasady gry w pokera — Texas Hold\'em, Omaha, Pineapple, Drawmaha, Pineapple Classic',
   description: 'Poznaj zasady wszystkich wariantów pokera dostępnych w Pokero: Texas Hold\'em, Omaha, Crazy Pineapple i Drawmaha. Układy kart, blindy, kolejność gry.',
   alternates: { canonical: 'https://pokero.pl/zasady/' },
 };
@@ -14,6 +14,7 @@ const variants = [
   { href: '/zasady/omaha/', icon: '♦', name: 'Omaha', sub: '4 karty na rękę', desc: 'Cztery karty na ręce — musisz użyć dokładnie 2 z nich. Więcej kombinacji, więcej emocji.' },
   { href: '/zasady/crazy-pineapple/', icon: '🍍', name: 'Crazy Pineapple', sub: '3 karty na rękę', desc: 'Texas Hold\'em z 3 kartami na ręce. Więcej opcji, więcej kombinacji — te same zasady ewaluacji.' },
   { href: '/zasady/drawmaha/', icon: '🃏', name: 'Drawmaha', sub: '5 kart + wymiana', desc: 'Unikalny wariant z wymianą kart i split potem. Łączy Omahę z Five-Card Draw — pula dzielona między dwóch zwycięzców.' },
+  { href: '/zasady/pineapple-klasyczny/', icon: '🍍', name: 'Pineapple Classic', sub: '3 karty → wyrzut', desc: '3 karty na rękę, po licytacji na flopie wyrzucasz jedną. Od turn grasz jak w Texas z 2 kartami.' },
   { href: '/zasady/uklady-kart/', icon: '🏆', name: 'Układy kart', sub: 'Od Royal Flush do Wysokiej karty', desc: 'Kompletna tabela układów pokerowych od najsilniejszego do najsłabszego. Z przykładami dla każdego.' },
 ];
 

@@ -42,8 +42,8 @@ export default function PineapplePage() {
             </p>
             <p>
               Kluczowa różnica wobec Omaha: <strong>nie ma żadnego obowiązku użycia określonej liczby kart</strong>.
-              Możesz użyć 0, 1, 2 lub wszystkich 3 kart z ręki. Jeśli 5 kart na stole tworzy lepszą rękę niż cokolwiek
-              co masz w ręce — grasz planszą. Dokładnie tak samo jak w Texas Hold&apos;em.
+              Możesz użyć dowolnej kombinacji kart — 0, 1, 2 lub wszystkich 3 — dokładnie jak w Texas Hold&apos;em.
+              Wszystkie 3 karty zostają przy Tobie do showdownu. Nie wyrzucasz żadnej.
             </p>
 
             <h2>Porównanie z Texas Hold'em</h2>
@@ -51,7 +51,7 @@ export default function PineapplePage() {
               <thead><tr><th>Element</th><th>Texas Hold&apos;em</th><th>Crazy Pineapple</th></tr></thead>
               <tbody>
                 <tr><td>Karty na rękę</td><td>2</td><td>3</td></tr>
-                <tr><td>Użycie kart własnych</td><td>0, 1 lub 2 (dowolnie)</td><td>0, 1, 2 lub 3 (dowolnie)</td></tr>
+                <tr><td>Użycie kart własnych</td><td>0, 1 lub 2 (dowolnie)</td><td>0, 1, 2 lub 3 — grasz wszystkimi do końca</td></tr>
                 <tr><td>Wspólne karty</td><td>5 (flop, turn, river)</td><td>5 (flop, turn, river)</td></tr>
                 <tr><td>Ulice gry</td><td>Preflop → Flop → Turn → River</td><td>Identyczne</td></tr>
                 <tr><td>Ewaluacja ręki</td><td>Najlepsza 5-kartowa z 7</td><td>Najlepsza 5-kartowa z 8</td></tr>
@@ -88,6 +88,16 @@ export default function PineapplePage() {
             <p>
               Pamiętaj jednak że rywale też mają 3 karty — więcej możliwości oznacza silniejsze ręce na showdownie.
               Nie przeceniaj pary lub dwóch par gdy stół wygląda groźnie.
+            </p>
+
+            <h2>Różnica od Pineapple Classic</h2>
+            <p>
+              W Pokero dostępna jest też wersja <strong>Pineapple Classic</strong> gdzie po flopie
+              <em>musisz</em> wyrzucić jedną z 3 kart. W Crazy Pineapple — nie wyrzucasz nic,
+              wszystkie 3 karty zostają przy Tobie przez całą grę. To prostszy i luźniejszy wariant.
+            </p>
+            <p>
+              <Link href="/zasady/pineapple-klasyczny/">Zasady Pineapple Classic →</Link>
             </p>
 
             <h2>Crazy Pineapple w Pokero</h2>

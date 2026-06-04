@@ -452,6 +452,12 @@ export function PokerTable({ initialRoom, mySessionToken, onLeave }: Props) {
   const winningCardsSet = new Set<CardType>();
   const isShowdown = gameState?.phase === 'showdown';
 
+  const handlePineappleDiscard = (discardIndex: number) => {
+    getSocket().emit('game:pineapple-discard', { discardIndex }, (r) => {
+      if (r && !r.ok) console.warn('Pineapple discard failed:', r.error);
+    });
+  };
+
   const handleShowHand = () => {
     if (!isShowdown || myHandShown) return;
     getSocket().emit('game:show-hand');
@@ -467,8 +473,12 @@ export function PokerTable({ initialRoom, mySessionToken, onLeave }: Props) {
   const currentCardCount = currentVariant === 'omaha' ? 4 : currentVariant === 'drawmaha' ? 5 : currentVariant === 'pineapple' ? 3 : 2;
 
   const isDrawPhase = gameState?.phase === 'draw';
+  const isPineappleDiscardPhase = gameState?.phase === 'pineapple-discard';
   const drawState = gameState?.drawState;
   const myDrawPlayerState = drawState?.playerStates[mySessionToken];
+  const pineappleDiscardState = gameState?.pineappleDiscardState;
+  const myPineappleState = pineappleDiscardState?.playerStates[mySessionToken];
+  const showPineappleDiscardUI = isPineappleDiscardPhase && !!myPineappleState && !myPineappleState.hasDiscarded && !isSpectator;
   const showDrawUI = isDrawPhase && drawState != null && (me.status === 'playing' || me.status === 'all-in');
   const showDiscardUI = showDrawUI && !(myDrawPlayerState?.hasDrawn ?? false);
   const showRevealUI = showDrawUI && (myDrawPlayerState?.hasDrawn ?? false) && (drawState?.currentDecidingSeat != null);
@@ -767,7 +777,7 @@ export function PokerTable({ initialRoom, mySessionToken, onLeave }: Props) {
           codeCopied={codeCopied}
           currentVariant={currentVariant}
           currentCardCount={currentCardCount}
-          isDrawPhase={isDrawPhase}
+          isDrawPhase={isDrawPhase || isPineappleDiscardPhase}
           revealedHands={revealedHands}
           sbSeat={sbSeat}
           bbSeat={bbSeat}
@@ -799,6 +809,9 @@ export function PokerTable({ initialRoom, mySessionToken, onLeave }: Props) {
                   <DrawCardsDisplay holeCards={myHoleCards} discardIndices={discardIndices} submitted={drawSubmitted} onToggle={toggleDiscardIndex} />
                   <DrawmahaDraw discardCount={discardIndices.size} drawState={drawState} mySessionToken={mySessionToken} submitted={drawSubmitted} onSubmit={handleDrawDiscard} onClear={() => setDiscardIndices(new Set<number>())} />
                 </>
+              )}
+              {showPineappleDiscardUI && (
+                <PineappleDiscard holeCards={myHoleCards} onDiscard={handlePineappleDiscard} deadline={pineappleDiscardState?.discardDeadline ?? null} />
               )}
               {showRevealUI && drawState && (
                 <DrawmahaReveal drawState={drawState} mySessionToken={mySessionToken} myPlayer={me} players={room.players} onDecide={handleDrawDecide} />

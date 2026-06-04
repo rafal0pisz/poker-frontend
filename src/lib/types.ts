@@ -5,7 +5,7 @@ export type Card = `${Rank}${Suit}`;
 
 export type PlayerRole = 'player' | 'vice-admin' | 'admin';
 
-export type GameVariant = 'texas' | 'omaha' | 'drawmaha' | 'pineapple';
+export type GameVariant = 'texas' | 'omaha' | 'drawmaha' | 'pineapple' | 'pineapple-classic';
 
 export type PlayerStatus =
   | 'playing'
@@ -54,7 +54,7 @@ export interface RoomSettings {
 }
 
 // 'draw' = Drawmaha draw phase (after flop, before turn)
-export type HandPhase = 'preflop' | 'flop' | 'draw' | 'turn' | 'river' | 'showdown';
+export type HandPhase = 'preflop' | 'flop' | 'draw' | 'pineapple-discard' | 'turn' | 'river' | 'showdown';
 
 export interface SidePot {
   amount: number;
@@ -93,6 +93,11 @@ export interface DrawState {
 
 // ========================
 
+export interface PineappleDiscardState {
+  playerStates: Record<string, { hasDiscarded: boolean; discardIndex: number | null }>;
+  discardDeadline: number | null;
+}
+
 export interface GameState {
   phase: HandPhase;
   variant: GameVariant;
@@ -108,6 +113,7 @@ export interface GameState {
   handNumber: number;
   lastHandResult: HandResult | null;
   drawState?: DrawState;
+  pineappleDiscardState?: PineappleDiscardState;
 }
 
 // Chat

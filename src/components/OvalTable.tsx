@@ -231,22 +231,15 @@ export function OvalTable({
   const [tab, setTab] = useState<'chat' | 'actions' | 'summary'>('chat');
   const [selectedStatsToken, setSelectedStatsToken] = useState<string | null>(null);
 
-  // Equity — show at showdown AND during all-in runout (cards revealed mid-hand)
-  const isShowdown = gameState?.phase === 'showdown';
+  // Equity — show at showdown AND during all-in runout
+  // isShowdown comes from props — DO NOT redefine it
   const isAllInRunout = !isShowdown && Object.keys(revealedHands).length >= 2;
   const showEquity = isShowdown || isAllInRunout;
-
-  // Build showdownCards for equity: prefer activeResult.showdownCards at showdown,
-  // fall back to revealedHands during all-in runout
   const equityInput = showEquity
     ? isShowdown
       ? (activeResult?.showdownCards ?? null)
-      : Object.entries(revealedHands).map(([token, cards]) => ({
-          sessionToken: token,
-          cards,
-        }))
+      : Object.entries(revealedHands).map(([token, cards]) => ({ sessionToken: token, cards }))
     : null;
-
   const equityResults = useEquity(equityInput, gameState?.communityCards ?? [], currentVariant);
   const equityMap = Object.fromEntries(equityResults.map(e => [e.sessionToken, e.equity]));
   const [chatText, setChatText] = useState('');

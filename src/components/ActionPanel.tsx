@@ -130,7 +130,7 @@ export function ActionPanel({ me, gameState, settings, players }: Props) {
 
   const sendAction = (action: ActionType, amount?: number) => {
     getSocket().emit('game:action', { action, amount }, (response: ActionResponse) => {
-      if (response && !response.ok) alert(response.error || 'Action error');
+      if (response && !response.ok) console.warn('Action failed:', response.error);
     });
   };
 
@@ -141,7 +141,7 @@ export function ActionPanel({ me, gameState, settings, players }: Props) {
       getSocket().emit('game:pre-action', { action: next }, (response: ActionResponse) => {
         if (response && !response.ok) {
           setPendingAction(null);
-          alert(response.error);
+          console.warn('Pre-action failed:', response.error);
         }
       });
     },
@@ -208,7 +208,7 @@ export function ActionPanel({ me, gameState, settings, players }: Props) {
 
   // ── RAISE UI ──────────────────────────────────────────────────────────
   if (showRaiseUI) {
-    const isAllInConfirm = raiseAmount >= maxRaiseAmount;
+    // Note: actual all-in detection is now inline in the confirm button click handler
     return (
       <div className="bg-poker-yellow/5 border border-poker-gold/25 rounded-xl p-3 space-y-3">
         <div className="flex items-center justify-between gap-3">
@@ -276,7 +276,10 @@ export function ActionPanel({ me, gameState, settings, players }: Props) {
           </button>
           <button
             onClick={() => {
-              if (isAllInConfirm) {
+              // In Pot Limit: max raise IS the pot limit, not all-in
+              // Only send 'all-in' when player is actually using ALL their chips
+              const isActuallyAllIn = raiseAmount >= me.currentBet + me.chips;
+              if (isActuallyAllIn) {
                 sendAction('all-in');
               } else {
                 sendAction(gameState.currentBet === 0 ? 'bet' : 'raise', raiseAmount);
@@ -284,7 +287,7 @@ export function ActionPanel({ me, gameState, settings, players }: Props) {
             }}
             className="bg-poker-gold text-poker-bg font-medium py-3 rounded-lg"
           >
-            {isAllInConfirm ? 'All-in' : `Confirm ${raiseAmount}`}
+            {raiseAmount >= me.currentBet + me.chips ? 'All-in' : `Confirm ${raiseAmount}`}
           </button>
         </div>
       </div>

@@ -47,8 +47,15 @@ export function ActionPanel({ me, gameState, settings, players }: Props) {
 
   // Pot Limit cap: max raise = currentBet + pot + toCall
   const isPotLimit = gameState.variant === 'omaha-pl' || gameState.variant === 'drawmaha-pl';
+
+  // Pot Limit max raise formula:
+  // potLimitMax = currentBet + pot + toCall
+  // This equals: the pot after calling (call makes the pot bigger, then you can raise that amount)
+  // Special case: if currentBet=0 (first bet on a street), potLimitMax = pot (just bet the pot)
+  // Note: gameState.pot may be 0 between streets (collected into sidePots) — use pot + sidePots
+  const totalPot = gameState.pot + gameState.sidePots.reduce((s, sp) => s + sp.amount, 0);
   const potLimitMax = isPotLimit
-    ? gameState.currentBet + gameState.pot + toCall
+    ? Math.max(gameState.currentBet + totalPot + toCall, minRaiseAmount)
     : Infinity;
 
   // Cap maxRaiseAmount: effective max (opponent coverage) AND pot limit

@@ -23,7 +23,7 @@ const VARIANT_DESCRIPTIONS: Record<GameVariant, string> = {
 };
 
 // All variants are now fully implemented
-const AVAILABLE_VARIANTS: GameVariant[] = ['texas', 'omaha', 'omaha-pl', 'drawmaha', 'drawmaha-pl', 'pineapple', 'pineapple-classic'];
+const AVAILABLE_VARIANTS: GameVariant[] = ['texas', 'omaha', 'omaha-pl', 'drawmaha', 'drawmaha-pl', 'pineapple'];
 
 interface Props {
   currentVariant: GameVariant;
@@ -88,11 +88,7 @@ export function VariantPicker({ currentVariant, onSelect, onClose }: Props) {
                   <div>
                     <p className={`text-sm font-medium ${isSelected ? 'text-poker-gold' : 'text-poker-yellow'}`}>
                       {VARIANT_LABELS[v]}
-                      {(v === 'drawmaha' || v === 'pineapple') && (
-                        <span className="ml-2 text-[9px] bg-poker-gold/20 text-poker-gold px-1.5 py-0.5 rounded tracking-wider">
-                          NEW
-                        </span>
-                      )}
+
                     </p>
                     <p className={`text-[10px] ${isSelected ? 'text-poker-gold/70' : 'text-poker-yellow/50'}`}>
                       {VARIANT_DESCRIPTIONS[v]}

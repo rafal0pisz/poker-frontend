@@ -800,7 +800,6 @@ export function PokerTable({ initialRoom, mySessionToken, onLeave }: Props) {
           onShowVariantPicker={() => setShowVariantPicker(true)}
           unreadCount={unreadCount}
           playerStats={room.playerStats ?? {}}
-          currentVariant={currentVariant}
           onOpenChat={() => { setShowChat(true); setUnreadCount(0); }}
           onSitBack={() => getSocket().emit('game:sit-back')}
           onSitOut={() => getSocket().emit('game:sit-out')}

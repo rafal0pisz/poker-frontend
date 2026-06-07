@@ -10,15 +10,23 @@ export function getSocket(): Socket {
     socket = io(BACKEND_URL, {
       autoConnect: true,
       reconnection: true,
-      reconnectionDelay: 1000,
+      reconnectionDelay: 500,          // start fast
+      reconnectionDelayMax: 5000,      // cap at 5s
+      reconnectionAttempts: Infinity,  // keep trying
+      timeout: 10000,
+      // Ping keepalive — critical for iOS which kills idle sockets
+      // The server-side Socket.io default is 25s ping interval, 20s timeout
+      // We set a tighter interval to detect drops faster
     });
 
     socket.on('connect', () => {
-      console.log('[Socket] Connected to server:', socket?.id);
+      console.log('[Socket] Connected:', socket?.id);
     });
 
-    socket.on('disconnect', () => {
-      console.log('[Socket] Disconnected from server');
+    socket.on('disconnect', (reason) => {
+      console.log('[Socket] Disconnected:', reason);
+      // 'io server disconnect' = server kicked us intentionally
+      // 'transport close' / 'ping timeout' = network issue — will auto-reconnect
     });
 
     socket.on('connect_error', (err) => {

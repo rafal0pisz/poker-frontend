@@ -292,6 +292,31 @@ export function PokerTable({ initialRoom, mySessionToken, onLeave }: Props) {
     }
   }, [room.gameState?.handNumber]);
 
+  // Auto-rejoin room after socket reconnect (e.g. iOS background, network switch)
+  useEffect(() => {
+    const socket = getSocket();
+
+    const handleReconnect = () => {
+      const sessionToken = getSessionToken(room.id);
+      if (!sessionToken) return;
+      console.log('[Socket] Reconnected — rejoining room', room.id);
+      socket.emit(
+        'room:join',
+        { roomId: room.id, nick: room.players.find(p => p.sessionToken === sessionToken)?.nick ?? 'Player', sessionToken },
+        (res: { ok: boolean; room?: Room; sessionToken?: string; error?: string } | undefined) => {
+          if (res?.ok && res.room) {
+            setRoom(res.room);
+          } else {
+            console.warn('[reconnect] rejoin failed:', res?.error);
+          }
+        }
+      );
+    };
+
+    socket.on('connect', handleReconnect);
+    return () => { socket.off('connect', handleReconnect); };
+  }, [room.id]);
+
   useEffect(() => {
     const socket = getSocket();
 

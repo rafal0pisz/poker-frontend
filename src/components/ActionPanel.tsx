@@ -44,8 +44,19 @@ export function ActionPanel({ me, gameState, settings, players }: Props) {
   const allInAmount = Math.min(me.currentBet + me.chips, effectiveMaxBet);
 
   const minRaiseAmount = gameState.currentBet + gameState.minRaise;
-  // Cap maxRaiseAmount to what's actually meaningful (opponent can cover)
-  const maxRaiseAmount = Math.min(me.currentBet + me.chips, effectiveMaxBet);
+
+  // Pot Limit cap: max raise = currentBet + pot + toCall
+  const isPotLimit = gameState.variant === 'omaha-pl' || gameState.variant === 'drawmaha-pl';
+  const potLimitMax = isPotLimit
+    ? gameState.currentBet + gameState.pot + toCall
+    : Infinity;
+
+  // Cap maxRaiseAmount: effective max (opponent coverage) AND pot limit
+  const maxRaiseAmount = Math.min(
+    me.currentBet + me.chips,
+    effectiveMaxBet,
+    isPotLimit ? potLimitMax : Infinity
+  );
 
   // Can raise normally = have enough chips AND there's value in raising
   const canRaiseNormally = me.chips > 0 && maxRaiseAmount >= minRaiseAmount;
@@ -218,7 +229,7 @@ export function ActionPanel({ me, gameState, settings, players }: Props) {
 
         <div className="flex justify-between text-[10px] text-poker-yellow/40 px-1">
           <span>min {minRaiseAmount}</span>
-          <span>max {maxRaiseAmount}{maxRaiseAmount < me.currentBet + me.chips ? ' (capped)' : ''}</span>
+          <span>max {maxRaiseAmount}{isPotLimit ? ' (pot limit)' : maxRaiseAmount < me.currentBet + me.chips ? ' (capped)' : ''}</span>
         </div>
 
         <input
@@ -232,12 +243,17 @@ export function ActionPanel({ me, gameState, settings, players }: Props) {
         />
 
         <div className="grid grid-cols-4 gap-1.5">
-          {[
+          {(isPotLimit ? [
+            { label: 'Min', value: minRaiseAmount },
+            { label: '¼ pot', value: Math.floor(gameState.pot * 0.25) + gameState.currentBet },
+            { label: '½ pot', value: Math.floor(gameState.pot * 0.5) + gameState.currentBet },
+            { label: 'Pot', value: maxRaiseAmount },
+          ] : [
             { label: 'Min', value: minRaiseAmount },
             { label: '½ pot', value: Math.floor(gameState.pot * 0.5) + gameState.currentBet },
             { label: 'Pot', value: gameState.pot + gameState.currentBet },
             { label: 'All-in', value: maxRaiseAmount },
-          ].map((preset) => {
+          ]).map((preset) => {
             const clamped = Math.min(Math.max(preset.value, minRaiseAmount), maxRaiseAmount);
             return (
               <button

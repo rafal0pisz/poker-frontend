@@ -6,6 +6,7 @@ import { Card, CardPlaceholder } from './Card';
 import { PlayerSeat } from './PlayerSeat';
 import { ActionPanel } from './ActionPanel';
 import { FloatingBubble } from './FloatingBubble';
+import { PlayerStatsModal } from './PlayerStatsModal';
 
 const VARIANT_LABELS: Record<GameVariant, string> = {
   texas: "Texas Hold'em",
@@ -42,18 +43,26 @@ function BetChip({ amount, side = 'bottom' }: BetChipProps) {
   return (
     <div style={{ ...styleMap[side], background: '#d4af37', color: '#070709', fontSize: 9, fontWeight: 700, padding: '2px 6px', borderRadius: 8, whiteSpace: 'nowrap', zIndex: 20 }}>
       {amount}
+        {/* Player stats modal */}
+        {selectedStatsToken && (
+          <PlayerStatsModal
+            stats={playerStats[selectedStatsToken] ?? null}
+            sessionResult={[...room.players.map(p => ({ sessionToken: p.sessionToken, nick: p.nick, totalBuyIn: p.totalBuyIn, finalChips: p.chips, netResult: p.chips - p.totalBuyIn, leftAt: 0 })), ...(room.sessionSummary ?? [])].find(s => s.sessionToken === selectedStatsToken)}
+            onClose={() => setSelectedStatsToken(null)}
+          />
+        )}
     </div>
   );
 }
 
 // Oval seat component — mini version for around-the-table display
 function OvalSeat({
-  player, isCurrent, isDealer, isSb, isBb, seatIndex, cardCount,
+  player, isCurrent, isDealer, isSb, isBb, seatIndex, cardCount, onAvatarClick,
   winningCards, lastMessage, handName, actionDeadline, actionTimeoutSec, revealedCards,
 }: {
   player: Room['players'][0]; isCurrent: boolean; isDealer: boolean;
   isSb: boolean; isBb: boolean; seatIndex: number; cardCount: number;
-  winningCards: Set<CardType>; lastMessage: ChatMessage | null; handName?: string;
+  winningCards: Set<CardType>; lastMessage: ChatMessage | null; handName?: string; onAvatarClick?: () => void;
   actionDeadline?: number | null; actionTimeoutSec?: number; revealedCards?: CardType[];
 }) {
   const pos = SEAT_POSITIONS[seatIndex];
@@ -92,7 +101,7 @@ function OvalSeat({
         {isCurrent && actionDeadline && (
           <TimerRingSmall deadline={actionDeadline} timeoutSec={actionTimeoutSec ?? 30} />
         )}
-        <div style={{ width: 42, height: 42, borderRadius: '50%', background: isCurrent ? 'rgba(212,175,55,0.2)' : '#1a1a28', border: isCurrent ? '2px solid #d4af37' : '1.5px solid rgba(212,175,55,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 11, fontWeight: 600, color: isCurrent ? '#d4af37' : 'rgba(245,230,192,0.6)', boxShadow: isCurrent ? '0 0 12px rgba(212,175,55,0.3)' : 'none', position: 'relative' }}>
+        <div onClick={onAvatarClick} style={{ width: 42, height: 42, borderRadius: '50%', background: isCurrent ? 'rgba(212,175,55,0.2)' : '#1a1a28', border: isCurrent ? '2px solid #d4af37' : '1.5px solid rgba(212,175,55,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 11, fontWeight: 600, color: isCurrent ? '#d4af37' : 'rgba(245,230,192,0.6)', boxShadow: isCurrent ? '0 0 12px rgba(212,175,55,0.3)' : 'none', position: 'relative', cursor: onAvatarClick ? 'pointer' : 'default' }}>
           {player.nick.slice(0, 2).toUpperCase()}
           {isDealer && <span style={{ position: 'absolute', top: -4, right: -4, width: 14, height: 14, background: '#fff', borderRadius: '50%', fontSize: 7, fontWeight: 800, color: '#070709', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>D</span>}
           {isSb && !isDealer && <span style={{ position: 'absolute', bottom: -4, left: -4, width: 14, height: 14, background: '#3b82f6', borderRadius: '50%', fontSize: 7, fontWeight: 800, color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>S</span>}
@@ -123,6 +132,14 @@ function OvalSeat({
               : null}
         </div>
       )}
+        {/* Player stats modal */}
+        {selectedStatsToken && (
+          <PlayerStatsModal
+            stats={playerStats[selectedStatsToken] ?? null}
+            sessionResult={[...room.players.map(p => ({ sessionToken: p.sessionToken, nick: p.nick, totalBuyIn: p.totalBuyIn, finalChips: p.chips, netResult: p.chips - p.totalBuyIn, leftAt: 0 })), ...(room.sessionSummary ?? [])].find(s => s.sessionToken === selectedStatsToken)}
+            onClose={() => setSelectedStatsToken(null)}
+          />
+        )}
     </div>
   );
 }
@@ -196,6 +213,7 @@ export interface OvalTableProps {
   drawUI: React.ReactNode;
   actionPanel: React.ReactNode;
   unreadCount: number;
+  playerStats: Record<string, import('@/lib/types').PlayerStats>;
   onOpenChat: () => void;
   onSitBack: () => void;
   onSitOut: () => void;
@@ -211,7 +229,7 @@ export function OvalTable({
   myBubbleToShow, getBubble, messages, sendChat, sendReaction,
   showDiscardUI, nextDealerVariant, onLeave, onShowHand,
   onCopyCode, onToggleMute, onEnableAudio, onShowAdmin, onShowVariantPicker,
-  drawUI, actionPanel, unreadCount,
+  drawUI, actionPanel, unreadCount, playerStats,
   onSitBack, onSitOut, onTakeSeat,
 }: OvalTableProps) {
 
@@ -221,6 +239,7 @@ export function OvalTable({
 
   // Chat tab state
   const [tab, setTab] = useState<'chat' | 'actions' | 'summary'>('chat');
+  const [selectedStatsToken, setSelectedStatsToken] = useState<string | null>(null);
   const [chatText, setChatText] = useState('');
   const scrollRef = useRef<HTMLDivElement>(null);
 
@@ -387,6 +406,7 @@ export function OvalTable({
                 actionDeadline={gameState?.actionDeadline}
                 actionTimeoutSec={room.settings.actionTimeoutSec}
                 revealedCards={revealedHands[player.sessionToken]}
+                onAvatarClick={() => setSelectedStatsToken(player.sessionToken)}
               />
             ))}
 
@@ -403,7 +423,7 @@ export function OvalTable({
               )}
               {/* Avatar */}
               <div style={{ position: 'relative', width: 42, height: 42 }}>
-                <div style={{ width: 42, height: 42, borderRadius: '50%', background: 'rgba(99,179,237,0.15)', border: '2px solid rgba(99,179,237,0.6)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 11, fontWeight: 600, color: '#90cdf4', position: 'relative' }}>
+                <div onClick={() => setSelectedStatsToken(mySessionToken)} style={{ width: 42, height: 42, borderRadius: '50%', background: 'rgba(99,179,237,0.15)', border: '2px solid rgba(99,179,237,0.6)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 11, fontWeight: 600, color: '#90cdf4', position: 'relative', cursor: 'pointer' }}>
                   {me.nick.slice(0, 2).toUpperCase()}
                   {gameState?.dealerSeat === me.seat && <span style={{ position: 'absolute', top: -4, right: -4, width: 14, height: 14, background: '#fff', borderRadius: '50%', fontSize: 7, fontWeight: 800, color: '#070709', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>D</span>}
                   {me.seat === sbSeat && gameState?.dealerSeat !== me.seat && <span style={{ position: 'absolute', bottom: -4, left: -4, width: 14, height: 14, background: '#3b82f6', borderRadius: '50%', fontSize: 7, fontWeight: 800, color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>S</span>}
@@ -467,6 +487,14 @@ export function OvalTable({
           </div>
         </div>
       </div>
+        {/* Player stats modal */}
+        {selectedStatsToken && (
+          <PlayerStatsModal
+            stats={playerStats[selectedStatsToken] ?? null}
+            sessionResult={[...room.players.map(p => ({ sessionToken: p.sessionToken, nick: p.nick, totalBuyIn: p.totalBuyIn, finalChips: p.chips, netResult: p.chips - p.totalBuyIn, leftAt: 0 })), ...(room.sessionSummary ?? [])].find(s => s.sessionToken === selectedStatsToken)}
+            onClose={() => setSelectedStatsToken(null)}
+          />
+        )}
     </div>
   );
 }

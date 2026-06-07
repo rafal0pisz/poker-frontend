@@ -5,7 +5,9 @@ import type { GameVariant } from '@/lib/types';
 export const VARIANT_LABELS: Record<GameVariant, string> = {
   texas: "Texas Hold'em",
   omaha: 'Omaha (4-card)',
+  'omaha-pl': 'Omaha Pot Limit',
   drawmaha: 'Drawmaha',
+  'drawmaha-pl': 'Drawmaha Pot Limit',
   pineapple: 'Crazy Pineapple',
   'pineapple-classic': 'Pineapple Classic',
 };
@@ -13,13 +15,15 @@ export const VARIANT_LABELS: Record<GameVariant, string> = {
 const VARIANT_DESCRIPTIONS: Record<GameVariant, string> = {
   texas: 'Classic · 2 hole + 5 board',
   omaha: '4 hole · must use 2 + 3 board',
+  'omaha-pl': '4 hole · 2+3 rule · max bet = size of pot',
   drawmaha: '5 hole · Five-card Draw · split pot (Omaha + Draw)',
+  'drawmaha-pl': '5 hole · draw + split · max bet = size of pot',
   pineapple: '3 hole cards · Texas Hold\'em rules',
   'pineapple-classic': '3 hole · discard 1 after flop · Texas rules',
 };
 
 // All variants are now fully implemented
-const AVAILABLE_VARIANTS: GameVariant[] = ['texas', 'omaha', 'drawmaha', 'pineapple', 'pineapple-classic'];
+const AVAILABLE_VARIANTS: GameVariant[] = ['texas', 'omaha', 'omaha-pl', 'drawmaha', 'drawmaha-pl', 'pineapple', 'pineapple-classic'];
 
 interface Props {
   currentVariant: GameVariant;
@@ -28,7 +32,7 @@ interface Props {
 }
 
 export function VariantPicker({ currentVariant, onSelect, onClose }: Props) {
-  const variants: GameVariant[] = ['texas', 'omaha', 'drawmaha', 'pineapple'];
+  const variants: GameVariant[] = AVAILABLE_VARIANTS;
 
   return (
     <div className="fixed inset-0 z-50 bg-black/70 flex items-end sm:items-center justify-center p-4">

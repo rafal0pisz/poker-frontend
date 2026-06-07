@@ -17,6 +17,8 @@ const VARIANT_NAMES: Record<GameVariant, string> = {
   drawmaha: 'Drawmaha',
   pineapple: 'Crazy Pineapple',
   'pineapple-classic': 'Pineapple Classic',
+  'omaha-pl': 'Omaha Pot Limit',
+  'drawmaha-pl': 'Drawmaha Pot Limit',
 };
 
 let _entryId = 0;

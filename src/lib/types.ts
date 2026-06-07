@@ -5,7 +5,7 @@ export type Card = `${Rank}${Suit}`;
 
 export type PlayerRole = 'player' | 'vice-admin' | 'admin';
 
-export type GameVariant = 'texas' | 'omaha' | 'drawmaha' | 'pineapple' | 'pineapple-classic';
+export type GameVariant = 'texas' | 'omaha' | 'omaha-pl' | 'drawmaha' | 'drawmaha-pl' | 'pineapple' | 'pineapple-classic';
 
 export type PlayerStatus =
   | 'playing'

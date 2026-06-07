@@ -43,14 +43,6 @@ function BetChip({ amount, side = 'bottom' }: BetChipProps) {
   return (
     <div style={{ ...styleMap[side], background: '#d4af37', color: '#070709', fontSize: 9, fontWeight: 700, padding: '2px 6px', borderRadius: 8, whiteSpace: 'nowrap', zIndex: 20 }}>
       {amount}
-        {/* Player stats modal */}
-        {selectedStatsToken && (
-          <PlayerStatsModal
-            stats={playerStats[selectedStatsToken] ?? null}
-            sessionResult={[...room.players.map(p => ({ sessionToken: p.sessionToken, nick: p.nick, totalBuyIn: p.totalBuyIn, finalChips: p.chips, netResult: p.chips - p.totalBuyIn, leftAt: 0 })), ...(room.sessionSummary ?? [])].find(s => s.sessionToken === selectedStatsToken)}
-            onClose={() => setSelectedStatsToken(null)}
-          />
-        )}
     </div>
   );
 }
@@ -132,14 +124,6 @@ function OvalSeat({
               : null}
         </div>
       )}
-        {/* Player stats modal */}
-        {selectedStatsToken && (
-          <PlayerStatsModal
-            stats={playerStats[selectedStatsToken] ?? null}
-            sessionResult={[...room.players.map(p => ({ sessionToken: p.sessionToken, nick: p.nick, totalBuyIn: p.totalBuyIn, finalChips: p.chips, netResult: p.chips - p.totalBuyIn, leftAt: 0 })), ...(room.sessionSummary ?? [])].find(s => s.sessionToken === selectedStatsToken)}
-            onClose={() => setSelectedStatsToken(null)}
-          />
-        )}
     </div>
   );
 }
@@ -487,11 +471,13 @@ export function OvalTable({
           </div>
         </div>
       </div>
-        {/* Player stats modal */}
         {selectedStatsToken && (
           <PlayerStatsModal
             stats={playerStats[selectedStatsToken] ?? null}
-            sessionResult={[...room.players.map(p => ({ sessionToken: p.sessionToken, nick: p.nick, totalBuyIn: p.totalBuyIn, finalChips: p.chips, netResult: p.chips - p.totalBuyIn, leftAt: 0 })), ...(room.sessionSummary ?? [])].find(s => s.sessionToken === selectedStatsToken)}
+            sessionResult={[
+              ...room.players.map(p => ({ sessionToken: p.sessionToken, nick: p.nick, totalBuyIn: p.totalBuyIn, finalChips: p.chips, netResult: p.chips - p.totalBuyIn, leftAt: 0 })),
+              ...(room.sessionSummary ?? [])
+            ].find(s => s.sessionToken === selectedStatsToken)}
             onClose={() => setSelectedStatsToken(null)}
           />
         )}

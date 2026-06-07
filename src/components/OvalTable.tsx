@@ -6,6 +6,7 @@ import { Card, CardPlaceholder } from './Card';
 import { PlayerSeat } from './PlayerSeat';
 import { ActionPanel } from './ActionPanel';
 import { FloatingBubble } from './FloatingBubble';
+import { useEquity } from '@/hooks/useEquity';
 import { PlayerStatsModal } from './PlayerStatsModal';
 
 const VARIANT_LABELS: Record<GameVariant, string> = {
@@ -49,12 +50,12 @@ function BetChip({ amount, side = 'bottom' }: BetChipProps) {
 
 // Oval seat component — mini version for around-the-table display
 function OvalSeat({
-  player, isCurrent, isDealer, isSb, isBb, seatIndex, cardCount, onAvatarClick,
+  player, isCurrent, isDealer, isSb, isBb, seatIndex, cardCount, onAvatarClick, equity,
   winningCards, lastMessage, handName, actionDeadline, actionTimeoutSec, revealedCards,
 }: {
   player: Room['players'][0]; isCurrent: boolean; isDealer: boolean;
   isSb: boolean; isBb: boolean; seatIndex: number; cardCount: number;
-  winningCards: Set<CardType>; lastMessage: ChatMessage | null; handName?: string; onAvatarClick?: () => void;
+  winningCards: Set<CardType>; lastMessage: ChatMessage | null; handName?: string; onAvatarClick?: () => void; equity?: number;
   actionDeadline?: number | null; actionTimeoutSec?: number; revealedCards?: CardType[];
 }) {
   const pos = SEAT_POSITIONS[seatIndex];
@@ -113,6 +114,11 @@ function OvalSeat({
 
       {/* Hand name at showdown */}
       {handName && <span style={{ fontSize: 8, color: '#d4af37', background: 'rgba(212,175,55,0.1)', border: '1px solid rgba(212,175,55,0.25)', borderRadius: 4, padding: '1px 5px', maxWidth: 80, textAlign: 'center', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{handName}</span>}
+      {equity !== undefined && (
+        <span style={{ fontSize: 10, fontWeight: 700, color: equity >= 50 ? '#4ade80' : '#f87171', background: equity >= 50 ? 'rgba(74,222,128,0.12)' : 'rgba(248,113,113,0.12)', border: `1px solid ${equity >= 50 ? 'rgba(74,222,128,0.3)' : 'rgba(248,113,113,0.3)'}`, borderRadius: 4, padding: '1px 6px', whiteSpace: 'nowrap' }}>
+          {equity}%
+        </span>
+      )}
 
       {/* Cards below avatar for bottom seats */}
       {seatIndex < 3 && (
@@ -224,6 +230,25 @@ export function OvalTable({
   // Chat tab state
   const [tab, setTab] = useState<'chat' | 'actions' | 'summary'>('chat');
   const [selectedStatsToken, setSelectedStatsToken] = useState<string | null>(null);
+
+  // Equity — show at showdown AND during all-in runout (cards revealed mid-hand)
+  const isShowdown = gameState?.phase === 'showdown';
+  const isAllInRunout = !isShowdown && Object.keys(revealedHands).length >= 2;
+  const showEquity = isShowdown || isAllInRunout;
+
+  // Build showdownCards for equity: prefer activeResult.showdownCards at showdown,
+  // fall back to revealedHands during all-in runout
+  const equityInput = showEquity
+    ? isShowdown
+      ? (activeResult?.showdownCards ?? null)
+      : Object.entries(revealedHands).map(([token, cards]) => ({
+          sessionToken: token,
+          cards,
+        }))
+    : null;
+
+  const equityResults = useEquity(equityInput, gameState?.communityCards ?? [], currentVariant);
+  const equityMap = Object.fromEntries(equityResults.map(e => [e.sessionToken, e.equity]));
   const [chatText, setChatText] = useState('');
   const scrollRef = useRef<HTMLDivElement>(null);
 
@@ -391,6 +416,7 @@ export function OvalTable({
                 actionTimeoutSec={room.settings.actionTimeoutSec}
                 revealedCards={revealedHands[player.sessionToken]}
                 onAvatarClick={() => setSelectedStatsToken(player.sessionToken)}
+                equity={showEquity ? equityMap[player.sessionToken] : undefined}
               />
             ))}
 
@@ -421,6 +447,11 @@ export function OvalTable({
               <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 1 }}>
                 <span style={{ fontSize: 8, fontWeight: 700, color: 'rgba(99,179,237,0.7)', letterSpacing: '0.08em', textTransform: 'uppercase' }}>YOU</span>
                 <span style={{ fontSize: 9, fontWeight: 600, color: 'rgba(245,230,192,0.7)' }}>{me.chips}</span>
+                {showEquity && equityMap[mySessionToken] !== undefined && (
+                  <span style={{ fontSize: 10, fontWeight: 700, color: (equityMap[mySessionToken] ?? 0) >= 50 ? '#4ade80' : '#f87171', background: (equityMap[mySessionToken] ?? 0) >= 50 ? 'rgba(74,222,128,0.12)' : 'rgba(248,113,113,0.12)', border: `1px solid ${(equityMap[mySessionToken] ?? 0) >= 50 ? 'rgba(74,222,128,0.3)' : 'rgba(248,113,113,0.3)'}`, borderRadius: 4, padding: '1px 6px' }}>
+                    {equityMap[mySessionToken]}%
+                  </span>
+                )}
               </div>
             </div>
 

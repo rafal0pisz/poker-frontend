@@ -93,11 +93,12 @@ export function ActionPanel({ me, gameState, settings, players }: Props) {
   }, [isMyTurn, gameState.actionDeadline]);
 
   useEffect(() => {
+    if (!isMyTurn) return; // only reset when turn changes TO my turn
     setShowRaiseUI(false);
     const initial = Math.min(Math.max(minRaiseAmount, minRaiseAmount), maxRaiseAmount);
     setRaiseAmount(initial);
     setRaiseInput(String(initial));
-  }, [isMyTurn]);
+  }, [isMyTurn]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Clear pre-action when it's our turn (action was consumed or turn arrived)
   useEffect(() => {
@@ -252,13 +253,13 @@ export function ActionPanel({ me, gameState, settings, players }: Props) {
         <div className="grid grid-cols-4 gap-1.5">
           {(isPotLimit ? [
             { label: 'Min', value: minRaiseAmount },
-            { label: '¼ pot', value: Math.floor(gameState.pot * 0.25) + gameState.currentBet },
-            { label: '½ pot', value: Math.floor(gameState.pot * 0.5) + gameState.currentBet },
+            { label: '¼ pot', value: Math.floor(totalPot * 0.25) + gameState.currentBet },
+            { label: '½ pot', value: Math.floor(totalPot * 0.5) + gameState.currentBet },
             { label: 'Pot', value: maxRaiseAmount },
           ] : [
             { label: 'Min', value: minRaiseAmount },
-            { label: '½ pot', value: Math.floor(gameState.pot * 0.5) + gameState.currentBet },
-            { label: 'Pot', value: gameState.pot + gameState.currentBet },
+            { label: '½ pot', value: Math.floor(totalPot * 0.5) + gameState.currentBet },
+            { label: 'Pot', value: totalPot + gameState.currentBet },
             { label: 'All-in', value: maxRaiseAmount },
           ]).map((preset) => {
             const clamped = Math.min(Math.max(preset.value, minRaiseAmount), maxRaiseAmount);
@@ -283,14 +284,18 @@ export function ActionPanel({ me, gameState, settings, players }: Props) {
           </button>
           <button
             onClick={() => {
-              // In Pot Limit: max raise IS the pot limit, not all-in
-              // Only send 'all-in' when player is actually using ALL their chips
-              const isActuallyAllIn = raiseAmount >= me.currentBet + me.chips;
+              // Parse input directly to avoid stale closure on raiseAmount state
+              const finalAmount = Math.min(
+                Math.max(Number(raiseInput) || raiseAmount, minRaiseAmount),
+                maxRaiseAmount
+              );
+              const isActuallyAllIn = finalAmount >= me.currentBet + me.chips;
               if (isActuallyAllIn) {
                 sendAction('all-in');
               } else {
-                sendAction(gameState.currentBet === 0 ? 'bet' : 'raise', raiseAmount);
+                sendAction(gameState.currentBet === 0 ? 'bet' : 'raise', finalAmount);
               }
+              setShowRaiseUI(false);
             }}
             className="bg-poker-gold text-poker-bg font-medium py-3 rounded-lg"
           >

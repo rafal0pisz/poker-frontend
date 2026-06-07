@@ -14,6 +14,7 @@ import { FloatingBubble } from './FloatingBubble';
 import { VariantPicker, VARIANT_LABELS } from './VariantPicker';
 import { DrawmahaDraw } from './DrawmahaDraw';
 import { PineappleDiscard } from './PineappleDiscard';
+import { PlayerStatsModal } from './PlayerStatsModal';
 import { DrawmahaReveal } from './DrawmahaReveal';
 import { useSounds, enableAudio } from '@/hooks/useSounds';
 import { useHandLog } from '@/hooks/useHandLog';
@@ -261,6 +262,7 @@ export function PokerTable({ initialRoom, mySessionToken, onLeave }: Props) {
   const [codeCopied, setCodeCopied] = useState(false);
   const [discardIndices, setDiscardIndices] = useState(new Set<number>());
   const [drawSubmitted, setDrawSubmitted] = useState(false);
+  const [selectedStatsToken, setSelectedStatsToken] = useState<string | null>(null);
   const [messages, setMessages] = useState<ChatMessage[]>(initialRoom.messages || []);
   const [unreadCount, setUnreadCount] = useState(0);
   const [lastBubbleByPlayer, setLastBubbleByPlayer] = useState<Record<string, ChatMessage>>({});
@@ -549,6 +551,18 @@ export function PokerTable({ initialRoom, mySessionToken, onLeave }: Props) {
   //   seat 1 → (1-3+9)%9 = 7  (third, wraps around)
   const mySeat = me.seat;
   const maxSeats = room.settings.maxSeats;
+  // Build all-in revealed hands from room state
+  // Backend reveals holeCards in room:state when all players are all-in
+  // This is separate from revealedHands (which is from game:hand-revealed / Show Hand)
+  const allInRevealedHands: Record<string, CardType[]> = {};
+  for (const p of room.players) {
+    if (p.sessionToken !== mySessionToken && p.holeCards && p.holeCards.length > 0) {
+      allInRevealedHands[p.sessionToken] = p.holeCards;
+    }
+  }
+  // Merge: prefer explicit revealedHands (show hand), fall back to allInRevealedHands
+  const mergedRevealedHands: Record<string, CardType[]> = { ...allInRevealedHands, ...revealedHands };
+
   const otherPlayers = room.players
     .filter((p) => p.sessionToken !== mySessionToken)
     .sort((a, b) => {
@@ -610,22 +624,23 @@ export function PokerTable({ initialRoom, mySessionToken, onLeave }: Props) {
           {otherPlayers.length === 0
             ? <p className="text-poker-yellow/40 text-sm self-center">No one else here yet...</p>
             : otherPlayers.map((p) => (
-                <PlayerSeat
-                  key={p.sessionToken}
-                  player={p}
-                  isCurrent={gameState?.currentPlayerSeat === p.seat}
-                  isDealer={gameState?.dealerSeat === p.seat}
-                  isSb={p.seat === sbSeat}
-                  isBb={p.seat === bbSeat}
-                  isYou={false}
-                  lastMessage={getBubble(p.sessionToken)}
-                  handName={activeResult?.showdownCards.find((sc) => sc.sessionToken === p.sessionToken)?.handName}
-                  winningCards={winningCardsSet}
-                  cardCount={currentCardCount}
-                  actionDeadline={gameState?.actionDeadline}
-                  actionTimeoutSec={room.settings.actionTimeoutSec}
-                  revealedCards={revealedHands[p.sessionToken]}
-                />
+                <div key={p.sessionToken} onClick={() => setSelectedStatsToken(p.sessionToken)} style={{ cursor: 'pointer' }}>
+                  <PlayerSeat
+                    player={p}
+                    isCurrent={gameState?.currentPlayerSeat === p.seat}
+                    isDealer={gameState?.dealerSeat === p.seat}
+                    isSb={p.seat === sbSeat}
+                    isBb={p.seat === bbSeat}
+                    isYou={false}
+                    lastMessage={getBubble(p.sessionToken)}
+                    handName={activeResult?.showdownCards.find((sc) => sc.sessionToken === p.sessionToken)?.handName}
+                    winningCards={winningCardsSet}
+                    cardCount={currentCardCount}
+                    actionDeadline={gameState?.actionDeadline}
+                    actionTimeoutSec={room.settings.actionTimeoutSec}
+                    revealedCards={mergedRevealedHands[p.sessionToken]}
+                  />
+                </div>
               ))}
         </div>
 
@@ -753,6 +768,18 @@ export function PokerTable({ initialRoom, mySessionToken, onLeave }: Props) {
             </div>
           )}
         </div>
+
+        {/* Stats modal — mobile */}
+        {selectedStatsToken && (
+          <PlayerStatsModal
+            stats={room.playerStats?.[selectedStatsToken] ?? null}
+            sessionResult={[
+              ...room.players.map(p => ({ sessionToken: p.sessionToken, nick: p.nick, totalBuyIn: p.totalBuyIn, finalChips: p.chips, netResult: p.chips - p.totalBuyIn, leftAt: 0 })),
+              ...(room.sessionSummary ?? [])
+            ].find(s => s.sessionToken === selectedStatsToken)}
+            onClose={() => setSelectedStatsToken(null)}
+          />
+        )}
       </div>
 
       {/* ─── DESKTOP ─── */}
@@ -779,7 +806,7 @@ export function PokerTable({ initialRoom, mySessionToken, onLeave }: Props) {
           currentVariant={currentVariant}
           currentCardCount={currentCardCount}
           isDrawPhase={isDrawPhase || isPineappleDiscardPhase}
-          revealedHands={revealedHands}
+          revealedHands={mergedRevealedHands}
           sbSeat={sbSeat}
           bbSeat={bbSeat}
           prevCommCardCountRef={prevCommCardCountRef}

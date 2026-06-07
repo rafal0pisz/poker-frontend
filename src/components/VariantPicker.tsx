@@ -15,10 +15,10 @@ export const VARIANT_LABELS: Record<GameVariant, string> = {
 const VARIANT_DESCRIPTIONS: Record<GameVariant, string> = {
   texas: 'Classic · 2 hole + 5 board',
   omaha: '4 hole · must use 2 + 3 board',
-  'omaha-pl': '4 hole · 2+3 rule · max bet = size of pot',
+  'omaha-pl': '4 hole · must use exactly 2+3 · max bet = pot size',
   drawmaha: '5 hole · Five-card Draw · split pot (Omaha + Draw)',
-  'drawmaha-pl': '5 hole · draw + split · max bet = size of pot',
-  pineapple: '3 hole cards · Texas Hold\'em rules',
+  'drawmaha-pl': '5 hole · draw + split pot · max bet = pot size',
+  pineapple: '3 hole · use 0, 1 or 2 from hand · no discard',
   'pineapple-classic': '3 hole · discard 1 after flop · Texas rules',
 };
 

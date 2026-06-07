@@ -35,7 +35,7 @@ export function PineappleDiscard({ holeCards, onDiscard, deadline }: Props) {
   if (submitted) {
     return (
       <div className="bg-poker-yellow/5 border border-poker-gold/25 rounded-xl px-4 py-3 text-center">
-        <p className="text-poker-yellow/60 text-sm">✓ Karta odrzucona — czekanie na innych graczy</p>
+        <p className="text-poker-yellow/60 text-sm">✓ Card discarded — waiting for other players</p>
       </div>
     );
   }
@@ -44,14 +44,14 @@ export function PineappleDiscard({ holeCards, onDiscard, deadline }: Props) {
     <div className="bg-poker-yellow/5 border border-poker-gold/30 rounded-xl p-4">
       <div className="flex items-center justify-between mb-3">
         <p className="text-poker-yellow text-sm font-semibold">
-          Pineapple — odrzuć 1 kartę
+          Pineapple Classic — discard 1 card
         </p>
         <span className={`text-xs font-mono px-2 py-0.5 rounded ${timeLeft <= 5 ? 'text-red-400 bg-red-400/10' : 'text-poker-yellow/50 bg-poker-yellow/5'}`}>
           {timeLeft}s
         </span>
       </div>
       <p className="text-poker-yellow/50 text-xs mb-4">
-        Kliknij kartę którą chcesz odrzucić. Pozostałe 2 zostaną na Twojej ręce.
+        Click the card you want to discard. The other 2 stay in your hand.
       </p>
       <div className="flex gap-3 justify-center mb-4">
         {holeCards.map((card, i) => (
@@ -83,7 +83,7 @@ export function PineappleDiscard({ holeCards, onDiscard, deadline }: Props) {
           border: selected !== null ? 'none' : '1px solid rgba(212,175,55,0.2)',
         }}
       >
-        {selected !== null ? 'Odrzuć kartę' : 'Wybierz kartę do odrzucenia'}
+        {selected !== null ? 'Discard card' : 'Select a card to discard'}
       </button>
     </div>
   );

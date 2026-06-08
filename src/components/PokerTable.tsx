@@ -375,6 +375,16 @@ export function PokerTable({ initialRoom, mySessionToken, onLeave }: Props) {
     socket.on('game:hand-revealed', (data: { sessionToken: string; nick: string; cards: CardType[] }) => {
       setRevealedHands(prev => ({ ...prev, [data.sessionToken]: data.cards }));
     });
+
+    // All-in runout: server reveals all cards at once
+    const handleAllInReveal = (players: { sessionToken: string; nick: string; cards: CardType[] }[]) => {
+      setRevealedHands(prev => {
+        const next = { ...prev };
+        for (const p of players) next[p.sessionToken] = p.cards;
+        return next;
+      });
+    };
+    socket.on('game:all-in-reveal', handleAllInReveal);
     socket.on('room:closed', handleClosed);
     socket.on('chat:message', handleChatMessage);
     socket.on('game:draw-open-card', () => {});
@@ -384,6 +394,7 @@ export function PokerTable({ initialRoom, mySessionToken, onLeave }: Props) {
       socket.off('game:your-cards', handleYourCards);
       socket.off('game:hand-result', handleHandResult);
       socket.off('game:hand-revealed');
+      socket.off('game:all-in-reveal');
       socket.off('room:closed', handleClosed);
       socket.off('chat:message', handleChatMessage);
       socket.off('game:draw-open-card');

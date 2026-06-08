@@ -18,7 +18,7 @@ const VARIANT_DESCRIPTIONS: Record<GameVariant, string> = {
   'omaha-pl': '4 hole · must use exactly 2+3 · max bet = pot size',
   drawmaha: '5 hole · Five-card Draw · split pot (Omaha + Draw)',
   'drawmaha-pl': '5 hole · draw + split pot · max bet = pot size',
-  pineapple: '3 hole · use 0, 1 or 2 from hand · no discard',
+  pineapple: '3 hole · max 2 from hand · no discard',
   'pineapple-classic': '3 hole · discard 1 after flop · Texas rules',
 };
 

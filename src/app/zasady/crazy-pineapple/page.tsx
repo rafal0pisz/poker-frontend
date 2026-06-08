@@ -5,7 +5,7 @@ import { Footer } from '@/components/seo/Footer';
 
 export const metadata: Metadata = {
   title: 'Zasady Crazy Pineapple — poker z 3 kartami na ręce',
-  description: 'Pełne zasady Crazy Pineapple. 3 karty na rękę, zasady Texas Hold\'em — możesz użyć dowolnej kombinacji kart własnych i wspólnych. Różnice vs Texas, strategia.',
+  description: 'Pełne zasady Crazy Pineapple. 3 karty na rękę, możesz użyć 0, 1 lub 2 z nich (max 2 jak w Texas). Różnice vs Texas Hold\'em i Omaha, strategia.',
   alternates: { canonical: 'https://pokero.pl/zasady/crazy-pineapple/' },
 };
 
@@ -28,8 +28,8 @@ export default function PineapplePage() {
             <h1 style={{ fontSize: 'clamp(1.75rem, 4vw, 2.5rem)', marginBottom: '1rem' }}>Zasady Crazy Pineapple</h1>
             <p style={{ fontSize: '1.05rem', color: 'rgba(245,230,192,0.65)', maxWidth: 600 }}>
               Crazy Pineapple to Texas Hold&apos;em z jedną zmianą — każdy gracz dostaje 3 karty zamiast 2.
-              Poza tym zasady są identyczne: możesz użyć dowolnej kombinacji kart własnych i wspólnych,
-              wygrywa najlepsza ręka 5-kartowa.
+              Poza tym zasady są identyczne jak w Texas Hold&apos;em: możesz użyć 0, 1 lub 2 kart z ręki
+              (nie wszystkich 3) w połączeniu z kartami wspólnymi. Wygrywa najlepsza ręka 5-kartowa.
             </p>
           </div>
 
@@ -42,8 +42,9 @@ export default function PineapplePage() {
             </p>
             <p>
               Kluczowa różnica wobec Omaha: <strong>nie ma żadnego obowiązku użycia określonej liczby kart</strong>.
-              Możesz użyć dowolnej kombinacji kart — 0, 1, 2 lub wszystkich 3 — dokładnie jak w Texas Hold&apos;em.
-              Wszystkie 3 karty zostają przy Tobie do showdownu. Nie wyrzucasz żadnej.
+              Możesz użyć <strong>0, 1 lub 2 kart z ręki</strong> — dokładnie jak w Texas Hold&apos;em, nie więcej.
+              Łącząc z kartami wspólnymi wybierasz najlepszą rękę 5-kartową z dostępnych kombinacji.
+              Wszystkie 3 karty zostają przy Tobie do showdownu, ale do ręki liczą się maksymalnie 2 z nich.
             </p>
 
             <h2>Porównanie z Texas Hold'em</h2>
@@ -51,7 +52,7 @@ export default function PineapplePage() {
               <thead><tr><th>Element</th><th>Texas Hold&apos;em</th><th>Crazy Pineapple</th></tr></thead>
               <tbody>
                 <tr><td>Karty na rękę</td><td>2</td><td>3</td></tr>
-                <tr><td>Użycie kart własnych</td><td>0, 1 lub 2 (dowolnie)</td><td>0, 1, 2 lub 3 — grasz wszystkimi do końca</td></tr>
+                <tr><td>Użycie kart własnych</td><td>0, 1 lub 2 (dowolnie)</td><td>0, 1 lub 2 — max 2, tak jak w Texas</td></tr>
                 <tr><td>Wspólne karty</td><td>5 (flop, turn, river)</td><td>5 (flop, turn, river)</td></tr>
                 <tr><td>Ulice gry</td><td>Preflop → Flop → Turn → River</td><td>Identyczne</td></tr>
                 <tr><td>Ewaluacja ręki</td><td>Najlepsza 5-kartowa z 7</td><td>Najlepsza 5-kartowa z 8</td></tr>

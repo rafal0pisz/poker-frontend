@@ -39,7 +39,7 @@ const variants = [
     icon: '🍍',
     color: '#5da832',
     cards: '3 hole cards',
-    desc: "A fun twist on Texas Hold'em — each player gets 3 hole cards instead of 2. You can use any combination (0, 1, 2 or all 3) with the community cards to form the best 5-card hand. All 3 cards stay in your hand — nothing is discarded.",
+    desc: "A fun twist on Texas Hold'em — each player gets 3 hole cards instead of 2. Just like Texas, you can use 0, 1 or 2 of your hole cards (maximum 2) combined with community cards to make the best 5-card hand. All 3 cards stay with you until showdown.",
     streets: ['Preflop', 'Flop (3)', 'Turn (1)', 'River (1)', 'Showdown'],
   },
   {

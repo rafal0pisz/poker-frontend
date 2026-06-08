@@ -6,6 +6,7 @@ import { Card, CardPlaceholder } from './Card';
 import { PlayerSeat } from './PlayerSeat';
 import { ActionPanel } from './ActionPanel';
 import { FloatingBubble } from './FloatingBubble';
+import { ChipStack } from './ChipStack';
 import { useEquity } from '@/hooks/useEquity';
 import { PlayerStatsModal } from './PlayerStatsModal';
 
@@ -33,17 +34,17 @@ const SEAT_POSITIONS = [
 ];
 
 type BetSide = 'left' | 'right' | 'top' | 'bottom';
-interface BetChipProps { amount: number; side?: BetSide }
-function BetChip({ amount, side = 'bottom' }: BetChipProps) {
-  const styleMap: Record<BetSide, React.CSSProperties> = {
-    bottom: { position: 'absolute', bottom: -18, left: '50%', transform: 'translateX(-50%)' },
-    top:    { position: 'absolute', top: -18, left: '50%', transform: 'translateX(-50%)' },
-    left:   { position: 'absolute', left: -36, top: '50%', transform: 'translateY(-50%)' },
-    right:  { position: 'absolute', right: -36, top: '50%', transform: 'translateY(-50%)' },
+interface BetChipProps { amount: number; side?: BetSide; isAllIn?: boolean }
+function BetChip({ amount, side = 'bottom', isAllIn = false }: BetChipProps) {
+  const posMap: Record<BetSide, React.CSSProperties> = {
+    bottom: { position: 'absolute', bottom: -52, left: '50%', transform: 'translateX(-50%)', zIndex: 20 },
+    top:    { position: 'absolute', top: -52,    left: '50%', transform: 'translateX(-50%)', zIndex: 20 },
+    left:   { position: 'absolute', left: -52,   top: '50%',  transform: 'translateY(-50%)', zIndex: 20 },
+    right:  { position: 'absolute', right: -52,  top: '50%',  transform: 'translateY(-50%)', zIndex: 20 },
   };
   return (
-    <div style={{ ...styleMap[side], background: '#d4af37', color: '#070709', fontSize: 9, fontWeight: 700, padding: '2px 6px', borderRadius: 8, whiteSpace: 'nowrap', zIndex: 20 }}>
-      {amount}
+    <div style={posMap[side]}>
+      <ChipStack amount={amount} isAllIn={isAllIn} />
     </div>
   );
 }
@@ -100,7 +101,7 @@ function OvalSeat({
           {isSb && !isDealer && <span style={{ position: 'absolute', bottom: -4, left: -4, width: 14, height: 14, background: '#3b82f6', borderRadius: '50%', fontSize: 7, fontWeight: 800, color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>S</span>}
           {isBb && !isDealer && <span style={{ position: 'absolute', bottom: -4, right: -4, width: 14, height: 14, background: '#7c3aed', borderRadius: '50%', fontSize: 7, fontWeight: 800, color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>B</span>}
         </div>
-        {player.currentBet > 0 && <BetChip amount={player.currentBet} side={betSide as 'top' | 'bottom' | 'left' | 'right'} />}
+        {player.currentBet > 0 && <BetChip amount={player.currentBet} side={betSide as 'top' | 'bottom' | 'left' | 'right'} isAllIn={player.status === 'all-in'} />}
         {player.status === 'all-in' && (
           <span style={{ position: 'absolute', bottom: -16, left: '50%', transform: 'translateX(-50%)', background: 'rgba(220,38,38,0.2)', color: '#f87171', fontSize: 8, fontWeight: 700, padding: '1px 5px', borderRadius: 6, whiteSpace: 'nowrap', border: '1px solid rgba(220,38,38,0.3)' }}>ALL-IN</span>
         )}
@@ -433,7 +434,9 @@ export function OvalTable({
                   {me.seat === bbSeat && gameState?.dealerSeat !== me.seat && <span style={{ position: 'absolute', bottom: -4, right: -4, width: 14, height: 14, background: '#7c3aed', borderRadius: '50%', fontSize: 7, fontWeight: 800, color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>B</span>}
                 </div>
                 {me.currentBet > 0 && (
-                  <div style={{ position: 'absolute', top: -18, left: '50%', transform: 'translateX(-50%)', background: '#d4af37', color: '#070709', fontSize: 9, fontWeight: 700, padding: '2px 6px', borderRadius: 8, whiteSpace: 'nowrap', zIndex: 20 }}>{me.currentBet}</div>
+                  <div style={{ position: 'absolute', top: -58, left: '50%', transform: 'translateX(-50%)', zIndex: 20 }}>
+                    <ChipStack amount={me.currentBet} isAllIn={me.status === 'all-in'} />
+                  </div>
                 )}
               </div>
               {/* YOU badge */}

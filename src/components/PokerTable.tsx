@@ -318,9 +318,14 @@ export function PokerTable({ initialRoom, mySessionToken, onLeave }: Props) {
       const myUpdated = updated.players.find((p) => p.sessionToken === mySessionToken);
       if (myUpdated?.holeCards) {
         setMyHoleCards(myUpdated.holeCards);
-        // New hand started — reset show hand state
-        setMyHandShown(false);
-        setRevealedHands({});
+        // Reset revealedHands only when a NEW hand starts (hand number changes)
+        // NOT on every room:state — that would wipe all-in reveals constantly
+        const newHandNumber = updated.gameState?.handNumber ?? null;
+        if (newHandNumber !== prevHandNumberRef.current) {
+          prevHandNumberRef.current = newHandNumber;
+          setMyHandShown(false);
+          setRevealedHands({});
+        }
       }
       // Clear my cards when I fold (status becomes 'folded')
       if (myUpdated?.status === 'folded' || myUpdated?.status === 'sitting-out') {

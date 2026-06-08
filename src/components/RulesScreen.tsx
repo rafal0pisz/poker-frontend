@@ -39,7 +39,7 @@ const variants = [
     icon: '🍍',
     color: '#5da832',
     cards: '3 hole cards',
-    desc: "A fun twist on Texas Hold'em — each player gets 3 hole cards instead of 2. You must use exactly 1 or 2 of your hole cards (not all 3) with the community cards to form the best hand. More options, more fun!",
+    desc: "A fun twist on Texas Hold'em — each player gets 3 hole cards instead of 2. You can use any combination (0, 1, 2 or all 3) with the community cards to form the best 5-card hand. All 3 cards stay in your hand — nothing is discarded.",
     streets: ['Preflop', 'Flop (3)', 'Turn (1)', 'River (1)', 'Showdown'],
   },
   {
@@ -50,6 +50,24 @@ const variants = [
     desc: "A unique split-pot variant. Players get 5 hole cards, then after the flop there's a draw phase where you can exchange cards. The pot is split 50/50 between the Omaha winner (best 2+3 board) and the Draw winner (best 5-card hand from hole cards only).",
     streets: ['Preflop', 'Flop (3)', 'Draw phase', 'Turn (1)', 'River (1)', 'Showdown'],
     special: 'Split pot: Omaha half + Five-card Draw half',
+  },
+  {
+    name: 'Omaha Pot Limit',
+    icon: '♦',
+    color: '#e07b39',
+    cards: '4 hole cards · max bet = pot',
+    desc: "Same rules as Omaha — exactly 2 hole cards + exactly 3 board cards. The difference: your maximum raise is capped at the size of the current pot. You cannot go all-in beyond the pot size. Builds deeper, more strategic play.",
+    streets: ['Preflop', 'Flop (3)', 'Turn (1)', 'River (1)', 'Showdown'],
+    special: 'Pot Limit: max raise = current pot size',
+  },
+  {
+    name: 'Drawmaha Pot Limit',
+    icon: '🃏',
+    color: '#7b52d4',
+    cards: '5 hole cards + draw · max bet = pot',
+    desc: 'All Drawmaha rules apply — 5 cards, draw phase after the flop, split pot. The difference: maximum raise is capped at the pot size. The card exchange phase becomes more strategic since you cannot end the hand with a massive all-in immediately after drawing.',
+    streets: ['Preflop', 'Flop (3)', 'Draw phase', 'Turn (1)', 'River (1)', 'Showdown'],
+    special: 'Split pot + Pot Limit: max raise = current pot size',
   },
 ];
 

@@ -30,9 +30,12 @@ function eval5(cards: string[]): number {
 
 function combos<T>(arr: T[], k: number): T[][] {
   if (k === 0) return [[]];
-  if (k === arr.length) return [arr];
-  const [f, ...r] = arr;
-  return [...combos(r, k-1).map(c => [f,...c]), ...combos(r, k)];
+  if (arr.length === 0) return [];
+  const [first, ...rest] = arr;
+  return [
+    ...combos(rest, k - 1).map(c => [first, ...c]),
+    ...combos(rest, k),
+  ];
 }
 
 function bestHand(hole: string[], board: string[], isOmaha: boolean): number {
@@ -73,17 +76,18 @@ export function useEquity(
 ): EquityResult[] {
   const [results, setResults] = useState<EquityResult[]>([]);
 
-  // Stable key: who is playing + how many board cards
+  // Drawmaha has split pot (Omaha half + Draw half) — equity is meaningless
+  // as a single number. Skip entirely to avoid confusion.
+  const isDrawmaha = variant === 'drawmaha' || variant === 'drawmaha-pl';
+
   const playerKey = players?.map(p => `${p.sessionToken}:${p.cards.join(',')}`).join('|') ?? '';
   const boardKey = communityCards.join(',');
 
   useEffect(() => {
-    // Clear when no players
-    if (!players || players.length < 2) {
+    if (isDrawmaha || !players || players.length < 2) {
       setResults([]);
       return;
     }
-    // Need at least flop to calculate
     if (communityCards.length < 3) {
       setResults([]);
       return;
@@ -133,7 +137,7 @@ export function useEquity(
       clearTimeout(tid);
     };
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [playerKey, boardKey, variant]);
+  }, [playerKey, boardKey, variant, isDrawmaha]);
 
   return results;
 }

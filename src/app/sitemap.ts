@@ -12,6 +12,8 @@ export default function sitemap(): MetadataRoute.Sitemap {
     { url: `${base}/zasady/texas-holdem/`, lastModified: now, changeFrequency: 'monthly', priority: 0.85 },
     { url: `${base}/zasady/omaha/`, lastModified: now, changeFrequency: 'monthly', priority: 0.85 },
     { url: `${base}/zasady/crazy-pineapple/`, lastModified: now, changeFrequency: 'monthly', priority: 0.8 },
+    { url: `${base}/zasady/omaha-pot-limit/`, lastModified: now, changeFrequency: 'monthly', priority: 0.8 },
+    { url: `${base}/zasady/drawmaha-pot-limit/`, lastModified: now, changeFrequency: 'monthly', priority: 0.8 },
     { url: `${base}/zasady/pineapple-klasyczny/`, lastModified: now, changeFrequency: 'monthly', priority: 0.8 },
     { url: `${base}/zasady/drawmaha/`, lastModified: now, changeFrequency: 'monthly', priority: 0.8 },
     { url: `${base}/zasady/uklady-kart/`, lastModified: now, changeFrequency: 'monthly', priority: 0.85 },

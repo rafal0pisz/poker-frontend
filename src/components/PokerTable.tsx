@@ -18,6 +18,7 @@ import { PlayerStatsModal } from './PlayerStatsModal';
 import { DrawmahaReveal } from './DrawmahaReveal';
 import { useSounds, enableAudio } from '@/hooks/useSounds';
 import { useHandLog } from '@/hooks/useHandLog';
+import { useEquity } from '@/hooks/useEquity';
 import { HandLog } from './HandLog';
 
 interface Props {

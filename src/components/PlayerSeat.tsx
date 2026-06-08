@@ -19,6 +19,7 @@ interface Props {
   actionDeadline?: number | null;
   actionTimeoutSec?: number;
   revealedCards?: CardType[];
+  equity?: number;
 }
 
 const STATUS_LABEL: Record<PlayerStatus, string> = {
@@ -88,6 +89,7 @@ export function PlayerSeat({
   actionDeadline,
   actionTimeoutSec = 30,
   revealedCards,
+  equity,
 }: Props) {
   const dimmed =
     player.status === 'folded' ||
@@ -153,6 +155,24 @@ export function PlayerSeat({
           >
             {player.nick.slice(0, 2).toUpperCase()}
           </div>
+          {equity !== undefined && (
+            <div style={{
+              position: 'absolute',
+              bottom: -6,
+              right: -8,
+              background: equity >= 50 ? 'rgba(74,222,128,0.15)' : 'rgba(248,113,113,0.15)',
+              border: `1px solid ${equity >= 50 ? 'rgba(74,222,128,0.5)' : 'rgba(248,113,113,0.5)'}`,
+              borderRadius: 6,
+              padding: '1px 5px',
+              fontSize: 9,
+              fontWeight: 700,
+              color: equity >= 50 ? '#4ade80' : '#f87171',
+              whiteSpace: 'nowrap',
+              zIndex: 10,
+            }}>
+              {equity}%
+            </div>
+          )}
         </div>
 
         {/* D badge — right */}

@@ -579,6 +579,18 @@ export function PokerTable({ initialRoom, mySessionToken, onLeave }: Props) {
   // Merge: prefer explicit revealedHands (show hand), fall back to allInRevealedHands
   const mergedRevealedHands: Record<string, CardType[]> = { ...allInRevealedHands, ...revealedHands };
 
+  // Equity for mobile — same logic as desktop OvalTable
+  const isShowdownMobile = gameState?.phase === 'showdown';
+  const isAllInRunoutMobile = !isShowdownMobile && Object.keys(mergedRevealedHands).length >= 2;
+  const showEquityMobile = isShowdownMobile || isAllInRunoutMobile;
+  const equityInputMobile = showEquityMobile
+    ? isShowdownMobile
+      ? (activeResult?.showdownCards ?? null)
+      : Object.entries(mergedRevealedHands).map(([token, cards]) => ({ sessionToken: token, cards }))
+    : null;
+  const equityResultsMobile = useEquity(equityInputMobile, gameState?.communityCards ?? [], currentVariant);
+  const equityMapMobile = Object.fromEntries(equityResultsMobile.map(e => [e.sessionToken, e.equity]));
+
   const otherPlayers = room.players
     .filter((p) => p.sessionToken !== mySessionToken)
     .sort((a, b) => {
@@ -655,6 +667,7 @@ export function PokerTable({ initialRoom, mySessionToken, onLeave }: Props) {
                     actionDeadline={gameState?.actionDeadline}
                     actionTimeoutSec={room.settings.actionTimeoutSec}
                     revealedCards={mergedRevealedHands[p.sessionToken]}
+                    equity={showEquityMobile ? equityMapMobile[p.sessionToken] : undefined}
                   />
                 </div>
               ))}
@@ -694,6 +707,21 @@ export function PokerTable({ initialRoom, mySessionToken, onLeave }: Props) {
                 {me.role !== 'player' && <span className="text-[9px] bg-poker-gold/20 text-poker-gold px-1.5 py-0.5 rounded">{me.role}</span>}
               </p>
               <p className="text-poker-yellow/60 text-xs">Chips: <span className="text-poker-gold font-medium">{me.chips}</span></p>
+              {showEquityMobile && equityMapMobile[mySessionToken] !== undefined && (
+                <span style={{
+                  display: 'inline-block',
+                  marginTop: 3,
+                  fontSize: 9,
+                  fontWeight: 700,
+                  color: (equityMapMobile[mySessionToken] ?? 0) >= 50 ? '#4ade80' : '#f87171',
+                  background: (equityMapMobile[mySessionToken] ?? 0) >= 50 ? 'rgba(74,222,128,0.15)' : 'rgba(248,113,113,0.15)',
+                  border: `1px solid ${(equityMapMobile[mySessionToken] ?? 0) >= 50 ? 'rgba(74,222,128,0.5)' : 'rgba(248,113,113,0.5)'}`,
+                  borderRadius: 6,
+                  padding: '1px 6px',
+                }}>
+                  {equityMapMobile[mySessionToken]}%
+                </span>
+              )}
             </div>
             {!showDiscardUI && (
               <div className={myHoleCards.length >= 5 ? 'flex -space-x-2' : 'flex gap-0.5'}>

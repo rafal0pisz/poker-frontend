@@ -24,6 +24,13 @@ const calcs = [
     desc: '4 karty na rękę, zasada dokładnie 2+3. Kalkulator sprawdza wszystkie 60 kombinacji. Symulacja 4000 rozdań.',
     badge: null,
   },
+  {
+    href: '/kalkulatory/porownanie-wariantow/',
+    icon: '⚖',
+    name: 'Porównanie wariantów',
+    desc: 'Interaktywna tabela wszystkich 6 wariantów z filtrowaniem po trudności, liczbie kart i rodzaju limitu.',
+    badge: 'Nowość',
+  },
 ];
 
 export default function KalkulatoryPage() {

@@ -297,6 +297,16 @@ export function PokerTable({ initialRoom, mySessionToken, onLeave }: Props) {
     }
   }, [room.gameState?.handNumber]);
 
+  // Also reset draw state when entering draw phase
+  // (handles reconnect mid-draw or phase transition edge cases)
+  const isDrawPhaseCurrent = room.gameState?.phase === 'draw';
+  const myDrawStateFromRoom = room.gameState?.drawState?.playerStates[mySessionToken];
+  useEffect(() => {
+    if (isDrawPhaseCurrent && myDrawStateFromRoom && !myDrawStateFromRoom.hasDrawn) {
+      setDrawSubmitted(false);
+    }
+  }, [isDrawPhaseCurrent, myDrawStateFromRoom?.hasDrawn]);
+
   useEffect(() => {
     const socket = getSocket();
 
@@ -319,16 +329,20 @@ export function PokerTable({ initialRoom, mySessionToken, onLeave }: Props) {
       }
       processRoomState(updated, mySessionToken);
       const myUpdated = updated.players.find((p) => p.sessionToken === mySessionToken);
-      if (myUpdated?.holeCards) {
+      if (myUpdated?.holeCards && myUpdated.holeCards.length > 0) {
         setMyHoleCards(myUpdated.holeCards);
         // Reset revealedHands only when a NEW hand starts (hand number changes)
-        // NOT on every room:state — that would wipe all-in reveals constantly
         const newHandNumber = updated.gameState?.handNumber ?? null;
         if (newHandNumber !== prevHandNumberRef.current) {
           prevHandNumberRef.current = newHandNumber;
           setMyHandShown(false);
           setRevealedHands({});
         }
+      }
+      // During draw phase always sync cards from room state
+      // (draw phase may update holeCards mid-hand)
+      if (updated.gameState?.phase === 'draw' && myUpdated?.holeCards) {
+        setMyHoleCards(myUpdated.holeCards);
       }
       // Clear my cards when I fold (status becomes 'folded')
       if (myUpdated?.status === 'folded' || myUpdated?.status === 'sitting-out') {

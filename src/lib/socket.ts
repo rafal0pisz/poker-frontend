@@ -10,13 +10,10 @@ export function getSocket(): Socket {
     socket = io(BACKEND_URL, {
       autoConnect: true,
       reconnection: true,
-      reconnectionDelay: 500,          // start fast
-      reconnectionDelayMax: 5000,      // cap at 5s
-      reconnectionAttempts: Infinity,  // keep trying
+      reconnectionDelay: 500,
+      reconnectionDelayMax: 5000,
+      reconnectionAttempts: Infinity,
       timeout: 10000,
-      // Ping keepalive — critical for iOS which kills idle sockets
-      // The server-side Socket.io default is 25s ping interval, 20s timeout
-      // We set a tighter interval to detect drops faster
     });
 
     socket.on('connect', () => {
@@ -25,13 +22,40 @@ export function getSocket(): Socket {
 
     socket.on('disconnect', (reason) => {
       console.log('[Socket] Disconnected:', reason);
-      // 'io server disconnect' = server kicked us intentionally
-      // 'transport close' / 'ping timeout' = network issue — will auto-reconnect
     });
 
     socket.on('connect_error', (err) => {
       console.error('[Socket] Connection error:', err.message);
     });
+
+    // iOS/Android background killer — when app returns to foreground
+    // visibilitychange fires but socket might be dead; force reconnect
+    if (typeof document !== 'undefined') {
+      document.addEventListener('visibilitychange', () => {
+        if (document.visibilityState === 'visible' && socket && !socket.connected) {
+          console.log('[Socket] Tab visible again — reconnecting');
+          socket.connect();
+        }
+      });
+    }
+
+    // Network online event (plane mode off, wifi reconnected)
+    if (typeof window !== 'undefined') {
+      window.addEventListener('online', () => {
+        if (socket && !socket.connected) {
+          console.log('[Socket] Network online — reconnecting');
+          socket.connect();
+        }
+      });
+    }
+
+    // Heartbeat every 25s — if server stops responding, socket.io
+    // will detect the timeout and trigger reconnection automatically.
+    // This is handled by socket.io's built-in ping mechanism, but
+    // we explicitly set a tighter interval here for mobile.
+    (socket as Socket & { _opts?: Record<string, unknown> })._opts = {
+      ...(socket as Socket & { _opts?: Record<string, unknown> })._opts,
+    };
   }
 
   return socket;

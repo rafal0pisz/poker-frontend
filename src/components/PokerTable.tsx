@@ -21,6 +21,7 @@ import { useHandLog } from '@/hooks/useHandLog';
 import { useEquity } from '@/hooks/useEquity';
 import { HandLog } from './HandLog';
 import { QuickChat } from './QuickChat';
+import { ConnectionBanner } from './ConnectionBanner';
 
 interface Props {
   initialRoom: Room;
@@ -407,6 +408,20 @@ export function PokerTable({ initialRoom, mySessionToken, onLeave }: Props) {
       });
     };
     socket.on('game:all-in-reveal', handleAllInReveal);
+
+    // Auto-rejoin room on reconnect
+    const handleReconnect = () => {
+      const token = sessionToken;
+      if (!token) return;
+      socket.emit('room:join', { nick, roomId: room.id, sessionToken: token },
+        (res: { ok: boolean; room?: typeof room; sessionToken?: string }) => {
+          if (res.ok && res.room) {
+            setRoom(res.room);
+          }
+        }
+      );
+    };
+    socket.on('connect', handleReconnect);
     socket.on('room:closed', handleClosed);
     socket.on('chat:message', handleChatMessage);
     socket.on('game:draw-open-card', () => {});
@@ -417,6 +432,7 @@ export function PokerTable({ initialRoom, mySessionToken, onLeave }: Props) {
       socket.off('game:hand-result', handleHandResult);
       socket.off('game:hand-revealed');
       socket.off('game:all-in-reveal');
+      socket.off('connect', handleReconnect);
       socket.off('room:closed', handleClosed);
       socket.off('chat:message', handleChatMessage);
       socket.off('game:draw-open-card');
@@ -617,6 +633,16 @@ export function PokerTable({ initialRoom, mySessionToken, onLeave }: Props) {
     });
 
   return (
+    <>
+    <ConnectionBanner onReconnected={() => {
+      const token = sessionToken;
+      if (!token) return;
+      getSocket().emit('room:join', { nick, roomId: room.id, sessionToken: token },
+        (res: { ok: boolean; room?: typeof room; sessionToken?: string }) => {
+          if (res.ok && res.room) setRoom(res.room);
+        }
+      );
+    }} />
     <main className="min-h-screen">
       {/* ─── MOBILE ─── */}
       <div className="md:hidden flex flex-col p-3 max-w-md mx-auto min-h-screen">
@@ -937,5 +963,6 @@ export function PokerTable({ initialRoom, mySessionToken, onLeave }: Props) {
         />
       )}
     </main>
+    </>
   );
 }

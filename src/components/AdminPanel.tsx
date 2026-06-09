@@ -17,11 +17,6 @@ export function AdminPanel({ room, mySessionToken, onClose }: Props) {
   const [chipsAction, setChipsAction] = useState<{ token: string; mode: ChipsMode }>({ token: '', mode: null });
   const [chipsAmount, setChipsAmount] = useState(100);
   const [pendingMsg, setPendingMsg] = useState<string | null>(null);
-  const [tableColor, setTableColor] = useState<string>(() => {
-    if (typeof window !== 'undefined') return localStorage.getItem('pokero-table-color') || '#1a3a1a';
-    return '#1a3a1a';
-  });
-
   const TABLE_COLORS = [
     { value: '#1a3a1a', label: 'Classic green' },
     { value: '#1F0808', label: 'Casino red' },
@@ -31,10 +26,12 @@ export function AdminPanel({ room, mySessionToken, onClose }: Props) {
     { value: '#0d0d17', label: 'Obsidian' },
   ];
 
+  const tableColor = room.settings.tableColor || '#1a3a1a';
+
   const handleTableColor = (color: string) => {
-    setTableColor(color);
-    localStorage.setItem('pokero-table-color', color);
-    document.dispatchEvent(new CustomEvent('pokero:table-color', { detail: color }));
+    getSocket().emit('admin:set-table-color', { color }, (res: { ok: boolean; error?: string }) => {
+      if (!res.ok) console.error('table color error:', res.error);
+    });
   };
 
   const handleAddChips = (target: Player) => {

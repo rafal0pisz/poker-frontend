@@ -230,15 +230,7 @@ export function OvalTable({
   // Chat tab state
   const [tab, setTab] = useState<'chat' | 'actions' | 'summary'>('chat');
   const [selectedStatsToken, setSelectedStatsToken] = useState<string | null>(null);
-  const [tableColor, setTableColor] = useState<string>(() => {
-    if (typeof window !== 'undefined') return localStorage.getItem('pokero-table-color') || '#1a3a1a';
-    return '#1a3a1a';
-  });
-  useEffect(() => {
-    const handler = (e: Event) => setTableColor((e as CustomEvent<string>).detail);
-    document.addEventListener('pokero:table-color', handler);
-    return () => document.removeEventListener('pokero:table-color', handler);
-  }, []);
+  const tableColor = room.settings.tableColor || '#1a3a1a';
 
   // Equity — show at showdown AND during all-in runout
   // isShowdown comes from props — DO NOT redefine it

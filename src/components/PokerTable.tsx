@@ -264,15 +264,7 @@ export function PokerTable({ initialRoom, mySessionToken, onLeave }: Props) {
   const [codeCopied, setCodeCopied] = useState(false);
   const [discardIndices, setDiscardIndices] = useState(new Set<number>());
   const [drawSubmitted, setDrawSubmitted] = useState(false);
-  const [tableColor, setTableColor] = useState<string>(() => {
-    if (typeof window !== 'undefined') return localStorage.getItem('pokero-table-color') || '#1a3a1a';
-    return '#1a3a1a';
-  });
-  useEffect(() => {
-    const handler = (e: Event) => setTableColor((e as CustomEvent<string>).detail);
-    document.addEventListener('pokero:table-color', handler);
-    return () => document.removeEventListener('pokero:table-color', handler);
-  }, []);
+  const tableColor = room.settings.tableColor || '#1a3a1a';
   const [selectedStatsToken, setSelectedStatsToken] = useState<string | null>(null);
   const [messages, setMessages] = useState<ChatMessage[]>(initialRoom.messages || []);
   const [unreadCount, setUnreadCount] = useState(0);

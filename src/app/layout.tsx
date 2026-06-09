@@ -4,13 +4,21 @@ import './globals.css';
 export const metadata: Metadata = {
   title: 'Pokero — Play poker with friends',
   description: 'Free online poker with friends. Texas Hold\'em, Omaha, Crazy Pineapple, Drawmaha and more. No download needed — play in browser.',
+  manifest: '/manifest.webmanifest',
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: 'black-translucent',
+    title: 'Pokero',
+  },
   icons: {
     icon: [
       { url: '/favicon.ico', sizes: '48x48' },
       { url: '/icon-32.png', sizes: '32x32', type: 'image/png' },
       { url: '/icon-192.png', sizes: '192x192', type: 'image/png' },
     ],
-    apple: '/apple-touch-icon.png',
+    apple: [
+      { url: '/apple-touch-icon.png', sizes: '180x180' },
+    ],
   },
 };
 

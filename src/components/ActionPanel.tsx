@@ -256,6 +256,11 @@ export function ActionPanel({ me, gameState, settings, players }: Props) {
             { label: '¼ pot', value: Math.floor(totalPot * 0.25) + gameState.currentBet },
             { label: '½ pot', value: Math.floor(totalPot * 0.5) + gameState.currentBet },
             { label: 'Pot', value: maxRaiseAmount },
+          ] : gameState.phase === 'preflop' ? [
+            { label: 'Min', value: minRaiseAmount },
+            { label: '2x BB', value: settings.bigBlind * 2 },
+            { label: '3x BB', value: settings.bigBlind * 3 },
+            { label: 'All-in', value: maxRaiseAmount },
           ] : [
             { label: 'Min', value: minRaiseAmount },
             { label: '½ pot', value: Math.floor(totalPot * 0.5) + gameState.currentBet },

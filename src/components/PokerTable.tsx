@@ -20,6 +20,7 @@ import { useSounds, enableAudio } from '@/hooks/useSounds';
 import { useHandLog } from '@/hooks/useHandLog';
 import { useEquity } from '@/hooks/useEquity';
 import { HandLog } from './HandLog';
+import { QuickChat } from './QuickChat';
 
 interface Props {
   initialRoom: Room;
@@ -903,7 +904,13 @@ export function PokerTable({ initialRoom, mySessionToken, onLeave }: Props) {
           }
         />
       </div>
-      <HandLog logs={logs} />
+      <QuickChat
+        messages={messages}
+        mySessionToken={mySessionToken}
+        onSendChat={(text) => {
+          getSocket().emit('chat:send', { content: text });
+        }}
+      />
 
       {showAdminPanel && <AdminPanel room={room} mySessionToken={mySessionToken} onClose={() => setShowAdminPanel(false)} />}
       {showChat && <ChatModal messages={messages} mySessionToken={mySessionToken} room={room} onClose={() => setShowChat(false)} />}

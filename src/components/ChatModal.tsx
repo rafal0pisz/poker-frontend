@@ -80,7 +80,7 @@ export function ChatModal({ messages, mySessionToken, room, onClose }: Props) {
         {/* Header */}
         <div className="flex items-center justify-between px-4 pt-4 pb-2 flex-shrink-0">
           <h2 className="font-serif italic text-xl text-poker-gold">Messages</h2>
-          <button onClick={onClose} className="text-poker-yellow/60 hover:text-poker-yellow text-2xl leading-none">×</button>
+          <button onClick={onClose} className="text-poker-yellow/60 hover:text-poker-yellow leading-none flex items-center justify-center" style={{ fontSize: 28, width: 44, height: 44, borderRadius: 10, background: "rgba(212,175,55,0.08)" }}>×</button>
         </div>
 
         {/* Tabs */}

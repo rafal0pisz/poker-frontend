@@ -17,6 +17,25 @@ export function AdminPanel({ room, mySessionToken, onClose }: Props) {
   const [chipsAction, setChipsAction] = useState<{ token: string; mode: ChipsMode }>({ token: '', mode: null });
   const [chipsAmount, setChipsAmount] = useState(100);
   const [pendingMsg, setPendingMsg] = useState<string | null>(null);
+  const [tableColor, setTableColor] = useState<string>(() => {
+    if (typeof window !== 'undefined') return localStorage.getItem('pokero-table-color') || '#1a3a1a';
+    return '#1a3a1a';
+  });
+
+  const TABLE_COLORS = [
+    { value: '#1a3a1a', label: 'Classic green' },
+    { value: '#1F0808', label: 'Casino red' },
+    { value: '#0a1a2e', label: 'Midnight blue' },
+    { value: '#1a1a2e', label: 'Deep purple' },
+    { value: '#1a1208', label: 'Bourbon brown' },
+    { value: '#0d0d17', label: 'Obsidian' },
+  ];
+
+  const handleTableColor = (color: string) => {
+    setTableColor(color);
+    localStorage.setItem('pokero-table-color', color);
+    document.dispatchEvent(new CustomEvent('pokero:table-color', { detail: color }));
+  };
 
   const handleAddChips = (target: Player) => {
     getSocket().emit('admin:add-chips', { targetSessionToken: target.sessionToken, amount: chipsAmount }, (response: ActionResponse) => {
@@ -231,6 +250,28 @@ export function AdminPanel({ room, mySessionToken, onClose }: Props) {
                   </div>
                 );
               })}
+            </div>
+          </div>
+
+          {/* Table color */}
+          <div className="border-t border-poker-gold/10 pt-4">
+            <p className="text-xs text-poker-yellow/50 mb-3">Table color</p>
+            <div className="grid grid-cols-3 gap-2">
+              {TABLE_COLORS.map(({ value, label }) => (
+                <button
+                  key={value}
+                  onClick={() => handleTableColor(value)}
+                  className="flex items-center gap-2 px-2 py-2 rounded-lg border text-[10px] transition-all active:scale-95"
+                  style={{
+                    borderColor: tableColor === value ? '#d4af37' : 'rgba(212,175,55,0.15)',
+                    background: tableColor === value ? 'rgba(212,175,55,0.1)' : 'transparent',
+                    color: tableColor === value ? '#d4af37' : 'rgba(245,230,192,0.5)',
+                  }}
+                >
+                  <span style={{ width: 14, height: 14, borderRadius: 3, background: value, flexShrink: 0, border: '1px solid rgba(255,255,255,0.15)', display: 'inline-block' }} />
+                  {label}
+                </button>
+              ))}
             </div>
           </div>
 

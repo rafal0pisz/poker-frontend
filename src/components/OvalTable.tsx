@@ -230,6 +230,15 @@ export function OvalTable({
   // Chat tab state
   const [tab, setTab] = useState<'chat' | 'actions' | 'summary'>('chat');
   const [selectedStatsToken, setSelectedStatsToken] = useState<string | null>(null);
+  const [tableColor, setTableColor] = useState<string>(() => {
+    if (typeof window !== 'undefined') return localStorage.getItem('pokero-table-color') || '#1a3a1a';
+    return '#1a3a1a';
+  });
+  useEffect(() => {
+    const handler = (e: Event) => setTableColor((e as CustomEvent<string>).detail);
+    document.addEventListener('pokero:table-color', handler);
+    return () => document.removeEventListener('pokero:table-color', handler);
+  }, []);
 
   // Equity — show at showdown AND during all-in runout
   // isShowdown comes from props — DO NOT redefine it
@@ -365,7 +374,7 @@ export function OvalTable({
           <div style={{ position: 'relative', width: '76%', paddingBottom: '40%' }}>
 
             {/* Felt oval */}
-            <div style={{ position: 'absolute', inset: 0, borderRadius: '50%', background: 'radial-gradient(ellipse at 50% 35%, #1d6b30, #0d3d1a 70%, #071a0d)', border: '8px solid #1a0f04', boxShadow: '0 0 0 3px #3d2208, 0 0 0 5px #1a0f04, inset 0 0 100px rgba(0,0,0,0.5), 0 20px 80px rgba(0,0,0,0.7)' }}>
+            <div style={{ position: 'absolute', inset: 0, borderRadius: '50%', background: `radial-gradient(ellipse at 50% 35%, ${tableColor}ee, ${tableColor}99 70%, ${tableColor}44)`, border: '8px solid #1a0f04', boxShadow: '0 0 0 3px #3d2208, 0 0 0 5px #1a0f04, inset 0 0 100px rgba(0,0,0,0.5), 0 20px 80px rgba(0,0,0,0.7)' }}>
               <div style={{ position: 'absolute', inset: 14, borderRadius: '50%', border: '1px solid rgba(212,175,55,0.1)' }} />
             </div>
 

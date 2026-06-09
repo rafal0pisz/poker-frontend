@@ -53,7 +53,14 @@ export function ActionPanel({ me, gameState, settings, players }: Props) {
   // This equals: the pot after calling (call makes the pot bigger, then you can raise that amount)
   // Special case: if currentBet=0 (first bet on a street), potLimitMax = pot (just bet the pot)
   // Note: gameState.pot may be 0 between streets (collected into sidePots) — use pot + sidePots
-  const totalPot = gameState.pot + gameState.sidePots.reduce((s, sp) => s + sp.amount, 0);
+  // effectivePot = everything visible in the pot:
+  //   collected pot + side pots + ALL uncollected bets on the table (player.currentBet)
+  // This is what players see as "the pot" during a betting round.
+  const betsOnTable = players.reduce((s, p) => s + (p.currentBet || 0), 0);
+  const collectedPot = gameState.pot + gameState.sidePots.reduce((s, sp) => s + sp.amount, 0);
+  const effectivePot = collectedPot + betsOnTable;
+  // Alias for PL formula (uses collected only, per backend logic)
+  const totalPot = collectedPot;
   const potLimitMax = isPotLimit
     ? Math.max(gameState.currentBet + totalPot + toCall, minRaiseAmount)
     : Infinity;
@@ -73,7 +80,14 @@ export function ActionPanel({ me, gameState, settings, players }: Props) {
   // - BUT going all-in is still > toCall (would create a side pot or cover call)
   // - AND the all-in amount is actually different from just calling
   const allInIsDistinctFromCall = allInAmount > toCall;
-  const canAllIn = me.chips > 0 && !canRaiseNormally && allInIsDistinctFromCall;
+  // In No Limit, all-in is always available (it's just max raise)
+  // Standalone all-in button shows when: can't raise normally, OR NL where all-in preset grid handles it
+  const canAllIn = me.chips > 0 && (
+    (!canRaiseNormally && allInIsDistinctFromCall) ||
+    // NL: if the preset grid doesn't show (e.g., showRaiseUI is false and canRaiseNormally),
+    // the grid already has All-in. So standalone button only for edge cases above.
+    false
+  );
 
   const [raiseAmount, setRaiseAmount] = useState(minRaiseAmount);
   const [raiseInput, setRaiseInput] = useState(String(minRaiseAmount));
@@ -263,8 +277,8 @@ export function ActionPanel({ me, gameState, settings, players }: Props) {
             { label: 'All-in', value: maxRaiseAmount },
           ] : [
             { label: 'Min',    value: minRaiseAmount },
-            { label: '½ pot',  value: Math.floor(totalPot * 0.5) + gameState.currentBet },
-            { label: 'Pot',    value: totalPot + gameState.currentBet },
+            { label: '½ pot',  value: Math.max(Math.floor(effectivePot / 2), minRaiseAmount) },
+            { label: 'Pot',    value: Math.max(effectivePot, minRaiseAmount) },
             { label: 'All-in', value: maxRaiseAmount },
           ]).map((preset) => {
             const clamped = Math.min(Math.max(preset.value, minRaiseAmount), maxRaiseAmount);

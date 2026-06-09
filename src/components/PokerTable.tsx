@@ -411,7 +411,7 @@ export function PokerTable({ initialRoom, mySessionToken, onLeave }: Props) {
 
     // Auto-rejoin room on reconnect
     const handleReconnect = () => {
-      const token = sessionToken;
+      const token = mySessionToken;
       if (!token) return;
       socket.emit('room:join', { nick, roomId: room.id, sessionToken: token },
         (res: { ok: boolean; room?: typeof room; sessionToken?: string }) => {
@@ -635,7 +635,7 @@ export function PokerTable({ initialRoom, mySessionToken, onLeave }: Props) {
   return (
     <>
     <ConnectionBanner onReconnected={() => {
-      const token = sessionToken;
+      const token = mySessionToken;
       if (!token) return;
       getSocket().emit('room:join', { nick, roomId: room.id, sessionToken: token },
         (res: { ok: boolean; room?: typeof room; sessionToken?: string }) => {

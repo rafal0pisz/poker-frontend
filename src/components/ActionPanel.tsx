@@ -267,8 +267,8 @@ export function ActionPanel({ me, gameState, settings, players }: Props) {
         <div className="grid grid-cols-4 gap-1.5">
           {(isPotLimit ? [
             { label: 'Min',    value: minRaiseAmount },
-            { label: '¼ pot',  value: Math.floor(totalPot * 0.25) + gameState.currentBet },
-            { label: '½ pot',  value: Math.floor(totalPot * 0.5) + gameState.currentBet },
+            { label: '¼ pot',  value: Math.max(Math.floor((effectivePot + 2 * toCall) * 0.25) + toCall, minRaiseAmount) },
+            { label: '½ pot',  value: Math.max(Math.floor((effectivePot + 2 * toCall) * 0.5) + toCall, minRaiseAmount) },
             { label: 'Pot',    value: maxRaiseAmount },
           ] : gameState.phase === 'preflop' ? [
             { label: 'Min',    value: minRaiseAmount },

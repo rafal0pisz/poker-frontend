@@ -409,11 +409,15 @@ export function PokerTable({ initialRoom, mySessionToken, onLeave }: Props) {
     };
     socket.on('game:all-in-reveal', handleAllInReveal);
 
-    // Auto-rejoin room on reconnect
+    // Auto-rejoin room on RE-connect (not on initial connect)
+    // socket.io fires 'connect' on first connect too, so we track if we've already joined
+    let hasJoined = socket.connected; // if already connected when effect runs, skip first fire
     const handleReconnect = () => {
+      if (!hasJoined) { hasJoined = true; return; } // skip initial connect
       const token = mySessionToken;
       const playerNick = room.players.find((p) => p.sessionToken === token)?.nick ?? '';
       if (!token || !playerNick) return;
+      console.log('[PokerTable] Reconnecting to room:', room.id);
       socket.emit('room:join', { nick: playerNick, roomId: room.id, sessionToken: token },
         (res: { ok: boolean; room?: typeof room }) => {
           if (res.ok && res.room) setRoom(res.room);

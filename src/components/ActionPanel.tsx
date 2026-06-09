@@ -61,8 +61,10 @@ export function ActionPanel({ me, gameState, settings, players }: Props) {
   const effectivePot = collectedPot + betsOnTable;
   // Alias for PL formula (uses collected only, per backend logic)
   const totalPot = collectedPot;
+  // PL max formula: effectivePot + 2×toCall (= call the bet + raise by pot-after-call)
+  // Must include betsOnTable (uncollected bets from current round)
   const potLimitMax = isPotLimit
-    ? Math.max(gameState.currentBet + totalPot + toCall, minRaiseAmount)
+    ? Math.max(effectivePot + 2 * toCall, minRaiseAmount)
     : Infinity;
 
   // Cap maxRaiseAmount: effective max (opponent coverage) AND pot limit

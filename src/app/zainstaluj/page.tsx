@@ -5,7 +5,7 @@ import { Footer } from '@/components/seo/Footer';
 
 export const metadata: Metadata = {
   title: 'Zainstaluj Pokero — aplikacja na telefonie bez App Store',
-  description: 'Dodaj Pokero do ekranu głównego iPhone lub Android. Działa jak aplikacja — bez paska adresu, z ikonką na home screenie. Instrukcja krok po kroku.',
+  description: 'Dodaj Pokero do ekranu głównego iPhone lub Android. Otwiera się jak aplikacja — bez paska adresu, z ikonką na home screenie. Instrukcja krok po kroku.',
   alternates: { canonical: 'https://pokero.pl/zainstaluj/' },
 };
 
@@ -16,7 +16,7 @@ export default function InstallPage() {
       <main style={{ padding: '3rem 0 4rem' }}>
         <div className="container" style={{ maxWidth: 640 }}>
           <div style={{ marginBottom: '2rem' }}>
-            <span className="badge" style={{ marginBottom: '1rem', display: 'inline-block' }}>PWA · Bez App Store · Działa offline</span>
+            <span className="badge" style={{ marginBottom: '1rem', display: 'inline-block' }}>PWA · Bez App Store · Ikona na home screenie</span>
             <h1 style={{ fontSize: 'clamp(1.5rem, 4vw, 2.2rem)', marginBottom: '0.75rem' }}>
               Zainstaluj Pokero na telefonie
             </h1>
@@ -72,7 +72,7 @@ export default function InstallPage() {
             <ul>
               <li><strong>Pełny ekran</strong> — bez paska adresu i zakładek, więcej miejsca na stół pokerowy</li>
               <li><strong>Szybki dostęp</strong> — ikona na ekranie głównym, otwierasz jednym kliknięciem</li>
-              <li><strong>Działa jak aplikacja</strong> — na iOS pojawia się w multitaskingu jak natywna appka</li>
+              <li><strong>Wygląd aplikacji</strong> — na iOS pojawia się w multitaskingu jak natywna appka</li>
               <li><strong>Tryb ciemny</strong> — automatycznie dostosowany do ustawień systemu</li>
             </ul>
 

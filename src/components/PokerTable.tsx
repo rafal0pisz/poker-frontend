@@ -264,6 +264,15 @@ export function PokerTable({ initialRoom, mySessionToken, onLeave }: Props) {
   const [codeCopied, setCodeCopied] = useState(false);
   const [discardIndices, setDiscardIndices] = useState(new Set<number>());
   const [drawSubmitted, setDrawSubmitted] = useState(false);
+  const [tableColor, setTableColor] = useState<string>(() => {
+    if (typeof window !== 'undefined') return localStorage.getItem('pokero-table-color') || '#1a3a1a';
+    return '#1a3a1a';
+  });
+  useEffect(() => {
+    const handler = (e: Event) => setTableColor((e as CustomEvent<string>).detail);
+    document.addEventListener('pokero:table-color', handler);
+    return () => document.removeEventListener('pokero:table-color', handler);
+  }, []);
   const [selectedStatsToken, setSelectedStatsToken] = useState<string | null>(null);
   const [messages, setMessages] = useState<ChatMessage[]>(initialRoom.messages || []);
   const [unreadCount, setUnreadCount] = useState(0);
@@ -676,7 +685,7 @@ export function PokerTable({ initialRoom, mySessionToken, onLeave }: Props) {
         </div>
 
         {/* Table center */}
-        <div className="poker-felt rounded-2xl p-4 my-2">
+        <div className="rounded-2xl p-4 my-2" style={{ background: `radial-gradient(ellipse at 50% 35%, ${tableColor}ee, ${tableColor}88 70%, ${tableColor}33)`, border: "2px solid rgba(212,175,55,0.15)" }}>
           <p className="text-center text-[10px] text-poker-gold/70 tracking-widest mb-1">POT</p>
           <p className="text-center text-2xl text-poker-yellow font-medium mb-3">{gameState ? gameState.pot : 0}</p>
           <div className="flex justify-center gap-1">
@@ -908,7 +917,7 @@ export function PokerTable({ initialRoom, mySessionToken, onLeave }: Props) {
         messages={messages}
         mySessionToken={mySessionToken}
         onSendChat={(text) => {
-          getSocket().emit('chat:send', { content: text });
+          getSocket().emit('chat:send', { type: 'text', content: text });
         }}
       />
 

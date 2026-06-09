@@ -23,6 +23,7 @@ export function Nav() {
           <Link href="/kalkulatory/" style={{ color: 'rgba(245,230,192,0.7)', fontSize: '0.9rem', textDecoration: 'none' }}>Kalkulatory</Link>
           <Link href="/zasady/" style={{ color: 'rgba(245,230,192,0.7)', fontSize: '0.9rem', textDecoration: 'none' }}>Zasady gry</Link>
           <Link href="/blog/" style={{ color: 'rgba(245,230,192,0.7)', fontSize: '0.9rem', textDecoration: 'none' }}>Blog</Link>
+          <Link href="/zainstaluj/" style={{ color: 'rgba(245,230,192,0.7)', fontSize: '0.9rem', textDecoration: 'none' }}>Aplikacja</Link>
           <Link href="/kontakt/" style={{ color: 'rgba(245,230,192,0.7)', fontSize: '0.9rem', textDecoration: 'none' }}>Kontakt</Link>
           <Link href="/" className="btn-primary" style={{ padding: '0.5rem 1.25rem', fontSize: '0.9rem' }}>Zagraj teraz</Link>
         </div>
@@ -35,7 +36,7 @@ export function Nav() {
 
       {open && (
         <div style={{ background: '#13131f', borderTop: '1px solid rgba(212,175,55,0.1)', padding: '1rem 1.25rem' }}>
-          {[['/pl/', 'Strona główna'], ['/kalkulatory/', 'Kalkulatory'], ['/zasady/', 'Zasady gry'], ['/blog/', 'Blog'], ['/kontakt/', 'Kontakt']].map(([href, label]) => (
+          {[['/pl/', 'Strona główna'], ['/kalkulatory/', 'Kalkulatory'], ['/zasady/', 'Zasady gry'], ['/blog/', 'Blog'], ['/kontakt/', 'Kontakt'], ['/zainstaluj/', 'Aplikacja na telefon']].map(([href, label]) => (
             <Link key={href} href={href} onClick={() => setOpen(false)}
               style={{ display: 'block', padding: '0.65rem 0', color: 'rgba(245,230,192,0.8)', borderBottom: '1px solid rgba(212,175,55,0.06)', textDecoration: 'none' }}>
               {label}

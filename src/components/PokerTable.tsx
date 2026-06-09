@@ -412,12 +412,11 @@ export function PokerTable({ initialRoom, mySessionToken, onLeave }: Props) {
     // Auto-rejoin room on reconnect
     const handleReconnect = () => {
       const token = mySessionToken;
-      if (!token) return;
-      socket.emit('room:join', { nick, roomId: room.id, sessionToken: token },
-        (res: { ok: boolean; room?: typeof room; sessionToken?: string }) => {
-          if (res.ok && res.room) {
-            setRoom(res.room);
-          }
+      const playerNick = room.players.find((p) => p.sessionToken === token)?.nick ?? '';
+      if (!token || !playerNick) return;
+      socket.emit('room:join', { nick: playerNick, roomId: room.id, sessionToken: token },
+        (res: { ok: boolean; room?: typeof room }) => {
+          if (res.ok && res.room) setRoom(res.room);
         }
       );
     };
@@ -636,9 +635,10 @@ export function PokerTable({ initialRoom, mySessionToken, onLeave }: Props) {
     <>
     <ConnectionBanner onReconnected={() => {
       const token = mySessionToken;
-      if (!token) return;
-      getSocket().emit('room:join', { nick, roomId: room.id, sessionToken: token },
-        (res: { ok: boolean; room?: typeof room; sessionToken?: string }) => {
+      const playerNick = room.players.find((p) => p.sessionToken === token)?.nick ?? '';
+      if (!token || !playerNick) return;
+      getSocket().emit('room:join', { nick: playerNick, roomId: room.id, sessionToken: token },
+        (res: { ok: boolean; room?: typeof room }) => {
           if (res.ok && res.room) setRoom(res.room);
         }
       );

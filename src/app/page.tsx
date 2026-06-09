@@ -26,12 +26,40 @@ export default function HomePage() {
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     const code = params.get('room')?.toUpperCase().trim();
+
     if (code) {
+      // Try to auto-rejoin with stored session token (PWA refresh, iOS background kill)
+      const storedToken = localStorage.getItem(`poker:session:${code}`);
+      if (storedToken && nick) {
+        // Attempt silent rejoin
+        import('@/lib/socket').then(({ getSocket }) => {
+          const socket = getSocket();
+          const doJoin = () => {
+            socket.emit('room:join', { nick, roomId: code, sessionToken: storedToken },
+              (res: { ok: boolean; room?: Room; sessionToken?: string }) => {
+                if (res.ok && res.room) {
+                  setRoom(res.room);
+                  setMySessionToken(res.sessionToken ?? storedToken);
+                  setView('table');
+                } else {
+                  // Token expired or room gone — show join screen
+                  setUrlRoomCode(code);
+                  setView('join');
+                }
+              }
+            );
+          };
+          if (socket.connected) doJoin();
+          else socket.once('connect', doJoin);
+        });
+        window.history.replaceState({}, '', window.location.pathname);
+        return;
+      }
       setUrlRoomCode(code);
       setView('join');
       window.history.replaceState({}, '', window.location.pathname);
     }
-  }, []);
+  }, [nick]);
 
   const startEditNick = () => { setNickInput(nick); setEditingNick(true); };
   const saveNick = () => { setNick(nickInput); setEditingNick(false); };

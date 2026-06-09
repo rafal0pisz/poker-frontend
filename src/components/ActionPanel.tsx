@@ -57,9 +57,10 @@ export function ActionPanel({ me, gameState, settings, players }: Props) {
   //   collected pot + side pots + ALL uncollected bets on the table (player.currentBet)
   // This is what players see as "the pot" during a betting round.
   const betsOnTable = players.reduce((s, p) => s + (p.currentBet || 0), 0);
-  const collectedPot = gameState.pot + gameState.sidePots.reduce((s, sp) => s + sp.amount, 0);
+  // gameState.pot is already the sum of all sidePots (set by collectBets in backend)
+  // DO NOT add sidePots again — that would double-count!
+  const collectedPot = gameState.pot;
   const effectivePot = collectedPot + betsOnTable;
-  // Alias for PL formula (uses collected only, per backend logic)
   const totalPot = collectedPot;
   // PL max formula: effectivePot + 2×toCall (= call the bet + raise by pot-after-call)
   // Must include betsOnTable (uncollected bets from current round)

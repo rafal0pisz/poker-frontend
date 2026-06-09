@@ -51,6 +51,7 @@ export interface RoomSettings {
   startingBuyIn: number;
   maxSeats: number;
   actionTimeoutSec: 15 | 30 | 60;
+  tableColor?: string;
 }
 
 // 'draw' = Drawmaha draw phase (after flop, before turn)

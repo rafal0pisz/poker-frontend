@@ -351,8 +351,13 @@ export function PokerTable({ initialRoom, mySessionToken, onLeave }: Props) {
       // Exception: Drawmaha — folded cards go to muck which can be reshuffled into deck
       // showing them would give unfair information about cards in play
       if (myUpdated?.status === 'folded') {
-        const isDrawmaha = room.gameState?.variant === 'drawmaha' || room.gameState?.variant === 'drawmaha-pl';
-        if (myHoleCards.length > 0 && !isDrawmaha) setMyFoldedCards(myHoleCards);
+        const isDrawmaha = updated.gameState?.variant === 'drawmaha' || updated.gameState?.variant === 'drawmaha-pl';
+        // Use myUpdated.holeCards directly — backend always sends own cards back.
+        // Avoid stale closure issue with myHoleCards React state.
+        const cardsToSave = myUpdated?.holeCards;
+        if (cardsToSave && cardsToSave.length > 0 && !isDrawmaha) {
+          setMyFoldedCards(cardsToSave);
+        }
         setMyHoleCards([]);
       }
       if (myUpdated?.status === 'sitting-out') {

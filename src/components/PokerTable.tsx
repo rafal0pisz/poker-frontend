@@ -954,6 +954,45 @@ export function PokerTable({ initialRoom, mySessionToken, onLeave }: Props) {
           me={me}
           myHoleCards={myHoleCards}
           myFoldedCards={myFoldedCards}
+          chipRequestUI={me.chips === 0 && (me.status === 'sitting-out' || me.status === 'no-chips') ? (
+            chipRequestSent || me.chipRequest ? (
+              <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 6 }}>
+                <span style={{ fontSize: 11, color: '#f59e0b' }}>⏳ Requested {me.chipRequest} chips</span>
+                <button
+                  onClick={() => { getSocket().emit('game:cancel-chip-request', {}, () => {}); setChipRequestSent(false); }}
+                  style={{ fontSize: 10, color: 'rgba(245,230,192,0.4)', background: 'none', border: 'none', cursor: 'pointer', textDecoration: 'underline', padding: 0 }}
+                >cancel</button>
+              </div>
+            ) : (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 6, marginBottom: 6 }}>
+                <p style={{ fontSize: 11, color: 'rgba(245,230,192,0.5)', margin: 0 }}>Request chips from admin</p>
+                <div style={{ display: 'flex', gap: 6 }}>
+                  {[100, 200, 400].map((amt) => (
+                    <button
+                      key={amt}
+                      onClick={() => setChipRequestAmount(amt)}
+                      style={{
+                        fontSize: 11, padding: '3px 10px', borderRadius: 8, cursor: 'pointer',
+                        background: chipRequestAmount === amt ? 'rgba(212,175,55,0.15)' : 'rgba(212,175,55,0.05)',
+                        border: `1px solid ${chipRequestAmount === amt ? 'rgba(212,175,55,0.6)' : 'rgba(212,175,55,0.2)'}`,
+                        color: chipRequestAmount === amt ? '#d4af37' : 'rgba(245,230,192,0.5)',
+                      }}
+                    >+{amt}</button>
+                  ))}
+                </div>
+                <button
+                  onClick={() => {
+                    getSocket().emit('game:request-chips', { amount: chipRequestAmount }, (res: { ok: boolean; error?: string }) => {
+                      if (res.ok) setChipRequestSent(true);
+                    });
+                  }}
+                  style={{ fontSize: 12, padding: '6px 14px', borderRadius: 8, cursor: 'pointer', background: 'rgba(212,175,55,0.1)', border: '1px solid rgba(212,175,55,0.4)', color: '#d4af37' }}
+                >
+                  Request {chipRequestAmount} chips
+                </button>
+              </div>
+            )
+          ) : undefined}
           winningCardsSet={winningCardsSet}
           activeResult={activeResult ?? null}
           lastResult={lastResult}

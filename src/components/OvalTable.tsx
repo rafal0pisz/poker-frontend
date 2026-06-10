@@ -203,6 +203,7 @@ export interface OvalTableProps {
   onShowVariantPicker: () => void;
   drawUI: React.ReactNode;
   actionPanel: React.ReactNode;
+  chipRequestUI?: React.ReactNode;
   unreadCount: number;
   playerStats: Record<string, import('@/lib/types').PlayerStats>;
   onOpenChat: () => void;
@@ -220,7 +221,7 @@ export function OvalTable({
   myBubbleToShow, getBubble, messages, sendChat, sendReaction,
   showDiscardUI, nextDealerVariant, onLeave, onShowHand,
   onCopyCode, onToggleMute, onEnableAudio, onShowAdmin, onShowVariantPicker,
-  drawUI, actionPanel, unreadCount, playerStats,
+  drawUI, actionPanel, chipRequestUI, unreadCount, playerStats,
   onSitBack, onSitOut, onTakeSeat,
 }: OvalTableProps) {
 
@@ -499,6 +500,7 @@ export function OvalTable({
                 {myHandShown ? '✓ Hand shown' : 'Show Hand'}
               </button>
             )}
+            {chipRequestUI}
             {actionPanel}
           </div>
         </div>

@@ -25,6 +25,31 @@ export function CreateRoomScreen({ defaultNick, onCancel, onRoomCreated }: Props
   const [creating, setCreating] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  const handleCreateWithBot = () => {
+    setCreating(true);
+    setError(null);
+    const socket = getSocket();
+    socket.emit('room:create-with-bot', { nick: nick.trim() || 'Player', botCount: 2 },
+      (response: { ok: boolean; roomId?: string; sessionToken?: string; error?: string }) => {
+        setCreating(false);
+        if (response.ok && response.roomId && response.sessionToken) {
+          // Rejoin to get full room object
+          socket.emit('room:join',
+            { nick: nick.trim() || 'Player', roomId: response.roomId, sessionToken: response.sessionToken },
+            (res: { ok: boolean; room?: import('@/lib/types').Room; sessionToken?: string }) => {
+              if (res.ok && res.room) {
+                setSessionToken(res.room.id, response.sessionToken!);
+                onRoomCreated(res.room, response.sessionToken!);
+              }
+            }
+          );
+        } else {
+          setError(response.error ?? 'Error creating bot room');
+        }
+      }
+    );
+  };
+
   const handleCreate = () => {
     setCreating(true);
     setError(null);
@@ -149,7 +174,7 @@ export function CreateRoomScreen({ defaultNick, onCancel, onRoomCreated }: Props
         )}
       </div>
 
-      <div className="max-w-sm mx-auto w-full mt-6">
+      <div className="max-w-sm mx-auto w-full mt-6 flex flex-col gap-3">
         <button
           onClick={handleCreate}
           disabled={creating || !nick.trim()}
@@ -157,6 +182,15 @@ export function CreateRoomScreen({ defaultNick, onCancel, onRoomCreated }: Props
         >
           {creating ? 'Creating...' : 'Create room'}
         </button>
+        <button
+          onClick={handleCreateWithBot}
+          disabled={creating || !nick.trim()}
+          className="w-full bg-poker-yellow/10 border border-poker-gold/30 text-poker-yellow font-medium py-4 rounded-xl active:scale-95 transition disabled:opacity-40 flex items-center justify-center gap-2"
+        >
+          <span>🤖</span>
+          <span>{creating ? 'Creating...' : 'Test with Bots (2 players)'}</span>
+        </button>
+        <p className="text-center text-[11px] text-poker-yellow/35">Bot room uses blinds 5/10, 1000 chips each</p>
       </div>
     </main>
   );

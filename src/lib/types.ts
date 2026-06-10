@@ -38,6 +38,7 @@ export interface Player {
   holeCards?: Card[];
   currentBet: number;
   chipRequest?: number;
+  isBot?: boolean;
   totalBetInHand: number;
   hasActedThisRound: boolean;
   preferredVariant: GameVariant;

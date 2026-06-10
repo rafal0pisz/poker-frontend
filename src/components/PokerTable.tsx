@@ -256,6 +256,7 @@ function DesktopChat({ messages, mySessionToken, room, onSend, onSendReaction }:
 export function PokerTable({ initialRoom, mySessionToken, onLeave }: Props) {
   const [room, setRoom] = useState<Room>(initialRoom);
   const [myHoleCards, setMyHoleCards] = useState<CardType[]>([]);
+  const [myFoldedCards, setMyFoldedCards] = useState<CardType[]>([]); // cards kept visible after fold
   const [showAdminPanel, setShowAdminPanel] = useState(false);
   const [showChat, setShowChat] = useState(false);
   const [showVariantPicker, setShowVariantPicker] = useState(false);
@@ -338,6 +339,7 @@ export function PokerTable({ initialRoom, mySessionToken, onLeave }: Props) {
           prevHandNumberRef.current = newHandNumber;
           setMyHandShown(false);
           setRevealedHands({});
+          setMyFoldedCards([]); // clear folded cards on new hand
         }
       }
       // During draw phase always sync cards from room state
@@ -345,9 +347,14 @@ export function PokerTable({ initialRoom, mySessionToken, onLeave }: Props) {
       if (updated.gameState?.phase === 'draw' && myUpdated?.holeCards) {
         setMyHoleCards(myUpdated.holeCards);
       }
-      // Clear my cards when I fold (status becomes 'folded')
-      if (myUpdated?.status === 'folded' || myUpdated?.status === 'sitting-out') {
+      // On fold: save cards to foldedCards (grayed out) instead of clearing
+      if (myUpdated?.status === 'folded') {
+        if (myHoleCards.length > 0) setMyFoldedCards(myHoleCards);
         setMyHoleCards([]);
+      }
+      if (myUpdated?.status === 'sitting-out') {
+        setMyHoleCards([]);
+        setMyFoldedCards([]);
       }
       if (!updated.gameState) setMyHoleCards([]);
       if (updated.messages && updated.messages.length !== messagesLengthRef.current) {
@@ -779,10 +786,16 @@ export function PokerTable({ initialRoom, mySessionToken, onLeave }: Props) {
               )}
             </div>
             {!showDiscardUI && (
-              <div className={myHoleCards.length >= 5 ? 'flex -space-x-2' : 'flex gap-0.5'}>
+              <div className={myHoleCards.length >= 5 ? 'flex -space-x-2' : myFoldedCards.length >= 5 ? 'flex -space-x-2' : 'flex gap-0.5'}>
                 {myHoleCards.length > 0
                   ? myHoleCards.map((c, i) => (
                       <Card key={i} card={c} size={myHoleCards.length >= 5 ? 'sm' : myHoleCards.length >= 4 ? 'md' : 'lg'} winning={winningCardsSet.has(c)} dealIndex={i} />
+                    ))
+                  : myFoldedCards.length > 0
+                  ? myFoldedCards.map((fc, i) => (
+                      <div key={i} style={{ opacity: 0.38, filter: 'grayscale(1)' }}>
+                        <Card card={fc} size={myFoldedCards.length >= 5 ? 'sm' : myFoldedCards.length >= 4 ? 'md' : 'lg'} winning={false} dealIndex={i} />
+                      </div>
                     ))
                   : <>
                       <CardPlaceholder size="lg" />
@@ -890,6 +903,7 @@ export function PokerTable({ initialRoom, mySessionToken, onLeave }: Props) {
           otherPlayers={otherPlayers}
           me={me}
           myHoleCards={myHoleCards}
+          myFoldedCards={myFoldedCards}
           winningCardsSet={winningCardsSet}
           activeResult={activeResult ?? null}
           lastResult={lastResult}

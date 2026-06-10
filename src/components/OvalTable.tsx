@@ -166,6 +166,7 @@ export interface OvalTableProps {
   otherPlayers: Room['players'];
   me: Room['players'][0];
   myHoleCards: CardType[];
+  myFoldedCards: CardType[];
   winningCardsSet: Set<CardType>;
   activeResult: HandResult | null;
   lastResult: HandResult | null;
@@ -211,7 +212,7 @@ export interface OvalTableProps {
 }
 
 export function OvalTable({
-  room, mySessionToken, gameState, otherPlayers, me, myHoleCards,
+  room, mySessionToken, gameState, otherPlayers, me, myHoleCards, myFoldedCards,
   winningCardsSet, activeResult, lastResult, resultMessage,
   isShowdown, myHandShown, isSpectator, isAdmin, isSittingOut, canSitOut,
   muted, codeCopied, currentVariant, currentCardCount, isDrawPhase,
@@ -421,6 +422,12 @@ export function OvalTable({
                 <div style={{ display: 'flex', gap: 2 }}>
                   {myHoleCards.length > 0
                     ? myHoleCards.map((c, i) => <Card key={i} card={c} size="md" winning={winningCardsSet.has(c)} />)
+                    : myFoldedCards.length > 0
+                    ? myFoldedCards.map((fc, i) => (
+                        <div key={i} style={{ opacity: 0.38, filter: 'grayscale(1)' }}>
+                          <Card card={fc} size="md" winning={false} />
+                        </div>
+                      ))
                     : <><Card size="md" facedown /><Card size="md" facedown /></>
                   }
                 </div>

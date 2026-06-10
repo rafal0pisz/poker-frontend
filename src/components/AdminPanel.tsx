@@ -282,14 +282,9 @@ export function AdminPanel({ room, mySessionToken, onClose }: Props) {
                       </button>
                       <button
                         onClick={() => {
-                          getSocket().emit('admin:approve-chip-request', { targetSessionToken: p.sessionToken }, () => {});
-                        }}
-                        className="text-[11px] px-2 py-1.5 rounded-lg border border-red-500/30 bg-red-500/5 text-red-400 hover:bg-red-500/15 active:scale-95 transition-all"
-                        onClick={() => {
-                          // Decline = just clear the request without giving chips
-                          // We need a separate decline endpoint — use a workaround: emit to clear
                           getSocket().emit('admin:decline-chip-request', { targetSessionToken: p.sessionToken }, () => {});
                         }}
+                        className="text-[11px] px-2 py-1.5 rounded-lg border border-red-500/30 bg-red-500/5 text-red-400 hover:bg-red-500/15 active:scale-95 transition-all"
                       >
                         ✕
                       </button>

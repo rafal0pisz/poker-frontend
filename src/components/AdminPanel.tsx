@@ -250,6 +250,56 @@ export function AdminPanel({ room, mySessionToken, onClose }: Props) {
             </div>
           </div>
 
+          {/* Chip requests */}
+          {room.players.some((p) => p.chipRequest) && (
+            <div className="border-b border-poker-gold/10 pb-4 mb-2">
+              <div className="flex items-center gap-2 mb-3">
+                <span className="text-xs text-poker-yellow/50">Chip requests</span>
+                <span className="ml-auto bg-amber-500/15 text-amber-400 text-[10px] font-medium px-2 py-0.5 rounded-full">
+                  {room.players.filter((p) => p.chipRequest).length} pending
+                </span>
+              </div>
+              <div className="flex flex-col gap-2">
+                {room.players.filter((p) => p.chipRequest).map((p) => (
+                  <div key={p.sessionToken} className="flex items-center gap-2 bg-poker-yellow/5 rounded-lg px-3 py-2">
+                    <div className="w-8 h-8 rounded-full bg-poker-yellow/10 border border-poker-gold/20 flex items-center justify-center text-[11px] font-medium text-poker-yellow/70 flex-shrink-0">
+                      {p.nick.slice(0, 2).toUpperCase()}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-xs font-medium text-poker-yellow/90 truncate">{p.nick}</p>
+                      <p className="text-[11px] text-poker-yellow/50">requests <span className="text-poker-gold font-medium">{p.chipRequest}</span> chips</p>
+                    </div>
+                    <div className="flex gap-1.5 flex-shrink-0">
+                      <button
+                        onClick={() => {
+                          getSocket().emit('admin:approve-chip-request', { targetSessionToken: p.sessionToken }, (res: { ok: boolean; error?: string }) => {
+                            if (!res.ok) setPendingMsg(res.error ?? 'Error');
+                          });
+                        }}
+                        className="text-[11px] px-3 py-1.5 rounded-lg border border-green-500/40 bg-green-500/10 text-green-400 hover:bg-green-500/20 active:scale-95 transition-all"
+                      >
+                        Give ✓
+                      </button>
+                      <button
+                        onClick={() => {
+                          getSocket().emit('admin:approve-chip-request', { targetSessionToken: p.sessionToken }, () => {});
+                        }}
+                        className="text-[11px] px-2 py-1.5 rounded-lg border border-red-500/30 bg-red-500/5 text-red-400 hover:bg-red-500/15 active:scale-95 transition-all"
+                        onClick={() => {
+                          // Decline = just clear the request without giving chips
+                          // We need a separate decline endpoint — use a workaround: emit to clear
+                          getSocket().emit('admin:decline-chip-request', { targetSessionToken: p.sessionToken }, () => {});
+                        }}
+                      >
+                        ✕
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
           {/* Force next hand */}
           <div className="border-t border-poker-gold/10 pt-4">
             <p className="text-xs text-poker-yellow/50 mb-2">Emergency controls</p>

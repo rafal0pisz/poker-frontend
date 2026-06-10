@@ -524,6 +524,14 @@ export function PokerTable({ initialRoom, mySessionToken, onLeave }: Props) {
   const gameState = room.gameState;
   const isAdmin = me.role === 'admin' || me.role === 'vice-admin';
   const isSittingOut = me.status === 'sitting-out';
+  const [chipRequestAmount, setChipRequestAmount] = useState(500);
+  const [chipRequestSent, setChipRequestSent] = useState(false);
+
+  // Sync chipRequestSent with room state
+  useEffect(() => {
+    if (me.chipRequest) setChipRequestSent(true);
+    else setChipRequestSent(false);
+  }, [me.chipRequest]);
   const isSpectator = me.status === 'spectator';
   const canSitOut = !!gameState && !['sitting-out', 'waiting', 'no-chips', 'spectator'].includes(me.status);
 
@@ -777,6 +785,40 @@ export function PokerTable({ initialRoom, mySessionToken, onLeave }: Props) {
                 {me.role !== 'player' && <span className="text-[9px] bg-poker-gold/20 text-poker-gold px-1.5 py-0.5 rounded">{me.role}</span>}
               </p>
               <p className="text-poker-yellow/60 text-xs">Chips: <span className="text-poker-gold font-medium">{me.chips}</span></p>
+              {me.chips === 0 && me.status === 'sitting-out' && (
+                chipRequestSent || me.chipRequest ? (
+                  <div className="flex items-center gap-2 mt-1.5">
+                    <span className="text-[11px] text-amber-400">⏳ Requested {me.chipRequest} chips</span>
+                    <button
+                      onClick={() => { getSocket().emit('game:cancel-chip-request', {}, () => {}); setChipRequestSent(false); }}
+                      className="text-[10px] text-poker-yellow/40 underline"
+                    >cancel</button>
+                  </div>
+                ) : (
+                  <div className="mt-2 flex flex-col gap-1.5">
+                    <p className="text-[11px] text-poker-yellow/50">Request chips from admin</p>
+                    <div className="flex gap-1.5">
+                      {[100, 200, 400].map((amt) => (
+                        <button
+                          key={amt}
+                          onClick={() => setChipRequestAmount(amt)}
+                          className={`text-[11px] px-2.5 py-1 rounded-lg border transition-all ${chipRequestAmount === amt ? 'border-poker-gold/60 bg-poker-gold/15 text-poker-gold' : 'border-poker-gold/20 text-poker-yellow/50'}`}
+                        >+{amt}</button>
+                      ))}
+                    </div>
+                    <button
+                      onClick={() => {
+                        getSocket().emit('game:request-chips', { amount: chipRequestAmount }, (res: { ok: boolean; error?: string }) => {
+                          if (res.ok) setChipRequestSent(true);
+                        });
+                      }}
+                      className="text-[12px] py-1.5 rounded-lg border border-poker-gold/40 bg-poker-gold/10 text-poker-gold active:scale-95 transition-all"
+                    >
+                      Request {chipRequestAmount} chips
+                    </button>
+                  </div>
+                )
+              )}
               {showEquityMobile && equityMapMobile[mySessionToken] !== undefined && (
                 <span style={{
                   display: 'inline-block',

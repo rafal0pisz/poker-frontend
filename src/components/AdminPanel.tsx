@@ -250,6 +250,26 @@ export function AdminPanel({ room, mySessionToken, onClose }: Props) {
             </div>
           </div>
 
+          {/* Force next hand */}
+          <div className="border-t border-poker-gold/10 pt-4">
+            <p className="text-xs text-poker-yellow/50 mb-2">Emergency controls</p>
+            <button
+              onClick={() => {
+                if (!confirm('Force next hand? Current hand will be cancelled.')) return;
+                getSocket().emit('admin:force-next-hand', {}, (res: { ok: boolean; error?: string }) => {
+                  if (!res.ok) setPendingMsg(res.error ?? 'Error');
+                  else onClose();
+                });
+              }}
+              className="w-full py-2.5 rounded-lg text-sm font-medium border border-red-500/40 bg-red-500/10 text-red-400 hover:bg-red-500/20 active:scale-95 transition-all"
+            >
+              ⚡ Force next hand
+            </button>
+            <p className="text-[10px] text-poker-yellow/25 mt-1.5">
+              Use if the game freezes. Current hand is cancelled and chips are not awarded.
+            </p>
+          </div>
+
           {/* Table color */}
           <div className="border-t border-poker-gold/10 pt-4">
             <p className="text-xs text-poker-yellow/50 mb-3">Table color</p>

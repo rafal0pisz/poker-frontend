@@ -342,3 +342,4 @@ export function AdminPanel({ room, mySessionToken, onClose }: Props) {
     </div>
   );
 }
+// Wed Jun 10 12:07:40 CEST 2026

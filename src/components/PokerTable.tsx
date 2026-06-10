@@ -785,7 +785,7 @@ export function PokerTable({ initialRoom, mySessionToken, onLeave }: Props) {
                 {me.role !== 'player' && <span className="text-[9px] bg-poker-gold/20 text-poker-gold px-1.5 py-0.5 rounded">{me.role}</span>}
               </p>
               <p className="text-poker-yellow/60 text-xs">Chips: <span className="text-poker-gold font-medium">{me.chips}</span></p>
-              {me.chips === 0 && me.status === 'sitting-out' && (
+              {me.chips === 0 && (me.status === 'sitting-out' || me.status === 'no-chips') && (
                 chipRequestSent || me.chipRequest ? (
                   <div className="flex items-center gap-2 mt-1.5">
                     <span className="text-[11px] text-amber-400">⏳ Requested {me.chipRequest} chips</span>

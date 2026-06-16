@@ -17,6 +17,8 @@ export function AdminPanel({ room, mySessionToken, onClose }: Props) {
   const [chipsAction, setChipsAction] = useState<{ token: string; mode: ChipsMode }>({ token: '', mode: null });
   const [chipsAmount, setChipsAmount] = useState(100);
   const [pendingMsg, setPendingMsg] = useState<string | null>(null);
+  // Seat picker — open for one player at a time
+  const [seatPickerToken, setSeatPickerToken] = useState<string | null>(null);
   const TABLE_COLORS = [
     { value: '#1a3a1a', label: 'Classic green' },
     { value: '#1F0808', label: 'Casino red' },
@@ -58,6 +60,17 @@ export function AdminPanel({ room, mySessionToken, onClose }: Props) {
       if (response && !response.ok) alert(response.error || 'Error');
     });
   };
+
+  // Move a player to a different seat (only when no hand is in progress)
+  const handleMoveSeat = (target: Player, newSeat: number) => {
+    getSocket().emit('admin:move-player-seat', { targetSessionToken: target.sessionToken, newSeat }, (response: ActionResponse) => {
+      if (response && !response.ok) { alert(response.error || 'Error'); return; }
+      setSeatPickerToken(null);
+    });
+  };
+
+  // Is there an active hand? Allow seat changes only when no hand in progress
+  const handInProgress = !!room.gameState && room.gameState.phase !== 'showdown';
 
   const handleStartGame = () => {
     getSocket().emit('game:start', (response: ActionResponse) => {
@@ -215,7 +228,7 @@ export function AdminPanel({ room, mySessionToken, onClose }: Props) {
                     )}
 
                     {/* Action buttons (closed) */}
-                    {!chipsOpen && (
+                    {!chipsOpen && seatPickerToken !== p.sessionToken && (
                       <div className="space-y-1.5">
                         <div className="grid grid-cols-3 gap-1.5">
                           <button onClick={() => setChipsAction({ token: p.sessionToken, mode: 'add' })}
@@ -236,12 +249,60 @@ export function AdminPanel({ room, mySessionToken, onClose }: Props) {
                             <div />
                           )}
                         </div>
-                        {!isMe && (
-                          <button onClick={() => handleTransferAdmin(p)}
-                            className="w-full bg-poker-yellow/5 border border-poker-gold/20 text-poker-yellow/50 text-[10px] py-1.5 rounded-lg active:scale-95">
-                            👑 Make admin
+                        <div className="grid grid-cols-2 gap-1.5">
+                          <button
+                            onClick={() => setSeatPickerToken(p.sessionToken)}
+                            disabled={handInProgress}
+                            title={handInProgress ? 'Wait until current hand ends' : 'Change seat'}
+                            className="bg-poker-yellow/5 border border-poker-gold/20 text-poker-yellow/70 text-[11px] py-1.5 rounded-lg disabled:opacity-40">
+                            🪑 Move seat (#{p.seat})
                           </button>
-                        )}
+                          {!isMe ? (
+                            <button onClick={() => handleTransferAdmin(p)}
+                              className="bg-poker-yellow/5 border border-poker-gold/20 text-poker-yellow/50 text-[11px] py-1.5 rounded-lg active:scale-95">
+                              👑 Make admin
+                            </button>
+                          ) : (
+                            <div />
+                          )}
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Seat picker - choose new seat */}
+                    {seatPickerToken === p.sessionToken && (
+                      <div className="bg-poker-bg/40 border border-poker-gold/30 rounded-lg p-2 space-y-2">
+                        <p className="text-poker-gold text-[11px] uppercase tracking-wide">
+                          Move {p.nick} to seat:
+                        </p>
+                        <div className="grid grid-cols-5 gap-1.5">
+                          {Array.from({ length: room.settings.maxSeats }, (_, idx) => {
+                            const occupiedBy = room.players.find((pl) => pl.seat === idx);
+                            const isMyCurrentSeat = idx === p.seat;
+                            const isOccupied = !!occupiedBy && occupiedBy.sessionToken !== p.sessionToken;
+                            return (
+                              <button
+                                key={idx}
+                                onClick={() => !isOccupied && !isMyCurrentSeat && handleMoveSeat(p, idx)}
+                                disabled={isOccupied || isMyCurrentSeat}
+                                title={isOccupied ? `Taken by ${occupiedBy?.nick}` : isMyCurrentSeat ? 'Current seat' : `Move to seat ${idx}`}
+                                className={`text-[11px] py-1.5 rounded ${
+                                  isMyCurrentSeat
+                                    ? 'bg-poker-gold/30 border border-poker-gold text-poker-gold cursor-default'
+                                    : isOccupied
+                                      ? 'bg-poker-yellow/5 border border-poker-yellow/10 text-poker-yellow/30 cursor-not-allowed'
+                                      : 'bg-poker-gold/10 border border-poker-gold/30 text-poker-gold hover:bg-poker-gold/20'
+                                }`}>
+                                {idx}
+                              </button>
+                            );
+                          })}
+                        </div>
+                        <button
+                          onClick={() => setSeatPickerToken(null)}
+                          className="w-full text-poker-yellow/60 text-[11px] py-1">
+                          Cancel
+                        </button>
                       </div>
                     )}
                   </div>

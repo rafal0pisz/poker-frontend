@@ -225,8 +225,22 @@ export function OvalTable({
   onSitBack, onSitOut, onTakeSeat,
 }: OvalTableProps) {
 
-  // Assign seat positions 1-6 to otherPlayers (up to 6 opponents)
-  const seatedOpponents = otherPlayers.slice(0, 6).map((p, i) => ({ player: p, seatIndex: i + 1 }));
+  // Assign visual seat positions (1-6) to opponents based on their seat order
+  // relative to MY seat — so the visual layout matches the actual deal rotation.
+  // The player immediately after me (clockwise in dealing order) goes to position 1
+  // (top-center, opposite me), then continues clockwise around the oval.
+  //
+  // Bug fix: previously this used otherPlayers array index which didn't reflect
+  // who comes after me in the dealing rotation, causing visual confusion with 6+ players.
+  // We use the same algorithm as mobile: modulo by maxSeats for correct clockwise rotation.
+  const mySeat = me?.seat ?? 0;
+  const maxSeats = room.settings.maxSeats || 9;
+  const opponentsByRotation = [...otherPlayers].sort((a, b) => {
+    const aDist = (a.seat - mySeat + maxSeats) % maxSeats;
+    const bDist = (b.seat - mySeat + maxSeats) % maxSeats;
+    return aDist - bDist;
+  });
+  const seatedOpponents = opponentsByRotation.slice(0, 6).map((p, i) => ({ player: p, seatIndex: i + 1 }));
   const youPos = SEAT_POSITIONS[0];
 
   // Chat tab state

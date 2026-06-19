@@ -40,6 +40,51 @@ function ResultPanel({ lastResult, players, resultMessage }: {
 }) {
   if (!lastResult) return null;
   const dr = lastResult.drawmahaResult;
+  const breakdown = lastResult.potBreakdown;
+  const hasSidePots = breakdown && breakdown.length > 1;
+
+  // If there are side pots, show per-pot breakdown (works for all variants).
+  // This is the priority since side pots are the most confusing UX case.
+  if (hasSidePots) {
+    return (
+      <div className="mt-3 bg-poker-gold/15 border border-poker-gold/40 rounded-lg p-2">
+        <p className="text-poker-gold text-xs text-center mb-1.5">
+          🏆 Pot split into {breakdown!.length} pots
+        </p>
+        <div className="space-y-1">
+          {breakdown!.map((pot, idx) => (
+            <div key={idx} className="bg-poker-bg/30 border border-poker-gold/20 rounded px-2 py-1">
+              <div className="flex justify-between items-baseline">
+                <span className="text-poker-gold/80 text-[11px] font-medium">{pot.label}</span>
+                <span className="text-poker-gold/60 text-[10px]">({pot.amount} chips)</span>
+              </div>
+              <div className="mt-0.5 space-y-0.5">
+                {pot.winners.map((w, wi) => {
+                  const nick = players.find((p) => p.sessionToken === w.sessionToken)?.nick ?? '?';
+                  return (
+                    <p key={wi} className="text-poker-yellow text-[11px]">
+                      {w.drawmahaHalf && (
+                        <span className="text-poker-gold/60">
+                          [{w.drawmahaHalf === 'omaha' ? 'Omaha' : 'Draw'}]{' '}
+                        </span>
+                      )}
+                      <span className="font-medium">{nick}</span>
+                      <span className="text-poker-gold"> +{w.amount}</span>
+                      {w.handDescription && (
+                        <span className="text-poker-yellow/60"> · {w.handDescription}</span>
+                      )}
+                    </p>
+                  );
+                })}
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    );
+  }
+
+  // Drawmaha single-pot — show split clearly
   if (dr) {
     const omahaNick = players.find((p) => p.sessionToken === dr.omahaWinner.sessionToken)?.nick ?? '?';
     const texasNick = players.find((p) => p.sessionToken === dr.texasWinner.sessionToken)?.nick ?? '?';

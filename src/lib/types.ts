@@ -73,6 +73,20 @@ export interface HandResult {
     omahaWinner: { sessionToken: string; amount: number; handDescription: string };
     texasWinner: { sessionToken: string; amount: number; handDescription: string };
   };
+  // Per-pot breakdown for side pot scenarios.
+  // Only present when there are multiple pots (main + side). Empty/absent for single-pot.
+  potBreakdown?: PotWinBreakdown[];
+}
+
+export interface PotWinBreakdown {
+  label: string; // "Main pot", "Side pot 1", "Side pot 2", ...
+  amount: number;
+  winners: {
+    sessionToken: string;
+    amount: number;
+    handDescription?: string;
+    drawmahaHalf?: 'omaha' | 'draw';
+  }[];
 }
 
 // ===== DRAWMAHA =====

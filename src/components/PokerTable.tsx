@@ -1155,6 +1155,7 @@ export function PokerTable({ initialRoom, mySessionToken, onLeave }: Props) {
             : null
           }
           resultPanel={<ResultPanel lastResult={lastResult} players={room.players} resultMessage={resultMessage} />}
+          handLogs={logs}
         />
       </div>
       <QuickChat
@@ -1166,7 +1167,7 @@ export function PokerTable({ initialRoom, mySessionToken, onLeave }: Props) {
       />
 
       {showAdminPanel && <AdminPanel room={room} mySessionToken={mySessionToken} onClose={() => setShowAdminPanel(false)} />}
-      {showChat && <ChatModal messages={messages} mySessionToken={mySessionToken} room={room} onClose={() => setShowChat(false)} />}
+      {showChat && <ChatModal messages={messages} mySessionToken={mySessionToken} room={room} onClose={() => setShowChat(false)} handLogs={logs} />}
       {showVariantPicker && (
         <VariantPicker
           currentVariant={me.preferredVariant || 'texas'}

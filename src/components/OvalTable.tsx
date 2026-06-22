@@ -2,6 +2,7 @@
 
 import React, { useEffect, useRef, useState } from 'react';
 import type { Room, Card as CardType, HandResult, ChatMessage, GameVariant } from '@/lib/types';
+import type { LogEntry } from '@/hooks/useHandLog';
 import { Card, CardPlaceholder } from './Card';
 import { PlayerSeat } from './PlayerSeat';
 import { ActionPanel } from './ActionPanel';
@@ -207,6 +208,7 @@ export interface OvalTableProps {
   preActionButton?: React.ReactNode;
   resultPanel?: React.ReactNode;
   chipRequestUI?: React.ReactNode;
+  handLogs?: LogEntry[];
   unreadCount: number;
   playerStats: Record<string, import('@/lib/types').PlayerStats>;
   onOpenChat: () => void;
@@ -224,7 +226,7 @@ export function OvalTable({
   myBubbleToShow, getBubble, messages, sendChat, sendReaction,
   showDiscardUI, nextDealerVariant, onLeave, onShowHand,
   onCopyCode, onToggleMute, onEnableAudio, onShowAdmin, onShowVariantPicker,
-  drawUI, actionPanel, preActionButton, resultPanel, chipRequestUI, unreadCount, playerStats,
+  drawUI, actionPanel, preActionButton, resultPanel, chipRequestUI, handLogs, unreadCount, playerStats,
   onSitBack, onSitOut, onTakeSeat,
 }: OvalTableProps) {
 
@@ -349,12 +351,20 @@ export function OvalTable({
               </div>
             ))
           )}
-          {tab === 'actions' && (actionMessages.length === 0
-            ? <p style={{ fontSize: 11, color: 'rgba(245,230,192,0.25)', textAlign: 'center', marginTop: 20 }}>No actions yet</p>
-            : actionMessages.map(m => (
-              <p key={m.id} style={{ fontSize: 10, color: 'rgba(245,230,192,0.4)', textAlign: 'center', fontStyle: 'italic', lineHeight: 1.4 }}>{m.content}</p>
-            ))
-          )}
+          {tab === 'actions' && (() => {
+            const entries = handLogs && handLogs.length > 0 ? handLogs : [];
+            if (entries.length === 0) return <p style={{ fontSize: 11, color: 'rgba(245,230,192,0.25)', textAlign: 'center', marginTop: 20 }}>No actions yet</p>;
+            return entries.slice().reverse().map(e => (
+              <p key={e.id} style={{
+                fontSize: 10,
+                color: e.highlight ? '#d4af37' : e.type === 'result' ? '#f5e6c0' : e.type === 'phase' ? 'rgba(212,175,55,0.7)' : 'rgba(245,230,192,0.45)',
+                fontWeight: e.highlight ? 500 : 400,
+                textAlign: (e.type === 'phase' || e.type === 'system') ? 'center' as const : 'left' as const,
+                fontStyle: e.type === 'system' ? 'italic' : 'normal',
+                lineHeight: 1.5, margin: '1px 0',
+              }}>{e.text}</p>
+            ));
+          })()}
           {tab === 'summary' && (allSummary.length === 0
             ? <p style={{ fontSize: 11, color: 'rgba(245,230,192,0.25)', textAlign: 'center', marginTop: 20 }}>No data yet</p>
             : allSummary.map(s => {

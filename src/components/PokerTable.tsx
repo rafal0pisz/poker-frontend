@@ -1190,6 +1190,7 @@ export function PokerTable({ initialRoom, mySessionToken, onLeave }: Props) {
             ? <PreActionButton me={me} gameState={gameState} />
             : null
           }
+          resultPanel={<ResultPanel lastResult={lastResult} players={room.players} resultMessage={resultMessage} />}
         />
       </div>
       <QuickChat

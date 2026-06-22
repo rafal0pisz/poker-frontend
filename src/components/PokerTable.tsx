@@ -459,7 +459,8 @@ export function PokerTable({ initialRoom, mySessionToken, onLeave }: Props) {
 
     const handleHandResult = (result: HandResult) => {
       setLastResult(result);
-      setTimeout(() => setLastResult(null), 6000);
+      const isDrawmaha = result.variant === 'drawmaha' || result.variant === 'drawmaha-pl';
+      setTimeout(() => setLastResult(null), isDrawmaha ? 9000 : 6000);
       if (result.winnings.some((w) => w.sessionToken === mySessionToken && w.amount > 0)) playWin();
       processHandResult(result, roomRef.current.players);
     };

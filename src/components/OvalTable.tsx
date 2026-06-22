@@ -528,11 +528,10 @@ export function OvalTable({
               </button>
             )}
             {preActionButton && (
-              <div style={{ marginBottom: 8 }}>
+              <div style={{ marginBottom: 6, width: '33%' }}>
                 {preActionButton}
               </div>
             )}
-            {preActionButton}
             {chipRequestUI}
             {actionPanel}
           </div>

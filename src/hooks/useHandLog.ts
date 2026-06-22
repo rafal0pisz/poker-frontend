@@ -89,22 +89,32 @@ export function useHandLog() {
     }
 
     // ── Result ──
+    // Use result.winnings for TOTAL amounts (drawmahaResult only has main pot amounts)
+    const totalByToken = new Map<string, number>();
+    for (const w of result.winnings) {
+      totalByToken.set(w.sessionToken, (totalByToken.get(w.sessionToken) ?? 0) + w.amount);
+    }
+    const getTotal = (token: string) => totalByToken.get(token) ?? 0;
+
     if (result.drawmahaResult) {
       const dr = result.drawmahaResult;
       const ow = dr.omahaWinners ?? [dr.omahaWinner];
       const tw = dr.texasWinners ?? [dr.texasWinner];
       const isScoop = ow.length === 1 && tw.length === 1 && ow[0].sessionToken === tw[0].sessionToken;
       if (isScoop) {
-        const total = ow[0].amount + tw[0].amount;
+        const total = getTotal(ow[0].sessionToken);
         addEntry(entry('result', `🎯 ${getNick(ow[0].sessionToken)} scoops ${total} (Omaha: ${ow[0].handDescription} · Draw: ${tw[0].handDescription})`, true));
       } else {
-        for (const w of ow) {
-          const tieNote = ow.length > 1 ? ' (split)' : '';
-          addEntry(entry('result', `Omaha: ${getNick(w.sessionToken)} +${w.amount}${tieNote} · ${w.handDescription}`, true));
-        }
-        for (const w of tw) {
-          const tieNote = tw.length > 1 ? ' (split)' : '';
-          addEntry(entry('result', `Draw: ${getNick(w.sessionToken)} +${w.amount}${tieNote} · ${w.handDescription}`, true));
+        // Collect unique winners across both halves for total display
+        const allTokens = new Set([...ow.map(w => w.sessionToken), ...tw.map(w => w.sessionToken)]);
+        for (const token of allTokens) {
+          const total = getTotal(token);
+          const omahaW = ow.find(w => w.sessionToken === token);
+          const drawW  = tw.find(w => w.sessionToken === token);
+          const parts = [];
+          if (omahaW) parts.push(`Omaha: ${omahaW.handDescription}${ow.length > 1 ? ' (split)' : ''}`);
+          if (drawW)  parts.push(`Draw: ${drawW.handDescription}${tw.length > 1 ? ' (split)' : ''}`);
+          addEntry(entry('result', `🏆 ${getNick(token)} +${total} · ${parts.join(' · ')}`, true));
         }
       }
     } else {

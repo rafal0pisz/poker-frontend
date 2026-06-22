@@ -34,6 +34,23 @@ interface Props {
 // Sub-components (defined outside PokerTable)
 // ──────────────────────────────────────────────
 
+function CardPip({ card }: { card: string }) {
+  const rank = card.slice(0, -1);
+  const suit = card.slice(-1);
+  const suitSymbol: Record<string, string> = { s: '♠', h: '♥', d: '♦', c: '♣' };
+  const isRed = suit === 'h' || suit === 'd';
+  return (
+    <span style={{
+      display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
+      background: 'rgba(245,230,192,0.08)', border: '0.5px solid rgba(245,230,192,0.2)',
+      borderRadius: 4, padding: '1px 4px', fontSize: 11, fontWeight: 500,
+      color: isRed ? '#ef4444' : 'rgba(245,230,192,0.85)', minWidth: 22, margin: '0 1px',
+    }}>
+      {rank}{suitSymbol[suit] ?? suit}
+    </span>
+  );
+}
+
 function ResultPanel({ lastResult, players, resultMessage }: {
   lastResult: HandResult | null;
   players: Room['players'];
@@ -43,12 +60,21 @@ function ResultPanel({ lastResult, players, resultMessage }: {
   const dr = lastResult.drawmahaResult;
   const breakdown = lastResult.potBreakdown;
   const hasSidePots = breakdown && breakdown.length > 1;
+  const board = lastResult.boardCards ?? [];
+  const handNum = lastResult.handNumber;
+  const totalPot = lastResult.totalPot;
+  const showdownCards = lastResult.showdownCards ?? [];
 
   // If there are side pots, show per-pot breakdown (works for all variants).
   // This is the priority since side pots are the most confusing UX case.
   if (hasSidePots) {
     return (
       <div className="mt-3 bg-poker-gold/15 border border-poker-gold/40 rounded-lg p-2">
+        <div className="flex justify-between items-center mb-1">
+          {handNum && <span className="text-poker-gold/60 text-[10px]">Hand #{handNum}</span>}
+          {totalPot && <span className="text-poker-gold/60 text-[10px]">{totalPot} chips</span>}
+        </div>
+        {board.length > 0 && <div className="flex flex-wrap gap-0.5 mb-1.5">{board.map((card, i) => <CardPip key={i} card={card} />)}</div>}
         <p className="text-poker-gold text-xs text-center mb-1.5">
           🏆 Pot split into {breakdown!.length} pots
         </p>
@@ -96,8 +122,13 @@ function ResultPanel({ lastResult, players, resultMessage }: {
     const omahaAmt = omahaWinners[0].amount;
     const texasAmt = texasWinners[0].amount;
     return (
-      <div className="mt-3 bg-poker-gold/15 border border-poker-gold/40 rounded-lg p-2 text-center">
-        <p className="text-poker-gold text-xs mb-1">{isScoop ? '🎯 Scoop!' : '🃏 Split pot'}</p>
+      <div className="mt-3 bg-poker-gold/15 border border-poker-gold/40 rounded-lg p-2">
+        <div className="flex justify-between items-center mb-1">
+          {handNum && <span className="text-poker-gold/60 text-[10px]">Hand #{handNum}</span>}
+          {totalPot && <span className="text-poker-gold/60 text-[10px]">{totalPot} chips</span>}
+        </div>
+        {board.length > 0 && <div className="flex flex-wrap gap-0.5 mb-1.5">{board.map((card, i) => <CardPip key={i} card={card} />)}</div>}
+        <p className="text-poker-gold text-xs mb-1 text-center">{isScoop ? '🎯 Scoop!' : '🃏 Split pot'}</p>
         <p className="text-poker-yellow text-xs">
           <span className="text-poker-gold/70">Omaha: </span>
           {omahaNicks} ({omahaWinners[0].handDescription}) +{omahaAmt}
@@ -112,9 +143,35 @@ function ResultPanel({ lastResult, players, resultMessage }: {
     );
   }
   return (
-    <div className="mt-3 bg-poker-gold/15 border border-poker-gold/40 rounded-lg p-2 text-center">
-      <p className="text-poker-gold text-xs">🏆 Result:</p>
-      <p className="text-poker-yellow text-sm font-medium mt-0.5">{resultMessage}</p>
+    <div className="mt-3 bg-poker-gold/15 border border-poker-gold/40 rounded-lg p-2">
+      {/* Header: Hand # + pot */}
+      <div className="flex justify-between items-center mb-1.5">
+        {handNum && <span className="text-poker-gold/60 text-[10px]">Hand #{handNum}</span>}
+        {totalPot && <span className="text-poker-gold/60 text-[10px]">{totalPot} chips</span>}
+      </div>
+      {/* Board cards */}
+      {board.length > 0 && (
+        <div className="flex flex-wrap gap-0.5 mb-1.5">
+          {board.map((card, i) => <CardPip key={i} card={card} />)}
+        </div>
+      )}
+      {/* Winner */}
+      <p className="text-poker-yellow text-sm font-medium">{resultMessage}</p>
+      {/* Showdown hands */}
+      {showdownCards.length > 0 && (
+        <div className="mt-1.5 space-y-0.5">
+          {showdownCards.map((sc) => {
+            const nick = players.find(p => p.sessionToken === sc.sessionToken)?.nick ?? '?';
+            return (
+              <div key={sc.sessionToken} className="flex items-center gap-1.5 flex-wrap">
+                <span className="text-poker-yellow/60 text-[10px] w-16 truncate">{nick}</span>
+                <span className="text-poker-yellow/40 text-[10px]">{sc.handName}</span>
+                <span className="flex gap-0.5">{sc.cards.map((card, i) => <CardPip key={i} card={card} />)}</span>
+              </div>
+            );
+          })}
+        </div>
+      )}
     </div>
   );
 }

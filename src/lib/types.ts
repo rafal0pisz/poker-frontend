@@ -68,6 +68,10 @@ export interface HandResult {
   winnings: { sessionToken: string; amount: number; netAmount?: number; handDescription?: string }[];
   showdownCards: { sessionToken: string; cards: Card[]; handName: string }[];
   winningCards: Card[];
+  boardCards?: Card[];     // community cards at end of hand
+  handNumber?: number;    // Hand #N
+  totalPot?: number;      // total chips in pot
+  variant?: string;       // game variant
   // Present for Drawmaha — split pot details (arrays support tied winners)
   drawmahaResult?: {
     omahaWinner: { sessionToken: string; amount: number; handDescription: string };

@@ -204,6 +204,7 @@ export interface OvalTableProps {
   onShowVariantPicker: () => void;
   drawUI: React.ReactNode;
   actionPanel: React.ReactNode;
+  preActionButton?: React.ReactNode;
   chipRequestUI?: React.ReactNode;
   unreadCount: number;
   playerStats: Record<string, import('@/lib/types').PlayerStats>;
@@ -222,7 +223,7 @@ export function OvalTable({
   myBubbleToShow, getBubble, messages, sendChat, sendReaction,
   showDiscardUI, nextDealerVariant, onLeave, onShowHand,
   onCopyCode, onToggleMute, onEnableAudio, onShowAdmin, onShowVariantPicker,
-  drawUI, actionPanel, chipRequestUI, unreadCount, playerStats,
+  drawUI, actionPanel, preActionButton, chipRequestUI, unreadCount, playerStats,
   onSitBack, onSitOut, onTakeSeat,
 }: OvalTableProps) {
 
@@ -514,6 +515,11 @@ export function OvalTable({
               <button onClick={onShowHand} disabled={myHandShown} style={{ marginBottom: 6, padding: '5px 14px', borderRadius: 8, border: `1px solid ${myHandShown ? 'rgba(212,175,55,0.4)' : 'rgba(212,175,55,0.2)'}`, background: myHandShown ? 'rgba(212,175,55,0.15)' : 'rgba(212,175,55,0.06)', color: myHandShown ? '#d4af37' : 'rgba(245,230,192,0.6)', fontSize: 11, fontWeight: 500, cursor: myHandShown ? 'default' : 'pointer', display: 'block' }}>
                 {myHandShown ? '✓ Hand shown' : 'Show Hand'}
               </button>
+            )}
+            {preActionButton && (
+              <div style={{ marginBottom: 8 }}>
+                {preActionButton}
+              </div>
             )}
             {chipRequestUI}
             {actionPanel}

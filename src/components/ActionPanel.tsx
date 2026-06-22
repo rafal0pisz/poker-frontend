@@ -193,44 +193,8 @@ export function ActionPanel({ me, gameState, settings, players }: Props) {
       );
     }
 
-    // Playing but waiting for turn — show pre-action
-    return (
-      <div className="bg-poker-yellow/5 border border-poker-gold/20 rounded-xl p-3 space-y-2">
-        <p className="text-poker-yellow/50 text-[10px] uppercase tracking-wider text-center">
-          Pre-action — fires when it&apos;s your turn
-        </p>
-        <div className="grid grid-cols-2 gap-2">
-          <button
-            onClick={() => sendPreAction('fold')}
-            className={`py-2.5 rounded-lg text-sm font-medium active:scale-95 border transition-all ${
-              pendingAction === 'fold'
-                ? 'bg-poker-coral text-white border-poker-coral'
-                : 'bg-poker-coral/10 border-poker-coral/30 text-poker-coral'
-            }`}
-          >
-            {pendingAction === 'fold' ? '✓ Fold' : 'Fold'}
-          </button>
-          <button
-            onClick={() => sendPreAction('check-fold')}
-            className={`py-2.5 rounded-lg text-sm font-medium active:scale-95 border transition-all ${
-              pendingAction === 'check-fold'
-                ? 'bg-poker-gold text-poker-bg border-poker-gold'
-                : 'bg-poker-yellow/10 border-poker-gold/25 text-poker-yellow'
-            }`}
-          >
-            {pendingAction === 'check-fold' ? '✓ Check/Fold' : 'Check/Fold'}
-          </button>
-        </div>
-        {pendingAction && (
-          <p className="text-[10px] text-poker-yellow/40 text-center">
-            {pendingAction === 'fold'
-              ? "Will fold automatically when it's your turn"
-              : 'Will check if possible, otherwise fold'}
-          </p>
-        )}
-        <p className="text-poker-yellow/40 text-xs text-center">Waiting for your turn...</p>
-      </div>
-    );
+    // Playing but waiting for turn — return null (pre-action is now a separate component)
+    return null;
   }
 
   // ── RAISE UI ──────────────────────────────────────────────────────────

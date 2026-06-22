@@ -20,16 +20,17 @@ const VARIANT_LABELS: Record<GameVariant, string> = {
 };
 
 // 7 seat positions around the oval (as % of oval width/height)
-// Seat 0 = YOU at bottom-center (on the oval edge)
-// Opponents fill starting opposite (top-center) and spread symmetrically
+// Seat 0 = YOU at bottom-center
+// Opponents go CLOCKWISE starting from MY LEFT (position 1)
+// so the player immediately left of me (SB if I'm dealer) appears on my screen-left
 const SEAT_POSITIONS = [
   { top: '96%',  left: '50%' },  // 0 = YOU — bottom-center
-  { top: '4%',   left: '50%' },  // 1 = top-center (opposite YOU — first seat filled)
-  { top: '12%',  left: '80%' },  // 2 = top-right
-  { top: '62%',  left: '97%' },  // 3 = right
-  { top: '12%',  left: '20%' },  // 4 = top-left
-  { top: '62%',  left: '3%'  },  // 5 = left
-  { top: '96%',  left: '78%' },  // 6 = bottom-right
+  { top: '58%',  left: '2%'  },  // 1 = left  (first clockwise = my immediate left)
+  { top: '12%',  left: '18%' },  // 2 = upper-left
+  { top: '4%',   left: '50%' },  // 3 = top-center (opposite)
+  { top: '12%',  left: '82%' },  // 4 = upper-right
+  { top: '58%',  left: '98%' },  // 5 = right (my immediate right)
+  { top: '96%',  left: '80%' },  // 6 = bottom-right (just to my right)
 ];
 
 type BetSide = 'left' | 'right' | 'top' | 'bottom';

@@ -95,6 +95,7 @@ export function ActionPanel({ me, gameState, settings, players }: Props) {
   const [raiseAmount, setRaiseAmount] = useState(minRaiseAmount);
   const [raiseInput, setRaiseInput] = useState(String(minRaiseAmount));
   const [showRaiseUI, setShowRaiseUI] = useState(false);
+  const [selectedPreset, setSelectedPreset] = useState<string | null>(null);
   const [secondsLeft, setSecondsLeft] = useState<number | null>(null);
   const [pendingAction, setPendingAction] = useState<PreAction>(
     (me.pendingAction as PreAction) ?? null
@@ -112,6 +113,7 @@ export function ActionPanel({ me, gameState, settings, players }: Props) {
   useEffect(() => {
     if (!isMyTurn) return; // only reset when turn changes TO my turn
     setShowRaiseUI(false);
+    setSelectedPreset(null);
     const initial = Math.min(Math.max(minRaiseAmount, minRaiseAmount), maxRaiseAmount);
     setRaiseAmount(initial);
     setRaiseInput(String(initial));
@@ -235,7 +237,7 @@ export function ActionPanel({ me, gameState, settings, players }: Props) {
   if (showRaiseUI) {
     // Note: actual all-in detection is now inline in the confirm button click handler
     return (
-      <div className="bg-poker-yellow/5 border border-poker-gold/25 rounded-xl p-3 space-y-3">
+      <div className="bg-poker-yellow/5 border border-poker-gold/25 rounded-xl p-3 space-y-3" style={{ position: 'relative' }}>
         <div className="flex items-center justify-between gap-3">
           <span className="text-poker-yellow/70 text-xs whitespace-nowrap">
             {gameState.currentBet === 0 ? 'Bet:' : 'Raise to:'}
@@ -285,11 +287,16 @@ export function ActionPanel({ me, gameState, settings, players }: Props) {
             { label: 'All-in', value: maxRaiseAmount },
           ]).map((preset) => {
             const clamped = Math.min(Math.max(preset.value, minRaiseAmount), maxRaiseAmount);
+            const isSelected = selectedPreset === preset.label;
             return (
               <button
                 key={preset.label}
-                onClick={() => updateRaise(clamped)}
-                className="bg-poker-yellow/10 text-poker-yellow text-[11px] py-1.5 rounded active:scale-95"
+                onClick={() => { updateRaise(clamped); setSelectedPreset(preset.label); }}
+                className={`text-[11px] py-1.5 rounded active:scale-95 transition-all ${
+                  isSelected
+                    ? 'bg-poker-gold/30 text-poker-gold border border-poker-gold/60'
+                    : 'bg-poker-yellow/10 text-poker-yellow border border-transparent'
+                }`}
               >
                 {preset.label}
               </button>

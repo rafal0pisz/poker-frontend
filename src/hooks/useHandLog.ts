@@ -142,11 +142,7 @@ export function useHandLog() {
     const getPlayerNick = (token: string) =>
       players.find((p) => p.sessionToken === token)?.nick ?? token.slice(0, 6);
 
-    // Header with Hand # and board cards
-    const handNum = result.handNumber ? `Hand #${result.handNumber}` : '';
-    const board = result.boardCards && result.boardCards.length > 0
-      ? `  Board: ${result.boardCards.join(' ')}` : '';
-    addEntry(entry('phase', `── ${handNum}${board} ──`, true));
+    addEntry(entry('phase', '── Showdown ──', true));
 
     // Show all cards at showdown
     if (result.showdownCards.length > 0) {
@@ -158,17 +154,27 @@ export function useHandLog() {
 
     // Result
     if (result.drawmahaResult) {
-      const { omahaWinner, texasWinner } = result.drawmahaResult;
-      const isScoop = omahaWinner.sessionToken === texasWinner.sessionToken;
+      const dr = result.drawmahaResult;
+      const ow = dr.omahaWinners ?? [dr.omahaWinner];
+      const tw = dr.texasWinners ?? [dr.texasWinner];
+      const isScoop = ow.length === 1 && tw.length === 1 && ow[0].sessionToken === tw[0].sessionToken;
       if (isScoop) {
-        const nick = getPlayerNick(omahaWinner.sessionToken);
-        const total = omahaWinner.amount + texasWinner.amount;
-        addEntry(entry('result', `🎯 SCOOP: ${nick} wins ${total} (Omaha: ${omahaWinner.handDescription} · Draw: ${texasWinner.handDescription})`, true));
+        const nick = getPlayerNick(ow[0].sessionToken);
+        const total = ow[0].amount + tw[0].amount;
+        addEntry(entry('result', `🎯 SCOOP: ${nick} wins ${total} (Omaha: ${ow[0].handDescription} · Draw: ${tw[0].handDescription})`, true));
       } else {
-        const omahaNick = getPlayerNick(omahaWinner.sessionToken);
-        const texasNick = getPlayerNick(texasWinner.sessionToken);
-        addEntry(entry('result', `Omaha: ${omahaNick} wins ${omahaWinner.amount} (${omahaWinner.handDescription})`, true));
-        addEntry(entry('result', `Draw:  ${texasNick} wins ${texasWinner.amount} (${texasWinner.handDescription})`, true));
+        // Log each Omaha winner (handles ties)
+        for (const w of ow) {
+          const nick = getPlayerNick(w.sessionToken);
+          const tieNote = ow.length > 1 ? ' (split)' : '';
+          addEntry(entry('result', `Omaha: ${nick} wins ${w.amount}${tieNote} (${w.handDescription})`, true));
+        }
+        // Log each Draw winner (handles ties)
+        for (const w of tw) {
+          const nick = getPlayerNick(w.sessionToken);
+          const tieNote = tw.length > 1 ? ' (split)' : '';
+          addEntry(entry('result', `Draw:  ${nick} wins ${w.amount}${tieNote} (${w.handDescription})`, true));
+        }
       }
     } else {
       for (const w of result.winnings) {

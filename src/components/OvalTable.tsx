@@ -301,7 +301,18 @@ export function OvalTable({
           {isSittingOut
             ? <button onClick={() => onSitBack()} style={{ background: 'rgba(212,175,55,0.12)', border: '1px solid rgba(212,175,55,0.3)', borderRadius: 7, padding: '4px 8px', fontSize: 10, color: '#d4af37', cursor: 'pointer' }}>▶ Back</button>
             : canSitOut
-            ? <button onClick={() => onSitOut()} style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.07)', borderRadius: 7, padding: '4px 8px', fontSize: 10, color: 'rgba(245,230,192,0.5)', cursor: 'pointer' }}>⏸ Out</button>
+            ? <button
+                onClick={() => onSitOut()}
+                style={{
+                  background: (me as any)?.pendingSitOut ? 'rgba(245,158,11,0.15)' : 'rgba(255,255,255,0.03)',
+                  border: (me as any)?.pendingSitOut ? '1px solid rgba(245,158,11,0.4)' : '1px solid rgba(255,255,255,0.07)',
+                  borderRadius: 7, padding: '4px 8px', fontSize: 10,
+                  color: (me as any)?.pendingSitOut ? 'rgb(251,191,36)' : 'rgba(245,230,192,0.5)',
+                  cursor: 'pointer',
+                }}
+              >
+                {(me as any)?.pendingSitOut ? '⏸ After hand' : '⏸ Out'}
+              </button>
             : null}
           <button onClick={onLeave} style={{ background: 'transparent', border: 'none', fontSize: 10, color: 'rgba(245,230,192,0.35)', cursor: 'pointer', padding: '4px 4px' }}>Leave</button>
         </div>
@@ -521,6 +532,7 @@ export function OvalTable({
                 {preActionButton}
               </div>
             )}
+            {preActionButton}
             {chipRequestUI}
             {actionPanel}
           </div>

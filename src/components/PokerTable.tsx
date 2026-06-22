@@ -7,6 +7,7 @@ import { getSessionToken, clearSessionToken } from '@/lib/session';
 import { Card, CardPlaceholder } from './Card';
 import { PlayerSeat } from './PlayerSeat';
 import { ActionPanel } from './ActionPanel';
+import { PreActionButton } from './PreActionButton';
 import { AdminPanel } from './AdminPanel';
 import { ChatModal } from './ChatModal';
 import { OvalTable } from './OvalTable';
@@ -982,7 +983,10 @@ export function PokerTable({ initialRoom, mySessionToken, onLeave }: Props) {
             </button>
           )}
           {gameState && !isSpectator && !isDrawPhase && (
-            <ActionPanel me={me} gameState={gameState} settings={room.settings} players={room.players} />
+            <div className="flex flex-col gap-1.5">
+              <PreActionButton me={me} gameState={gameState} />
+              <ActionPanel me={me} gameState={gameState} settings={room.settings} players={room.players} />
+            </div>
           )}
 
           {!gameState && !isSpectator && (
@@ -1121,6 +1125,10 @@ export function PokerTable({ initialRoom, mySessionToken, onLeave }: Props) {
           }
           actionPanel={gameState && !isSpectator && !isDrawPhase
             ? <ActionPanel me={me} gameState={gameState} settings={room.settings} players={room.players} />
+            : null
+          }
+          preActionButton={gameState && !isSpectator && !isDrawPhase
+            ? <PreActionButton me={me} gameState={gameState} />
             : null
           }
         />

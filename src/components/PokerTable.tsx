@@ -60,16 +60,15 @@ function ResultPanel({ lastResult, players, resultMessage }: {
   const dr = lastResult.drawmahaResult;
   const breakdown = lastResult.potBreakdown;
   const hasSidePots = breakdown && breakdown.length > 1;
-  const board = lastResult.boardCards ?? [];
-  const handNum = lastResult.handNumber;
-  const totalPot = lastResult.totalPot;
-  const showdownCards = lastResult.showdownCards ?? [];
 
   // If there are side pots, show per-pot breakdown (works for all variants).
   // This is the priority since side pots are the most confusing UX case.
   if (hasSidePots) {
     return (
       <div className="mt-3 bg-poker-gold/15 border border-poker-gold/40 rounded-lg p-2">
+        {lastResult.handNumber && (
+          <p className="text-poker-gold/50 text-[10px] text-center mb-1">Hand #{lastResult.handNumber}</p>
+        )}
         <p className="text-poker-gold text-xs text-center mb-1.5">
           🏆 Pot split into {breakdown!.length} pots
         </p>
@@ -122,6 +121,9 @@ function ResultPanel({ lastResult, players, resultMessage }: {
     const texasAmt = getNetAmt(texasWinners[0].sessionToken);
     return (
       <div className="mt-3 bg-poker-gold/15 border border-poker-gold/40 rounded-lg p-2">
+        {lastResult.handNumber && (
+          <p className="text-poker-gold/50 text-[10px] text-center mb-0.5">Hand #{lastResult.handNumber}</p>
+        )}
         <p className="text-poker-gold text-xs mb-1 text-center">{isScoop ? '🎯 Scoop!' : '🃏 Split pot'}</p>
         <p className="text-poker-yellow text-xs">
           <span className="text-poker-gold/70">Omaha: </span>
@@ -138,6 +140,9 @@ function ResultPanel({ lastResult, players, resultMessage }: {
   }
   return (
     <div className="mt-3 bg-poker-gold/15 border border-poker-gold/40 rounded-lg p-2 text-center">
+      {lastResult.handNumber && (
+        <p className="text-poker-gold/50 text-[10px] mb-0.5">Hand #{lastResult.handNumber}</p>
+      )}
       <p className="text-poker-gold text-xs">🏆 Result:</p>
       <p className="text-poker-yellow text-sm font-medium mt-0.5">{resultMessage}</p>
     </div>
@@ -1164,7 +1169,7 @@ export function PokerTable({ initialRoom, mySessionToken, onLeave }: Props) {
             ? <PreActionButton me={me} gameState={gameState} />
             : null
           }
-          resultPanel={<ResultPanel lastResult={lastResult} players={room.players} resultMessage={resultMessage} />}
+
           handLogs={logs}
         />
       </div>

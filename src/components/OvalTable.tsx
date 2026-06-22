@@ -206,7 +206,6 @@ export interface OvalTableProps {
   drawUI: React.ReactNode;
   actionPanel: React.ReactNode;
   preActionButton?: React.ReactNode;
-  resultPanel?: React.ReactNode;
   chipRequestUI?: React.ReactNode;
   handLogs?: LogEntry[];
   unreadCount: number;
@@ -226,7 +225,7 @@ export function OvalTable({
   myBubbleToShow, getBubble, messages, sendChat, sendReaction,
   showDiscardUI, nextDealerVariant, onLeave, onShowHand,
   onCopyCode, onToggleMute, onEnableAudio, onShowAdmin, onShowVariantPicker,
-  drawUI, actionPanel, preActionButton, resultPanel, chipRequestUI, handLogs, unreadCount, playerStats,
+  drawUI, actionPanel, preActionButton, chipRequestUI, handLogs, unreadCount, playerStats,
   onSitBack, onSitOut, onTakeSeat,
 }: OvalTableProps) {
 
@@ -538,7 +537,6 @@ export function OvalTable({
                 {myHandShown ? '✓ Hand shown' : 'Show Hand'}
               </button>
             )}
-            {resultPanel}
             {preActionButton && (
               <div style={{ marginBottom: 6, width: '33%' }}>
                 {preActionButton}

@@ -195,14 +195,18 @@ export function ChatModal({ messages, mySessionToken, room, onClose, handLogs }:
             </div>
           ) : (
             <div className="space-y-0.5 py-1">
-              {actionMessages.length === 0 ? (
+              {(actionEntries ?? []).length === 0 ? (
                 <p className="text-poker-yellow/40 text-sm text-center mt-8">No game events yet.</p>
               ) : (
-                actionMessages.map((m) => (
-                  <div key={m.id} className="flex items-start gap-2 py-0.5">
-                    <span className="text-poker-gold/30 text-[10px] font-mono flex-shrink-0 mt-0.5">{formatTime(m.timestamp)}</span>
-                    <p className="text-poker-yellow/70 text-xs leading-relaxed">{m.content}</p>
-                  </div>
+                [...(actionEntries ?? [])].reverse().map((e) => (
+                  <p key={e.id} style={{
+                    fontSize: 11,
+                    color: e.highlight ? '#d4af37' : e.type === 'result' ? '#f5e6c0' : e.type === 'phase' ? 'rgba(212,175,55,0.7)' : 'rgba(245,230,192,0.45)',
+                    fontWeight: e.highlight ? 500 : 400,
+                    textAlign: (e.type === 'phase' || e.type === 'system') ? 'center' : 'left',
+                    fontStyle: e.type === 'system' ? 'italic' : 'normal',
+                    lineHeight: 1.5, margin: '1px 0',
+                  }}>{e.text}</p>
                 ))
               )}
             </div>

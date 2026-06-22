@@ -142,7 +142,11 @@ export function useHandLog() {
     const getPlayerNick = (token: string) =>
       players.find((p) => p.sessionToken === token)?.nick ?? token.slice(0, 6);
 
-    addEntry(entry('phase', '── Showdown ──', true));
+    // Header with Hand # and board cards
+    const handNum = result.handNumber ? `Hand #${result.handNumber}` : '';
+    const board = result.boardCards && result.boardCards.length > 0
+      ? `  Board: ${result.boardCards.join(' ')}` : '';
+    addEntry(entry('phase', `── ${handNum}${board} ──`, true));
 
     // Show all cards at showdown
     if (result.showdownCards.length > 0) {

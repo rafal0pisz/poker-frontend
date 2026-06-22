@@ -89,10 +89,11 @@ export function useHandLog() {
     }
 
     // ── Result ──
-    // Use result.winnings for TOTAL amounts (drawmahaResult only has main pot amounts)
+    // Use result.winnings for TOTAL net gain (netAmount = what they won minus what they bet)
     const totalByToken = new Map<string, number>();
     for (const w of result.winnings) {
-      totalByToken.set(w.sessionToken, (totalByToken.get(w.sessionToken) ?? 0) + w.amount);
+      const gain = w.netAmount !== undefined ? w.netAmount : w.amount;
+      totalByToken.set(w.sessionToken, (totalByToken.get(w.sessionToken) ?? 0) + gain);
     }
     const getTotal = (token: string) => totalByToken.get(token) ?? 0;
 
@@ -119,14 +120,17 @@ export function useHandLog() {
       }
     } else {
       for (const w of result.winnings) {
+        const gain = w.netAmount !== undefined ? w.netAmount : w.amount;
         const hand = w.handDescription ? ` · ${w.handDescription}` : '';
-        addEntry(entry('result', `🏆 ${getNick(w.sessionToken)} +${w.amount}${hand}`, true));
+        addEntry(entry('result', `🏆 ${getNick(w.sessionToken)} +${gain}${hand}`, true));
       }
     }
 
-    // ── Final stacks — use playerStacks from result (accurate post-hand chips) ──
-    const stackSource = result.playerStacks ?? players.filter(p => p.status !== 'spectator').map(p => ({ nick: p.nick, chips: p.chips, sessionToken: p.sessionToken }));
-    const stacks = stackSource.map(p => `${p.nick} ${p.chips}`).join(' · ');
+    // ── Final stacks ──
+    const stacks = players
+      .filter((p) => p.status !== 'spectator')
+      .map((p) => `${p.nick} ${p.chips}`)
+      .join(' · ');
     addEntry(entry('system', `Stacks: ${stacks}`));
     addEntry(entry('system', '─────────────────────────────'));
   }, [addEntry]);

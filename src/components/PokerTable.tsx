@@ -114,8 +114,12 @@ function ResultPanel({ lastResult, players, resultMessage }: {
     const texasNicks = texasWinners.map(w => players.find(p => p.sessionToken === w.sessionToken)?.nick ?? '?').join(' & ');
     const isScoop = omahaWinners.length === 1 && texasWinners.length === 1 &&
       omahaWinners[0].sessionToken === texasWinners[0].sessionToken;
-    const omahaAmt = omahaWinners[0].amount;
-    const texasAmt = texasWinners[0].amount;
+    const getNetAmt = (token: string) => {
+      const w = lastResult!.winnings.find(x => x.sessionToken === token);
+      return w ? (w.netAmount !== undefined ? w.netAmount : w.amount) : 0;
+    };
+    const omahaAmt = getNetAmt(omahaWinners[0].sessionToken);
+    const texasAmt = getNetAmt(texasWinners[0].sessionToken);
     return (
       <div className="mt-3 bg-poker-gold/15 border border-poker-gold/40 rounded-lg p-2">
         <p className="text-poker-gold text-xs mb-1 text-center">{isScoop ? '🎯 Scoop!' : '🃏 Split pot'}</p>
@@ -659,11 +663,16 @@ export function PokerTable({ initialRoom, mySessionToken, onLeave }: Props) {
       const on = ow.map(w => room.players.find(p => p.sessionToken === w.sessionToken)?.nick ?? '?').join(' & ');
       const tn = tw.map(w => room.players.find(p => p.sessionToken === w.sessionToken)?.nick ?? '?').join(' & ');
       const isScoop2 = ow.length === 1 && tw.length === 1 && ow[0].sessionToken === tw[0].sessionToken;
+      // Use netAmount from winnings for accurate gain display
+      const getNet = (token: string) => {
+        const w = lastResult!.winnings.find(x => x.sessionToken === token);
+        return w ? (w.netAmount !== undefined ? w.netAmount : w.amount) : 0;
+      };
       if (isScoop2) {
-        resultMessage = on + ' scoops! Omaha: ' + ow[0].handDescription + ' / Draw: ' + tw[0].handDescription;
+        resultMessage = on + ' scoops +' + getNet(ow[0].sessionToken) + '! Omaha: ' + ow[0].handDescription + ' / Draw: ' + tw[0].handDescription;
       } else {
-        resultMessage = 'Omaha: ' + on + ' +' + ow[0].amount + (ow.length > 1 ? ' each' : '') +
-          ' · Draw: ' + tn + ' +' + tw[0].amount + (tw.length > 1 ? ' each' : '');
+        resultMessage = 'Omaha: ' + on + ' +' + getNet(ow[0].sessionToken) + (ow.length > 1 ? ' each' : '') +
+          ' · Draw: ' + tn + ' +' + getNet(tw[0].sessionToken) + (tw.length > 1 ? ' each' : '');
       }
     } else {
       resultMessage = lastResult.winnings.map((w) => {

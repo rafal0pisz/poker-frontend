@@ -762,7 +762,16 @@ export function PokerTable({ initialRoom, mySessionToken, onLeave }: Props) {
             {isSittingOut
               ? <button onClick={() => getSocket().emit('game:sit-back')} className="bg-poker-gold/20 border border-poker-gold/50 text-poker-gold text-xs px-2.5 py-1.5 rounded-lg">▶ Sit back</button>
               : canSitOut
-              ? <button onClick={() => getSocket().emit('game:sit-out')} className="bg-poker-yellow/5 border border-poker-gold/25 text-poker-yellow/70 text-xs px-2.5 py-1.5 rounded-lg">⏸ Sit out</button>
+              ? <button
+                onClick={() => getSocket().emit('game:sit-out')}
+                className={`border text-xs px-2.5 py-1.5 rounded-lg transition-all active:scale-95 ${
+                  (me as any).pendingSitOut
+                    ? 'bg-amber-500/20 border-amber-500/50 text-amber-400'
+                    : 'bg-poker-yellow/5 border-poker-gold/25 text-poker-yellow/70'
+                }`}
+              >
+                {(me as any).pendingSitOut ? '⏸ Sitting out after hand' : '⏸ Sit out'}
+              </button>
               : null}
             {isAdmin && <button onClick={() => setShowAdminPanel(true)} className="bg-poker-gold/15 border border-poker-gold/40 text-poker-gold text-xs px-2.5 py-1.5 rounded-lg">⚙ Admin</button>}
             <button onClick={() => { if (confirm("Leave? You'll lose your seat.")) { getSocket().emit('room:leave'); clearSessionToken(room.id); onLeave(); } }} className="text-poker-yellow/60 text-xs px-2 py-1.5">Leave</button>

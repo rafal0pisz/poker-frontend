@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import { getSocket } from '@/lib/socket';
 import type { Player, GameState } from '@/lib/types';
 
@@ -17,10 +17,10 @@ export function PreActionButton({ me, gameState }: Props) {
   const isMyTurn = gameState.currentPlayerSeat === me.seat;
   const isActive = me.status === 'playing' && !isMyTurn;
 
-  // Reset when it becomes my turn
-  if (isMyTurn && pendingAction !== null) {
-    setPendingAction(null);
-  }
+  // Reset via useEffect (not during render)
+  useEffect(() => {
+    if (isMyTurn) setPendingAction(null);
+  }, [isMyTurn]);
 
   const sendPreAction = useCallback(
     (action: PreAction) => {
@@ -38,7 +38,7 @@ export function PreActionButton({ me, gameState }: Props) {
   return (
     <button
       onClick={() => sendPreAction('check-fold')}
-      className={`py-2.5 px-3 rounded-lg text-sm font-medium active:scale-95 border transition-all whitespace-nowrap ${
+      className={`py-2.5 px-3 rounded-lg text-sm font-medium active:scale-95 border transition-all whitespace-nowrap w-full ${
         active
           ? 'bg-poker-gold/20 text-poker-gold border-poker-gold/60'
           : 'bg-poker-yellow/5 border-poker-gold/20 text-poker-yellow/60'

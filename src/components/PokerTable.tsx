@@ -764,14 +764,14 @@ export function PokerTable({ initialRoom, mySessionToken, onLeave }: Props) {
               ? <button onClick={() => getSocket().emit('game:sit-back')} className="bg-poker-gold/20 border border-poker-gold/50 text-poker-gold text-xs px-2.5 py-1.5 rounded-lg">▶ Sit back</button>
               : canSitOut
               ? <button
-                onClick={() => getSocket().emit('game:sit-out')}
+                onClick={() => getSocket().emit((me as any).pendingSitOut ? 'game:sit-back' : 'game:sit-out')}
                 className={`border text-xs px-2.5 py-1.5 rounded-lg transition-all active:scale-95 ${
                   (me as any).pendingSitOut
                     ? 'bg-amber-500/20 border-amber-500/50 text-amber-400'
                     : 'bg-poker-yellow/5 border-poker-gold/25 text-poker-yellow/70'
                 }`}
               >
-                {(me as any).pendingSitOut ? '⏸ Sitting out after hand' : '⏸ Sit out'}
+                {(me as any).pendingSitOut ? '✕ Cancel sit-out' : '⏸ Sit out'}
               </button>
               : null}
             {isAdmin && <button onClick={() => setShowAdminPanel(true)} className="bg-poker-gold/15 border border-poker-gold/40 text-poker-gold text-xs px-2.5 py-1.5 rounded-lg">⚙ Admin</button>}
@@ -984,7 +984,9 @@ export function PokerTable({ initialRoom, mySessionToken, onLeave }: Props) {
           )}
           {gameState && !isSpectator && !isDrawPhase && (
             <div className="flex flex-col gap-1.5">
-              <PreActionButton me={me} gameState={gameState} />
+              <div className="w-1/3">
+                <PreActionButton me={me} gameState={gameState} />
+              </div>
               <ActionPanel me={me} gameState={gameState} settings={room.settings} players={room.players} />
             </div>
           )}

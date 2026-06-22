@@ -35,14 +35,39 @@ export function useHandLog() {
     setLogs((prev) => [...prev.slice(-200), e]);
   }, []);
 
-  // processRoomState — track only new hand starts (no per-action logging)
+  // processRoomState — track only draw decisions (no calls/folds/raises)
+  const prevDrawDecisionRef = useRef<string>('');
   const processRoomState = useCallback((room: Room, _mySessionToken: string) => {
     const gs = room.gameState;
     if (!gs) return;
+
     if (gs.handNumber !== prevHandNumberRef.current) {
       prevHandNumberRef.current = gs.handNumber;
+      prevDrawDecisionRef.current = '';
     }
-  }, []);
+
+    // ── Drawmaha draw decisions ──
+    if (gs.phase === 'draw' && gs.drawState) {
+      const getNick = (token: string) =>
+        room.players.find((p) => p.sessionToken === token)?.nick ?? token.slice(0, 6);
+      for (const [token, ps] of Object.entries(gs.drawState.playerStates)) {
+        if (!ps.hasDecided) continue;
+        const key = `draw-${token}-${ps.discardIndices.length}-${ps.accepted}`;
+        if (key === prevDrawDecisionRef.current) continue;
+        prevDrawDecisionRef.current = key;
+        const nick = getNick(token);
+        const n = ps.discardIndices.length;
+        if (n === 0) {
+          addEntry(entry('draw', `${nick} stands pat`));
+        } else if (n === 1) {
+          const decision = ps.accepted ? 'accepted open card' : 'rejected → drew blind';
+          addEntry(entry('draw', `${nick} exchanged 1 → ${decision}`));
+        } else {
+          addEntry(entry('draw', `${nick} exchanged ${n} cards`));
+        }
+      }
+    }
+  }, [addEntry]);
 
   // processHandResult — full hand summary after hand ends
   const processHandResult = useCallback((result: HandResult, players: Room['players']) => {

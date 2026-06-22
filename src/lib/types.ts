@@ -68,10 +68,12 @@ export interface HandResult {
   winnings: { sessionToken: string; amount: number; netAmount?: number; handDescription?: string }[];
   showdownCards: { sessionToken: string; cards: Card[]; handName: string }[];
   winningCards: Card[];
-  // Present for Drawmaha — split pot details
+  // Present for Drawmaha — split pot details (arrays support tied winners)
   drawmahaResult?: {
     omahaWinner: { sessionToken: string; amount: number; handDescription: string };
     texasWinner: { sessionToken: string; amount: number; handDescription: string };
+    omahaWinners?: { sessionToken: string; amount: number; handDescription: string }[];
+    texasWinners?: { sessionToken: string; amount: number; handDescription: string }[];
   };
   // Per-pot breakdown for side pot scenarios.
   // Only present when there are multiple pots (main + side). Empty/absent for single-pot.

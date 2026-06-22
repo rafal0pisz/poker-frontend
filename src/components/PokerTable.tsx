@@ -84,21 +84,28 @@ function ResultPanel({ lastResult, players, resultMessage }: {
     );
   }
 
-  // Drawmaha single-pot — show split clearly
+  // Drawmaha single-pot — show split clearly (supports tied winners)
   if (dr) {
-    const omahaNick = players.find((p) => p.sessionToken === dr.omahaWinner.sessionToken)?.nick ?? '?';
-    const texasNick = players.find((p) => p.sessionToken === dr.texasWinner.sessionToken)?.nick ?? '?';
-    const isScoop = dr.omahaWinner.sessionToken === dr.texasWinner.sessionToken;
+    const omahaWinners = dr.omahaWinners ?? [dr.omahaWinner];
+    const texasWinners = dr.texasWinners ?? [dr.texasWinner];
+    const omahaNicks = omahaWinners.map(w => players.find(p => p.sessionToken === w.sessionToken)?.nick ?? '?').join(' & ');
+    const texasNicks = texasWinners.map(w => players.find(p => p.sessionToken === w.sessionToken)?.nick ?? '?').join(' & ');
+    const isScoop = omahaWinners.length === 1 && texasWinners.length === 1 &&
+      omahaWinners[0].sessionToken === texasWinners[0].sessionToken;
+    const omahaAmt = omahaWinners[0].amount;
+    const texasAmt = texasWinners[0].amount;
     return (
       <div className="mt-3 bg-poker-gold/15 border border-poker-gold/40 rounded-lg p-2 text-center">
         <p className="text-poker-gold text-xs mb-1">{isScoop ? '🎯 Scoop!' : '🃏 Split pot'}</p>
         <p className="text-poker-yellow text-xs">
           <span className="text-poker-gold/70">Omaha: </span>
-          {omahaNick} ({dr.omahaWinner.handDescription}) +{dr.omahaWinner.amount}
+          {omahaNicks} ({omahaWinners[0].handDescription}) +{omahaAmt}
+          {omahaWinners.length > 1 && <span className="text-poker-gold/50"> each</span>}
         </p>
         <p className="text-poker-yellow text-xs mt-0.5">
           <span className="text-poker-gold/70">Draw: </span>
-          {texasNick} ({dr.texasWinner.handDescription}) +{dr.texasWinner.amount}
+          {texasNicks} ({texasWinners[0].handDescription}) +{texasAmt}
+          {texasWinners.length > 1 && <span className="text-poker-gold/50"> each</span>}
         </p>
       </div>
     );
@@ -623,13 +630,17 @@ export function PokerTable({ initialRoom, mySessionToken, onLeave }: Props) {
   let resultMessage = '';
   if (lastResult) {
     if (lastResult.drawmahaResult) {
-      const { omahaWinner, texasWinner } = lastResult.drawmahaResult;
-      const on = room.players.find((p) => p.sessionToken === omahaWinner.sessionToken)?.nick ?? '?';
-      const tn = room.players.find((p) => p.sessionToken === texasWinner.sessionToken)?.nick ?? '?';
-      if (omahaWinner.sessionToken === texasWinner.sessionToken) {
-        resultMessage = on + ' scoops! Omaha: ' + omahaWinner.handDescription + ' / Draw: ' + texasWinner.handDescription;
+      const dr2 = lastResult.drawmahaResult;
+      const ow = dr2.omahaWinners ?? [dr2.omahaWinner];
+      const tw = dr2.texasWinners ?? [dr2.texasWinner];
+      const on = ow.map(w => room.players.find(p => p.sessionToken === w.sessionToken)?.nick ?? '?').join(' & ');
+      const tn = tw.map(w => room.players.find(p => p.sessionToken === w.sessionToken)?.nick ?? '?').join(' & ');
+      const isScoop2 = ow.length === 1 && tw.length === 1 && ow[0].sessionToken === tw[0].sessionToken;
+      if (isScoop2) {
+        resultMessage = on + ' scoops! Omaha: ' + ow[0].handDescription + ' / Draw: ' + tw[0].handDescription;
       } else {
-        resultMessage = 'Split — Omaha: ' + on + ' +' + omahaWinner.amount + ' · Draw: ' + tn + ' +' + texasWinner.amount;
+        resultMessage = 'Omaha: ' + on + ' +' + ow[0].amount + (ow.length > 1 ? ' each' : '') +
+          ' · Draw: ' + tn + ' +' + tw[0].amount + (tw.length > 1 ? ' each' : '');
       }
     } else {
       resultMessage = lastResult.winnings.map((w) => {

@@ -8,7 +8,7 @@ export interface LogEntry {
   timestamp: number;
   type: 'hand-start' | 'phase' | 'action' | 'draw' | 'result' | 'system';
   text: string;
-  highlight?: boolean; // gold highlight for important entries
+  highlight?: boolean;
 }
 
 const VARIANT_NAMES: Record<GameVariant, string> = {
@@ -23,174 +23,79 @@ const VARIANT_NAMES: Record<GameVariant, string> = {
 
 let _entryId = 0;
 function makeId() { return String(++_entryId); }
-
 function entry(type: LogEntry['type'], text: string, highlight = false): LogEntry {
   return { id: makeId(), timestamp: Date.now(), type, text, highlight };
 }
 
 export function useHandLog() {
   const [logs, setLogs] = useState<LogEntry[]>([]);
-
-  // Track previous state to detect changes
   const prevHandNumberRef = useRef<number | null>(null);
-  const prevPhaseRef = useRef<string | null>(null);
-  const prevLastActionRef = useRef<string | null>(null);
 
   const addEntry = useCallback((e: LogEntry) => {
-    setLogs((prev) => [...prev.slice(-200), e]); // keep last 200 entries
+    setLogs((prev) => [...prev.slice(-200), e]);
   }, []);
 
-  const processRoomState = useCallback((room: Room, mySessionToken: string) => {
+  // processRoomState — track only new hand starts (no per-action logging)
+  const processRoomState = useCallback((room: Room, _mySessionToken: string) => {
     const gs = room.gameState;
     if (!gs) return;
-
-    const getPlayerNick = (token: string) =>
-      room.players.find((p) => p.sessionToken === token)?.nick ?? token.slice(0, 6);
-
-    const getChips = (token: string) =>
-      room.players.find((p) => p.sessionToken === token)?.chips ?? 0;
-
-    // ── New hand started ──
     if (gs.handNumber !== prevHandNumberRef.current) {
       prevHandNumberRef.current = gs.handNumber;
-      prevPhaseRef.current = null;
-      prevLastActionRef.current = null;
-
-      const activePlayers = room.players.filter((p) =>
-        ['playing', 'all-in'].includes(p.status)
-      );
-      const stackInfo = activePlayers
-        .map((p) => `${p.nick} ${p.chips}`)
-        .join(' · ');
-
-      addEntry(entry('hand-start', `── Hand #${gs.handNumber} · ${VARIANT_NAMES[gs.variant]} ──`, true));
-      addEntry(entry('system', `Stacks: ${stackInfo}`));
-
-      const dealer = room.players.find((p) => p.seat === gs.dealerSeat);
-      if (dealer) addEntry(entry('system', `Dealer: ${dealer.nick}`));
     }
+  }, []);
 
-    // ── Phase changed ──
-    if (gs.phase !== prevPhaseRef.current) {
-      prevPhaseRef.current = gs.phase;
-
-      if (gs.phase === 'flop' && gs.communityCards.length >= 3) {
-        const cards = gs.communityCards.slice(0, 3).join(' ');
-        addEntry(entry('phase', `Flop: ${cards} · Pot ${gs.pot}`, true));
-      } else if (gs.phase === 'turn' && gs.communityCards.length >= 4) {
-        addEntry(entry('phase', `Turn: ${gs.communityCards[3]} · Pot ${gs.pot}`, true));
-      } else if (gs.phase === 'river' && gs.communityCards.length >= 5) {
-        addEntry(entry('phase', `River: ${gs.communityCards[4]} · Pot ${gs.pot}`, true));
-      } else if (gs.phase === 'draw') {
-        addEntry(entry('phase', `── Draw phase · Pot ${gs.pot} ──`, true));
-      } else if (gs.phase === 'preflop') {
-        addEntry(entry('phase', `Pre-flop · Pot ${gs.pot}`));
-      }
-    }
-
-    // ── New action ──
-    const lastAction = gs.lastAction;
-    const actionKey = lastAction
-      ? `${lastAction.playerSessionToken}-${lastAction.type}-${lastAction.timestamp}`
-      : null;
-
-    if (actionKey && lastAction && actionKey !== prevLastActionRef.current) {
-      prevLastActionRef.current = actionKey;
-      const nick = getPlayerNick(lastAction.playerSessionToken);
-      const chips = getChips(lastAction.playerSessionToken);
-      let text = '';
-      switch (lastAction.type) {
-        case 'fold':   text = `${nick} folds  (stack: ${chips})`; break;
-        case 'check':  text = `${nick} checks  (stack: ${chips})`; break;
-        case 'call':   text = `${nick} calls ${lastAction.amount ?? ''}  (stack: ${chips})`; break;
-        case 'bet':    text = `${nick} bets ${lastAction.amount}  (stack: ${chips})`; break;
-        case 'raise':  text = `${nick} raises to ${lastAction.amount}  (stack: ${chips})`; break;
-        case 'all-in': text = `${nick} ALL-IN ${lastAction.amount}  (stack: 0)`; break;
-      }
-      if (text) addEntry(entry('action', text, lastAction.type === 'all-in'));
-    }
-
-    // ── Draw phase: track decisions from drawState ──
-    if (gs.phase === 'draw' && gs.drawState) {
-      const ds = gs.drawState;
-      for (const [token, ps] of Object.entries(ds.playerStates)) {
-        if (!ps.hasDrawn) continue;
-        const nick = getPlayerNick(token);
-        const discardCount = ps.discardIndices.length;
-        const entryKey = `draw-${token}-${discardCount}-${ps.hasDecided}-${ps.accepted}`;
-
-        // We use the action key pattern to avoid duplicates
-        if (ps.hasDecided) {
-          const drawKey = `draw-decided-${token}-${ps.accepted}`;
-          if (drawKey !== prevLastActionRef.current) {
-            prevLastActionRef.current = drawKey;
-            if (discardCount === 0) {
-              addEntry(entry('draw', `${nick} stands pat`));
-            } else if (discardCount === 1) {
-              const decision = ps.accepted ? 'took open card' : 'rejected → drew blind';
-              addEntry(entry('draw', `${nick} exchanged 1 → ${decision}`));
-            } else {
-              addEntry(entry('draw', `${nick} exchanged ${discardCount} cards`));
-            }
-          }
-        }
-      }
-    }
-  }, [addEntry]);
-
+  // processHandResult — full hand summary after hand ends
   const processHandResult = useCallback((result: HandResult, players: Room['players']) => {
-    const getPlayerNick = (token: string) =>
+    const getNick = (token: string) =>
       players.find((p) => p.sessionToken === token)?.nick ?? token.slice(0, 6);
 
-    addEntry(entry('phase', '── Showdown ──', true));
+    // ── Header: Hand # + variant + board ──
+    const handNum = result.handNumber ? `Hand #${result.handNumber}` : 'Hand';
+    const variant = result.variant ? ` · ${VARIANT_NAMES[result.variant as GameVariant] ?? result.variant}` : '';
+    const board = result.boardCards && result.boardCards.length > 0
+      ? `  Board: ${result.boardCards.join(' ')}` : '';
+    addEntry(entry('hand-start', `── ${handNum}${variant}${board} ──`, true));
 
-    // Show all cards at showdown
+    // ── Showdown cards ──
     if (result.showdownCards.length > 0) {
       for (const sc of result.showdownCards) {
-        const nick = getPlayerNick(sc.sessionToken);
-        addEntry(entry('action', `${nick}: ${sc.cards.join(' ')}  (${sc.handName})`));
+        addEntry(entry('action', `${getNick(sc.sessionToken)}: ${sc.cards.join(' ')}  (${sc.handName})`));
       }
     }
 
-    // Result
+    // ── Result ──
     if (result.drawmahaResult) {
       const dr = result.drawmahaResult;
       const ow = dr.omahaWinners ?? [dr.omahaWinner];
       const tw = dr.texasWinners ?? [dr.texasWinner];
       const isScoop = ow.length === 1 && tw.length === 1 && ow[0].sessionToken === tw[0].sessionToken;
       if (isScoop) {
-        const nick = getPlayerNick(ow[0].sessionToken);
         const total = ow[0].amount + tw[0].amount;
-        addEntry(entry('result', `🎯 SCOOP: ${nick} wins ${total} (Omaha: ${ow[0].handDescription} · Draw: ${tw[0].handDescription})`, true));
+        addEntry(entry('result', `🎯 ${getNick(ow[0].sessionToken)} scoops ${total} (Omaha: ${ow[0].handDescription} · Draw: ${tw[0].handDescription})`, true));
       } else {
-        // Log each Omaha winner (handles ties)
         for (const w of ow) {
-          const nick = getPlayerNick(w.sessionToken);
           const tieNote = ow.length > 1 ? ' (split)' : '';
-          addEntry(entry('result', `Omaha: ${nick} wins ${w.amount}${tieNote} (${w.handDescription})`, true));
+          addEntry(entry('result', `Omaha: ${getNick(w.sessionToken)} +${w.amount}${tieNote} · ${w.handDescription}`, true));
         }
-        // Log each Draw winner (handles ties)
         for (const w of tw) {
-          const nick = getPlayerNick(w.sessionToken);
           const tieNote = tw.length > 1 ? ' (split)' : '';
-          addEntry(entry('result', `Draw:  ${nick} wins ${w.amount}${tieNote} (${w.handDescription})`, true));
+          addEntry(entry('result', `Draw: ${getNick(w.sessionToken)} +${w.amount}${tieNote} · ${w.handDescription}`, true));
         }
       }
     } else {
       for (const w of result.winnings) {
-        const nick = getPlayerNick(w.sessionToken);
-        const hand = w.handDescription ? ` (${w.handDescription})` : '';
-        addEntry(entry('result', `🏆 ${nick} wins ${w.amount}${hand}`, true));
+        const hand = w.handDescription ? ` · ${w.handDescription}` : '';
+        addEntry(entry('result', `🏆 ${getNick(w.sessionToken)} +${w.amount}${hand}`, true));
       }
     }
 
-    // Final stacks
-    const stackSummary = players
+    // ── Final stacks ──
+    const stacks = players
       .filter((p) => p.status !== 'spectator')
       .map((p) => `${p.nick} ${p.chips}`)
       .join(' · ');
-    addEntry(entry('system', `Final stacks: ${stackSummary}`));
-    addEntry(entry('system', '─────────────────────────'));
+    addEntry(entry('system', `Stacks: ${stacks}`));
+    addEntry(entry('system', '─────────────────────────────'));
   }, [addEntry]);
 
   const clearLogs = useCallback(() => setLogs([]), []);

@@ -124,11 +124,9 @@ export function useHandLog() {
       }
     }
 
-    // ── Final stacks ──
-    const stacks = players
-      .filter((p) => p.status !== 'spectator')
-      .map((p) => `${p.nick} ${p.chips}`)
-      .join(' · ');
+    // ── Final stacks — use playerStacks from result (accurate post-hand chips) ──
+    const stackSource = result.playerStacks ?? players.filter(p => p.status !== 'spectator').map(p => ({ nick: p.nick, chips: p.chips, sessionToken: p.sessionToken }));
+    const stacks = stackSource.map(p => `${p.nick} ${p.chips}`).join(' · ');
     addEntry(entry('system', `Stacks: ${stacks}`));
     addEntry(entry('system', '─────────────────────────────'));
   }, [addEntry]);

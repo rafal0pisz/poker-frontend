@@ -17,10 +17,18 @@ export function PreActionButton({ me, gameState }: Props) {
   const isMyTurn = gameState.currentPlayerSeat === me.seat;
   const isActive = me.status === 'playing' && !isMyTurn;
 
-  // Reset via useEffect (not during render)
+  // Reset when my turn arrives (pre-action fired or new hand)
   useEffect(() => {
     if (isMyTurn) setPendingAction(null);
   }, [isMyTurn]);
+
+  // Sync with backend — if backend cleared pendingAction (new hand, pre-action fired)
+  // reset local state too so button doesn't stay highlighted
+  useEffect(() => {
+    if (!me.pendingAction && pendingAction !== null) {
+      setPendingAction(null);
+    }
+  }, [me.pendingAction]);
 
   const sendPreAction = useCallback(
     (action: PreAction) => {

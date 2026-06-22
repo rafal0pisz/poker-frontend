@@ -10,12 +10,13 @@ interface Props {
   mySessionToken: string;
   room: Room;
   onClose: () => void;
+  handLogs?: import('@/hooks/useHandLog').LogEntry[];
 }
 
 type Tab = 'chat' | 'actions' | 'summary';
 type ActionResponse = { ok: boolean; error?: string } | undefined;
 
-export function ChatModal({ messages, mySessionToken, room, onClose }: Props) {
+export function ChatModal({ messages, mySessionToken, room, onClose, handLogs }: Props) {
   const [tab, setTab] = useState<Tab>('chat');
   const [text, setText] = useState('');
   const [sending, setSending] = useState(false);
@@ -69,6 +70,7 @@ export function ChatModal({ messages, mySessionToken, room, onClose }: Props) {
     ...leftSummary.filter((s) => !activeTokens.has(s.sessionToken)),
   ].sort((a, b) => b.netResult - a.netResult);
 
+  const actionEntries = handLogs && handLogs.length > 0 ? handLogs : null;
   const displayed = tab === 'chat' ? chatMessages : actionMessages;
 
   return (

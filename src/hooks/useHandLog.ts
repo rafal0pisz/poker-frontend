@@ -126,12 +126,14 @@ export function useHandLog() {
       }
     }
 
-    // ── Final stacks ──
-    const stacks = players
-      .filter((p) => p.status !== 'spectator')
-      .map((p) => `${p.nick} ${p.chips}`)
-      .join(' · ');
-    addEntry(entry('system', `Stacks: ${stacks}`));
+    // ── Final stacks — use result.playerStacks (captured post-distribution on backend)
+    // DO NOT use players[] here — roomRef.current may have stale chips due to React
+    // async state update ordering (room:state and hand-result arrive nearly simultaneously)
+    const stackSource = result.playerStacks;
+    if (stackSource && stackSource.length > 0) {
+      const stacks = stackSource.map(p => `${p.nick} ${p.chips}`).join(' · ');
+      addEntry(entry('system', `Stacks: ${stacks}`));
+    }
     addEntry(entry('system', '─────────────────────────────'));
   }, [addEntry]);
 

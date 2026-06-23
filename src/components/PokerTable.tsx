@@ -59,7 +59,15 @@ function ResultPanel({ lastResult, players, resultMessage }: {
   if (!lastResult) return null;
   const dr = lastResult.drawmahaResult;
   const breakdown = lastResult.potBreakdown;
-  const hasSidePots = breakdown && breakdown.length > 1;
+  // Show breakdown only when it adds real information:
+  // different players won different pots (genuine all-in side pot scenario).
+  // Avoid showing it when collectBets splits pots across streets due to folds —
+  // in that case one player wins all pots and the breakdown is just noise.
+  const hasSidePots = breakdown && breakdown.length > 1 && (() => {
+    const allWinners = breakdown.flatMap(p => p.winners.map(w => w.sessionToken));
+    const uniqueWinners = new Set(allWinners);
+    return uniqueWinners.size > 1; // only show if different players won different pots
+  })();
 
   // If there are side pots, show per-pot breakdown (works for all variants).
   // This is the priority since side pots are the most confusing UX case.

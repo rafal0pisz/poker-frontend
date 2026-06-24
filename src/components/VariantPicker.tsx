@@ -6,7 +6,7 @@ export const VARIANT_LABELS: Record<GameVariant, string> = {
   texas: "Texas Hold'em",
   omaha: 'Omaha (4-card)',
   'omaha-pl': 'Omaha Pot Limit',
-  omaha5: 'Big O (5-card Omaha)',
+  omaha5: 'Omaha (5-card)',
   'omaha-hl': 'Omaha Hi-Lo',
   drawmaha: 'Drawmaha',
   'drawmaha-pl': 'Drawmaha Pot Limit',

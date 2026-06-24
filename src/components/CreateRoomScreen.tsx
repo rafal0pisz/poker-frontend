@@ -29,7 +29,7 @@ export function CreateRoomScreen({ defaultNick, onCancel, onRoomCreated }: Props
     setCreating(true);
     setError(null);
     const socket = getSocket();
-    socket.emit('room:create-with-bot', { nick: nick.trim() || 'Player', botCount: 2 },
+    socket.emit('room:create-with-bot', { nick: nick.trim() || 'Player', botCount: 7 },
       (response: { ok: boolean; roomId?: string; sessionToken?: string; error?: string }) => {
         setCreating(false);
         if (response.ok && response.roomId && response.sessionToken) {
@@ -188,7 +188,7 @@ export function CreateRoomScreen({ defaultNick, onCancel, onRoomCreated }: Props
           className="w-full bg-poker-yellow/10 border border-poker-gold/30 text-poker-yellow font-medium py-4 rounded-xl active:scale-95 transition disabled:opacity-40 flex items-center justify-center gap-2"
         >
           <span>🤖</span>
-          <span>{creating ? 'Creating...' : 'Test with Bots (2 players)'}</span>
+          <span>{creating ? 'Creating...' : 'Test with Bots (7 players)'}</span>
         </button>
         <p className="text-center text-[11px] text-poker-yellow/35">Bot room uses blinds 5/10, 1000 chips each</p>
       </div>

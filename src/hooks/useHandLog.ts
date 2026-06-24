@@ -14,6 +14,8 @@ export interface LogEntry {
 const VARIANT_NAMES: Record<GameVariant, string> = {
   texas: "Texas Hold'em",
   omaha: 'Omaha',
+  omaha5: 'Big O',
+  'omaha-hl': 'Omaha Hi-Lo',
   drawmaha: 'Drawmaha',
   pineapple: 'Crazy Pineapple',
   'pineapple-classic': 'Pineapple Classic',

@@ -58,6 +58,7 @@ function ResultPanel({ lastResult, players, resultMessage }: {
 }) {
   if (!lastResult) return null;
   const dr = lastResult.drawmahaResult;
+  const hl = lastResult.omahaHlResult;
   const breakdown = lastResult.potBreakdown;
   // Show breakdown only when it adds real information:
   // different players won different pots (genuine all-in side pot scenario).
@@ -146,6 +147,45 @@ function ResultPanel({ lastResult, players, resultMessage }: {
       </div>
     );
   }
+
+  // ── Omaha Hi-Lo result ──
+  if (hl) {
+    const nick = (token: string) => players.find((p) => p.sessionToken === token)?.nick ?? '?';
+    const getNetAmt = (token: string) => {
+      const w = lastResult!.winnings.find((x) => x.sessionToken === token);
+      return w ? (w.netAmount !== undefined ? w.netAmount : w.amount) : 0;
+    };
+    const highNicks = hl.highWinners.map((w) => nick(w.sessionToken)).join(' & ');
+    const highTokenSet = new Set(hl.highWinners.map((w) => w.sessionToken));
+    const lowTokenSet = new Set((hl.lowWinners ?? []).map((w) => w.sessionToken));
+    const isScooped = hl.lowWinners && [...highTokenSet].every((t) => lowTokenSet.has(t)) && [...lowTokenSet].every((t) => highTokenSet.has(t));
+    return (
+      <div className="mt-3 bg-poker-gold/15 border border-poker-gold/40 rounded-lg p-2">
+        {lastResult.handNumber && (
+          <p className="text-poker-gold/50 text-[10px] text-center mb-1">Hand #{lastResult.handNumber}</p>
+        )}
+        <p className="text-poker-gold text-xs mb-1 text-center">
+          {isScooped ? '🎯 Scoop!' : hl.noLow ? '🏆 No qualifying low' : '🃏 Hi-Lo split'}
+        </p>
+        <p className="text-poker-yellow text-xs">
+          <span className="text-poker-gold/70">High: </span>
+          {highNicks} ({hl.highWinners[0].handDescription}) +{getNetAmt(hl.highWinners[0].sessionToken)}
+          {hl.highWinners.length > 1 && <span className="text-poker-gold/50"> each</span>}
+        </p>
+        {!hl.noLow && hl.lowWinners && (
+          <p className="text-poker-yellow text-xs">
+            <span className="text-poker-gold/70">Low: </span>
+            {hl.lowWinners.map((w) => nick(w.sessionToken)).join(' & ')} ({hl.lowWinners[0].handDescription}) +{getNetAmt(hl.lowWinners[0].sessionToken)}
+            {hl.lowWinners.length > 1 && <span className="text-poker-gold/50"> each</span>}
+          </p>
+        )}
+        {hl.noLow && (
+          <p className="text-poker-gold/50 text-[10px] text-center mt-0.5">Board had no qualifying low (8 or better)</p>
+        )}
+      </div>
+    );
+  }
+
   return (
     <div className="mt-3 bg-poker-gold/15 border border-poker-gold/40 rounded-lg p-2 text-center">
       {lastResult.handNumber && (
@@ -648,7 +688,7 @@ export function PokerTable({ initialRoom, mySessionToken, onLeave }: Props) {
   }
 
   const currentVariant: GameVariant = gameState?.variant || 'texas';
-  const currentCardCount = (currentVariant === 'omaha' || currentVariant === 'omaha-pl') ? 4 : (currentVariant === 'drawmaha' || currentVariant === 'drawmaha-pl') ? 5 : (currentVariant === 'pineapple' || currentVariant === 'pineapple-classic') ? 3 : 2;
+  const currentCardCount = (currentVariant === 'omaha' || currentVariant === 'omaha-pl' || currentVariant === 'omaha-hl') ? 4 : (currentVariant === 'omaha5' || currentVariant === 'drawmaha' || currentVariant === 'drawmaha-pl') ? 5 : (currentVariant === 'pineapple' || currentVariant === 'pineapple-classic') ? 3 : 2;
 
   const isDrawPhase = gameState?.phase === 'draw';
   const isPineappleDiscardPhase = gameState?.phase === 'pineapple-discard';

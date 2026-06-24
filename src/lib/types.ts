@@ -5,7 +5,7 @@ export type Card = `${Rank}${Suit}`;
 
 export type PlayerRole = 'player' | 'vice-admin' | 'admin';
 
-export type GameVariant = 'texas' | 'omaha' | 'omaha-pl' | 'drawmaha' | 'drawmaha-pl' | 'pineapple' | 'pineapple-classic';
+export type GameVariant = 'texas' | 'omaha' | 'omaha-pl' | 'omaha5' | 'omaha-hl' | 'drawmaha' | 'drawmaha-pl' | 'pineapple' | 'pineapple-classic';
 
 export type PlayerStatus =
   | 'playing'
@@ -79,6 +79,11 @@ export interface HandResult {
     texasWinner: { sessionToken: string; amount: number; handDescription: string };
     omahaWinners?: { sessionToken: string; amount: number; handDescription: string }[];
     texasWinners?: { sessionToken: string; amount: number; handDescription: string }[];
+  };
+  omahaHlResult?: {
+    highWinners: { sessionToken: string; amount: number; handDescription: string }[];
+    lowWinners: { sessionToken: string; amount: number; handDescription: string }[] | null;
+    noLow: boolean;
   };
   // Per-pot breakdown for side pot scenarios.
   // Only present when there are multiple pots (main + side). Empty/absent for single-pot.

@@ -6,6 +6,8 @@ export const VARIANT_LABELS: Record<GameVariant, string> = {
   texas: "Texas Hold'em",
   omaha: 'Omaha (4-card)',
   'omaha-pl': 'Omaha Pot Limit',
+  omaha5: 'Big O (5-card Omaha)',
+  'omaha-hl': 'Omaha Hi-Lo',
   drawmaha: 'Drawmaha',
   'drawmaha-pl': 'Drawmaha Pot Limit',
   pineapple: 'Crazy Pineapple',
@@ -16,6 +18,8 @@ const VARIANT_DESCRIPTIONS: Record<GameVariant, string> = {
   texas: 'Classic · 2 hole + 5 board',
   omaha: '4 hole · must use 2 + 3 board',
   'omaha-pl': '4 hole · must use exactly 2+3 · max bet = pot size',
+  omaha5: '5 hole · must use exactly 2 + 3 board',
+  'omaha-hl': '4 hole · split pot · best high + best low (8 or better)',
   drawmaha: '5 hole · Five-card Draw · split pot (Omaha + Draw)',
   'drawmaha-pl': '5 hole · draw + split pot · max bet = pot size',
   pineapple: '3 hole · max 2 from hand · no discard',
@@ -23,7 +27,7 @@ const VARIANT_DESCRIPTIONS: Record<GameVariant, string> = {
 };
 
 // All variants are now fully implemented
-const AVAILABLE_VARIANTS: GameVariant[] = ['texas', 'omaha', 'omaha-pl', 'drawmaha', 'drawmaha-pl', 'pineapple'];
+const AVAILABLE_VARIANTS: GameVariant[] = ['texas', 'omaha', 'omaha-pl', 'omaha5', 'omaha-hl', 'drawmaha', 'drawmaha-pl', 'pineapple'];
 
 interface Props {
   currentVariant: GameVariant;

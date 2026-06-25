@@ -97,6 +97,22 @@ export function PlayerStatsModal({ stats, sessionResult, onClose }: Props) {
             <Bar pct={stats.vpip} color='#d4af37' />
           </div>
 
+          {stats.showdownCount > 0 && (() => {
+            const sdWinRate = Math.round((stats.showdownWins / stats.showdownCount) * 100);
+            return (
+              <div style={{ padding: '10px 0', borderBottom: '1px solid rgba(212,175,55,0.08)' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <span style={{ fontSize: 13, color: 'rgba(245,230,192,0.55)' }}>
+                    Showdown wins
+                    <span style={{ fontSize: 10, color: 'rgba(245,230,192,0.3)', marginLeft: 4 }}>{stats.showdownWins}/{stats.showdownCount}</span>
+                  </span>
+                  <span style={{ fontSize: 15, fontWeight: 600, color: sdWinRate >= 50 ? '#4ade80' : '#f5e6c0' }}>{sdWinRate}%</span>
+                </div>
+                <Bar pct={sdWinRate} color={sdWinRate >= 50 ? '#4ade80' : '#d4af37'} />
+              </div>
+            );
+          })()}
+
           <StatRow label="Hands won" value={stats.handsWon} />
           <StatRow label="Folded" value={stats.foldCount} />
           <StatRow label="All-in count" value={stats.allInCount} />
@@ -107,6 +123,10 @@ export function PlayerStatsModal({ stats, sessionResult, onClose }: Props) {
               value={stats.biggestPot}
               sub={stats.biggestPotHand || undefined}
             />
+          )}
+
+          {stats.biggestLoss > 0 && (
+            <StatRow label="Biggest loss" value={`-${stats.biggestLoss}`} />
           )}
 
           {stats.bestHand && (

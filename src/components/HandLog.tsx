@@ -11,10 +11,10 @@ export function HandLog({ logs }: Props) {
   const [open, setOpen] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
 
-  // Auto-scroll to latest entry
+  // Auto-scroll to top (newest entries are rendered first)
   useEffect(() => {
     if (open && scrollRef.current) {
-      scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
+      scrollRef.current.scrollTop = 0;
     }
   }, [logs.length, open]);
 
@@ -70,7 +70,7 @@ export function HandLog({ logs }: Props) {
             {logs.length === 0 ? (
               <p className="text-poker-yellow/30 text-center py-4">No actions yet</p>
             ) : (
-              logs.map((log) => (
+              [...logs].reverse().map((log) => (
                 <div key={log.id} className={`leading-snug ${getColor(log.type, log.highlight ?? false)}`}>
                   {log.text}
                 </div>

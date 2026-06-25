@@ -430,7 +430,7 @@ export function OvalTable({
                     : <CardPlaceholder key={i} size="lg" />;
                 })}
               </div>
-              {gameState && <p style={{ fontSize: 9, color: 'rgba(212,175,55,0.4)', letterSpacing: '0.06em', textTransform: 'uppercase' }}>{gameState.phase} · #{gameState.handNumber}</p>}
+              {gameState && <p style={{ fontSize: 9, color: 'rgba(212,175,55,0.4)', letterSpacing: '0.06em', textTransform: 'uppercase' }}>{VARIANT_LABELS[currentVariant]} · #{gameState.handNumber}</p>}
             </div>
 
             {/* Opponent seats */}

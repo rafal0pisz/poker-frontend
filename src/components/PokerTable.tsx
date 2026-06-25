@@ -241,6 +241,7 @@ function DesktopChat({ messages, mySessionToken, room, onSend, onSendReaction }:
 }) {
   const [text, setText] = useState('');
   const [tab, setTab] = useState<'chat' | 'actions' | 'summary'>('chat');
+  const [showEmojiPicker, setShowEmojiPicker] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
 
   const chatMessages = messages.filter((m) => m.type !== 'system');
@@ -367,19 +368,33 @@ function DesktopChat({ messages, mySessionToken, room, onSend, onSendReaction }:
         )}
       </div>
 
-      {tab === 'chat' && (
-        <>
-          <div className="flex gap-1 justify-center mt-2 pt-2 border-t border-poker-gold/10">
-            {['👍', '😂', '🔥', '😎', '😠'].map((e) => (
-              <button key={e} onClick={() => onSendReaction(e)} className="bg-poker-yellow/5 hover:bg-poker-yellow/15 px-2 py-1 rounded-full text-sm active:scale-90 transition">{e}</button>
-            ))}
-          </div>
-          <div className="flex gap-1.5 mt-2">
-            <input type="text" value={text} onChange={(e) => setText(e.target.value)} onKeyDown={(e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleSend(); } }} maxLength={200} placeholder="Message..." className="flex-1 bg-poker-yellow/10 border border-poker-gold/20 px-3 py-1.5 rounded-full text-poker-yellow text-xs outline-none placeholder:text-poker-yellow/40" />
-            <button onClick={handleSend} disabled={!text.trim()} className="bg-poker-gold text-poker-bg w-7 h-7 rounded-full text-xs font-medium disabled:opacity-40 active:scale-95 flex items-center justify-center">↑</button>
-          </div>
-        </>
-      )}
+      {tab === 'chat' && (() => {
+        const REACTIONS = ['🤣', '💀', '🤑', '🫣', '🤡', '🤯'];
+        return (
+          <>
+            {showEmojiPicker && (
+              <div className="flex gap-1 justify-between px-2 pt-2 pb-1">
+                {REACTIONS.map(e => (
+                  <button key={e} onClick={() => { onSendReaction(e); setShowEmojiPicker(false); }}
+                    className="text-xl flex-1 py-1 rounded-lg active:scale-90 transition"
+                    style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(212,175,55,0.12)' }}>
+                    {e}
+                  </button>
+                ))}
+              </div>
+            )}
+            <div className="flex gap-1.5 mt-2">
+              <button
+                onClick={() => setShowEmojiPicker(p => !p)}
+                className="w-8 h-8 rounded-lg text-sm flex items-center justify-center flex-shrink-0 transition-all"
+                style={{ background: showEmojiPicker ? 'rgba(212,175,55,0.2)' : 'rgba(212,175,55,0.06)', border: `1px solid ${showEmojiPicker ? 'rgba(212,175,55,0.5)' : 'rgba(212,175,55,0.15)'}` }}
+              >😊</button>
+              <input type="text" value={text} onChange={(e) => setText(e.target.value)} onKeyDown={(e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleSend(); } }} maxLength={200} placeholder="Message..." className="flex-1 bg-poker-yellow/10 border border-poker-gold/20 px-3 py-1.5 rounded-full text-poker-yellow text-xs outline-none placeholder:text-poker-yellow/40" />
+              <button onClick={handleSend} disabled={!text.trim()} className="bg-poker-gold text-poker-bg w-7 h-7 rounded-full text-xs font-medium disabled:opacity-40 active:scale-95 flex items-center justify-center">↑</button>
+            </div>
+          </>
+        );
+      })()}
     </div>
   );
 }
@@ -1227,6 +1242,7 @@ export function PokerTable({ initialRoom, mySessionToken, onLeave }: Props) {
         onSendChat={(text) => {
           getSocket().emit('chat:send', { type: 'text', content: text });
         }}
+        onSendReaction={sendReaction}
       />
 
       {showAdminPanel && <AdminPanel room={room} mySessionToken={mySessionToken} onClose={() => setShowAdminPanel(false)} />}

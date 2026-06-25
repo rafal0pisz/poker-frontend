@@ -266,6 +266,8 @@ export function OvalTable({
   const equityResults = useEquity(equityInput, gameState?.communityCards ?? [], currentVariant);
   const equityMap = Object.fromEntries(equityResults.map(e => [e.sessionToken, e.equity]));
   const [chatText, setChatText] = useState('');
+  const [showEmojiPicker, setShowEmojiPicker] = useState(false);
+  const REACTIONS = ['🤣', '💀', '🤑', '🫣', '🤡', '🤯'];
   const scrollRef = useRef<HTMLDivElement>(null);
 
   const chatMessages = messages.filter(m => m.type !== 'system');
@@ -393,16 +395,33 @@ export function OvalTable({
 
         {/* Input */}
         {tab === 'chat' && (
-          <div style={{ borderTop: '1px solid rgba(212,175,55,0.08)', padding: 8, display: 'flex', gap: 6 }}>
-            <input
-              value={chatText}
-              onChange={e => setChatText(e.target.value)}
-              onKeyDown={e => e.key === 'Enter' && handleSendChat()}
-              placeholder="Message..."
-              style={{ flex: 1, background: 'rgba(212,175,55,0.05)', border: '1px solid rgba(212,175,55,0.12)', borderRadius: 8, padding: '6px 10px', fontSize: 11, color: 'rgba(245,230,192,0.7)', outline: 'none' }}
-            />
-            <button onClick={handleSendChat} style={{ width: 30, height: 30, background: 'rgba(212,175,55,0.1)', border: '1px solid rgba(212,175,55,0.2)', borderRadius: 7, color: '#d4af37', fontSize: 13, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>↑</button>
-          </div>
+          <>
+            {showEmojiPicker && (
+              <div style={{ borderTop: '1px solid rgba(212,175,55,0.08)', padding: '7px 8px', display: 'flex', gap: 4, justifyContent: 'space-between' }}>
+                {REACTIONS.map(e => (
+                  <button key={e} onClick={() => { sendReaction(e); setShowEmojiPicker(false); }}
+                    style={{ fontSize: 20, background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(212,175,55,0.12)', borderRadius: 10, width: 36, height: 36, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'background .12s' }}
+                    onMouseEnter={ev => (ev.currentTarget.style.background = 'rgba(212,175,55,0.14)')}
+                    onMouseLeave={ev => (ev.currentTarget.style.background = 'rgba(255,255,255,0.03)')}
+                  >{e}</button>
+                ))}
+              </div>
+            )}
+            <div style={{ borderTop: '1px solid rgba(212,175,55,0.08)', padding: 8, display: 'flex', gap: 6 }}>
+              <button
+                onClick={() => setShowEmojiPicker(p => !p)}
+                style={{ width: 30, height: 30, background: showEmojiPicker ? 'rgba(212,175,55,0.2)' : 'rgba(212,175,55,0.06)', border: `1px solid ${showEmojiPicker ? 'rgba(212,175,55,0.5)' : 'rgba(212,175,55,0.15)'}`, borderRadius: 7, fontSize: 14, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}
+              >😊</button>
+              <input
+                value={chatText}
+                onChange={e => setChatText(e.target.value)}
+                onKeyDown={e => e.key === 'Enter' && handleSendChat()}
+                placeholder="Message..."
+                style={{ flex: 1, background: 'rgba(212,175,55,0.05)', border: '1px solid rgba(212,175,55,0.12)', borderRadius: 8, padding: '6px 10px', fontSize: 11, color: 'rgba(245,230,192,0.7)', outline: 'none' }}
+              />
+              <button onClick={handleSendChat} style={{ width: 30, height: 30, background: 'rgba(212,175,55,0.1)', border: '1px solid rgba(212,175,55,0.2)', borderRadius: 7, color: '#d4af37', fontSize: 13, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>↑</button>
+            </div>
+          </>
         )}
       </div>
 

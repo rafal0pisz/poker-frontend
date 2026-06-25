@@ -88,6 +88,8 @@ export interface HandResult {
   // Per-pot breakdown for side pot scenarios.
   // Only present when there are multiple pots (main + side). Empty/absent for single-pot.
   potBreakdown?: PotWinBreakdown[];
+  // Players who busted out in this hand (chips → 0)
+  eliminatedTokens?: string[];
 }
 
 export interface PotWinBreakdown {
@@ -197,5 +199,5 @@ export interface Room {
 }
 
 // Reactions available as quick-tap buttons
-export const QUICK_REACTIONS = ['🤣', '💀', '🤑', '🫣', '🤡', '🤯'] as const;
+export const QUICK_REACTIONS = ['👍', '😂', '🔥', '😎', '😠'] as const;
 export type QuickReaction = typeof QUICK_REACTIONS[number];

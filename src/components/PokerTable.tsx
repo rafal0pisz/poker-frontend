@@ -19,8 +19,10 @@ import { PlayerStatsModal } from './PlayerStatsModal';
 import { DrawmahaReveal } from './DrawmahaReveal';
 import { useSounds, enableAudio } from '@/hooks/useSounds';
 import { useHandLog } from '@/hooks/useHandLog';
+import { useAchievements } from '@/hooks/useAchievements';
 import { useEquity } from '@/hooks/useEquity';
 import { HandLog } from './HandLog';
+import { AchievementToast } from './AchievementToast';
 import { QuickChat } from './QuickChat';
 import { ConnectionBanner } from './ConnectionBanner';
 
@@ -422,6 +424,7 @@ export function PokerTable({ initialRoom, mySessionToken, onLeave }: Props) {
 
   const { playChip, playDeal, playYourTurn, playWin, playFold, playSelect, muted, toggleMute } = useSounds();
   const { logs, processRoomState, processHandResult } = useHandLog();
+  const { achievements, processResult: processAchievements, dismiss: dismissAchievement } = useAchievements();
 
   const showChatRef = useRef(showChat);
   const messagesLengthRef = useRef(messages.length);
@@ -535,6 +538,7 @@ export function PokerTable({ initialRoom, mySessionToken, onLeave }: Props) {
       setTimeout(() => setLastResult(null), isDrawmaha ? 9000 : 6000);
       if (result.winnings.some((w) => w.sessionToken === mySessionToken && w.amount > 0)) playWin();
       processHandResult(result, roomRef.current.players);
+      processAchievements(result, mySessionToken, roomRef.current.players);
     };
 
     const handleClosed = (reason: string) => { console.warn('Room closed:', reason); clearSessionToken(room.id); onLeave(); };
@@ -1254,6 +1258,7 @@ export function PokerTable({ initialRoom, mySessionToken, onLeave }: Props) {
           onClose={() => setShowVariantPicker(false)}
         />
       )}
+      <AchievementToast achievements={achievements} onDismiss={dismissAchievement} />
     </main>
     </>
   );

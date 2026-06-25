@@ -276,8 +276,15 @@ export function OvalTable({
   const allSummary = [...activeSummary, ...(room.sessionSummary ?? []).filter(s => !activeTokens.has(s.sessionToken))].sort((a, b) => b.netResult - a.netResult);
 
   useEffect(() => {
-    if (scrollRef.current) scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
-  }, [messages.length, tab]);
+    if (!scrollRef.current) return;
+    if (tab === 'actions') {
+      // Actions shows entries newest-first (reversed) — scroll to top to see latest
+      scrollRef.current.scrollTop = 0;
+    } else {
+      // Chat & Summary: newest at bottom
+      scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
+    }
+  }, [messages.length, handLogs?.length, tab]);
 
   const handleSendChat = () => {
     const t = chatText.trim();

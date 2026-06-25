@@ -2,8 +2,9 @@
 
 import { useEffect, useRef, useState } from 'react';
 import type { ChatMessage, Room } from '@/lib/types';
+import { QUICK_REACTIONS } from '@/lib/types';
 
-const REACTIONS = ['🤣', '💀', '🤑', '🫣', '🤡', '🤯'];
+const REACTIONS = QUICK_REACTIONS;
 
 interface Props {
   messages: ChatMessage[];

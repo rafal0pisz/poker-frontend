@@ -3,6 +3,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import type { Room, Card as CardType, HandResult, ChatMessage, GameVariant } from '@/lib/types';
 import type { LogEntry } from '@/hooks/useHandLog';
+import { QUICK_REACTIONS } from '@/lib/types';
 import { Card, CardPlaceholder } from './Card';
 import { PlayerSeat } from './PlayerSeat';
 import { ActionPanel } from './ActionPanel';
@@ -267,7 +268,7 @@ export function OvalTable({
   const equityMap = Object.fromEntries(equityResults.map(e => [e.sessionToken, e.equity]));
   const [chatText, setChatText] = useState('');
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
-  const REACTIONS = ['🤣', '💀', '🤑', '🫣', '🤡', '🤯'];
+  const REACTIONS = QUICK_REACTIONS;
   const scrollRef = useRef<HTMLDivElement>(null);
 
   const chatMessages = messages.filter(m => m.type !== 'system');

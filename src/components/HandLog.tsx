@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import type { LogEntry } from '@/hooks/useHandLog';
 
 interface Props {
@@ -11,11 +11,16 @@ export function HandLog({ logs }: Props) {
   const [open, setOpen] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
 
-  // Auto-scroll to top (newest entries are rendered first)
-  useEffect(() => {
-    if (open && scrollRef.current) {
-      scrollRef.current.scrollTop = 0;
-    }
+  // Scroll to top (newest entries rendered first).
+  // useLayoutEffect fires synchronously after DOM update, before browser paint —
+  // avoids the timing gap where useEffect would fire too late.
+  useLayoutEffect(() => {
+    if (!open || !scrollRef.current) return;
+    const el = scrollRef.current;
+    el.scrollTop = 0;
+    // rAF as safety net for edge cases where content reflows after layout
+    const raf = requestAnimationFrame(() => { el.scrollTop = 0; });
+    return () => cancelAnimationFrame(raf);
   }, [logs.length, open]);
 
   const getColor = (type: LogEntry['type'], highlight: boolean) => {

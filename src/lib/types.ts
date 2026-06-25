@@ -170,6 +170,9 @@ export interface PlayerStats {
   bestHand: string;
   allInCount: number;
   foldCount: number;
+  showdownCount: number;
+  showdownWins: number;
+  biggestLoss: number;
 }
 
 export interface SessionResult {

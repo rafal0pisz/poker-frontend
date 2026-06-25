@@ -513,6 +513,11 @@ export function PokerTable({ initialRoom, mySessionToken, onLeave }: Props) {
         setMyHoleCards([]);
         setMyFoldedCards([]);
       }
+      // Clear cards when player busts out (no chips) — new hand starts without them
+      if (myUpdated?.status === 'no-chips') {
+        setMyHoleCards([]);
+        setMyFoldedCards([]);
+      }
       if (!updated.gameState) setMyHoleCards([]);
       if (updated.messages && updated.messages.length !== messagesLengthRef.current) {
         setMessages(updated.messages);

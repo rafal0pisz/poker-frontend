@@ -16,7 +16,7 @@ type PreAction = 'check-fold' | 'fold' | null;
 
 export function ActionPanel({ me, gameState, settings, players }: Props) {
   const isMyTurn = gameState.currentPlayerSeat === me.seat && me.status === 'playing';
-  const toCall = gameState.currentBet - me.currentBet;
+  const toCall = Math.max(0, gameState.currentBet - me.currentBet); // clamp — negative means we over-bet (smaller all-in came after us)
   const canCheck = toCall === 0;
   const canCall = toCall > 0 && me.chips > 0;
 
@@ -180,6 +180,7 @@ export function ActionPanel({ me, gameState, settings, players }: Props) {
     const waitingMsg =
       me.status === 'folded' ? 'You folded — waiting for end of hand' :
       me.status === 'all-in' ? 'All-in — waiting for end of hand' :
+      me.chips === 0 ? 'All-in — waiting for end of hand' :
       me.status === 'waiting' ? 'Waiting for the next hand to start' :
       me.status === 'sitting-out' ? "You're sitting out" :
       me.status === 'no-chips' ? 'No chips — waiting for admin to add' :

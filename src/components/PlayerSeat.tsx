@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { memo, useEffect, useState } from 'react';
 import type { Player, PlayerStatus, ChatMessage, Card as CardType } from '@/lib/types';
 import { Card } from './Card';
 import { FloatingBubble } from './FloatingBubble';
@@ -75,7 +75,7 @@ function TimerRing({ deadline, timeoutSec }: { deadline: number; timeoutSec: num
   );
 }
 
-export function PlayerSeat({
+export const PlayerSeat = memo(function PlayerSeat({
   player,
   isCurrent,
   isDealer,
@@ -230,4 +230,4 @@ export function PlayerSeat({
       )}
     </div>
   );
-}
+});

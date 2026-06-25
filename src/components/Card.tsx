@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { memo, useEffect, useState } from 'react';
 import type { Card as CardType } from '@/lib/types';
 
 interface Props {
@@ -32,7 +32,7 @@ const SIZE_CLASSES = {
 
 type AnimPhase = 'hidden' | 'sliding' | 'flipping' | 'done';
 
-export function Card({ card, size = 'md', facedown = false, winning = false, selectedForDiscard = false, onClick, dealIndex, slowFlip = false }: Props) {
+export const Card = memo(function Card({ card, size = 'md', facedown = false, winning = false, selectedForDiscard = false, onClick, dealIndex, slowFlip = false }: Props) {
   const [phase, setPhase] = useState<AnimPhase>(dealIndex !== undefined ? 'hidden' : 'done');
 
   useEffect(() => {
@@ -97,10 +97,10 @@ export function Card({ card, size = 'md', facedown = false, winning = false, sel
       <span className={`${SUIT_COLORS[suit]} leading-none`}>{SUIT_SYMBOLS[suit]}</span>
     </div>
   );
-}
+});
 
-export function CardPlaceholder({ size = 'md' }: { size?: 'xs' | 'sm' | 'md' | 'lg' }) {
+export const CardPlaceholder = memo(function CardPlaceholder({ size = 'md' }: { size?: 'xs' | 'sm' | 'md' | 'lg' }) {
   return (
     <div className={`${SIZE_CLASSES[size]} rounded-md bg-white/5 border border-dashed border-poker-gold/25`} />
   );
-}
+});

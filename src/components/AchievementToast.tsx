@@ -16,11 +16,8 @@ function Toast({ achievement, onDone }: { achievement: Achievement; onDone: () =
   const c = COLORS[achievement.color];
 
   useEffect(() => {
-    // Slide in on next tick
     const t1 = setTimeout(() => setVisible(true), 30);
-    // Start slide-out after 4s
     const t2 = setTimeout(() => setVisible(false), 4000);
-    // Remove from DOM after animation
     const t3 = setTimeout(onDone, 4350);
     return () => { clearTimeout(t1); clearTimeout(t2); clearTimeout(t3); };
   // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -40,7 +37,7 @@ function Toast({ achievement, onDone }: { achievement: Achievement; onDone: () =
         transform: visible ? 'translateX(0)' : 'translateX(110%)',
         opacity: visible ? 1 : 0,
         minWidth: 210,
-        maxWidth: 280,
+        maxWidth: 290,
         pointerEvents: 'none',
       }}
     >
@@ -65,7 +62,17 @@ interface Props {
 }
 
 export function AchievementToast({ achievements, onDismiss }: Props) {
-  if (achievements.length === 0) return null;
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const check = () => setIsMobile(window.innerWidth < 768);
+    check();
+    window.addEventListener('resize', check);
+    return () => window.removeEventListener('resize', check);
+  }, []);
+
+  // Hidden on mobile — action buttons take priority
+  if (isMobile || achievements.length === 0) return null;
 
   return (
     <div
@@ -81,7 +88,7 @@ export function AchievementToast({ achievements, onDismiss }: Props) {
         pointerEvents: 'none',
       }}
     >
-      {achievements.slice(-4).map((a) => (
+      {achievements.slice(-4).map(a => (
         <Toast key={a.id} achievement={a} onDone={() => onDismiss(a.id)} />
       ))}
     </div>

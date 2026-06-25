@@ -15,7 +15,8 @@ type ActionResponse = { ok: boolean; error?: string; queued?: boolean } | undefi
 
 export function AdminPanel({ room, mySessionToken, onClose }: Props) {
   const [chipsAction, setChipsAction] = useState<{ token: string; mode: ChipsMode }>({ token: '', mode: null });
-  const [chipsAmount, setChipsAmount] = useState(100);
+  const [chipsAmountStr, setChipsAmountStr] = useState('100');
+  const chipsAmount = Math.max(1, parseInt(chipsAmountStr) || 0);
   const [pendingMsg, setPendingMsg] = useState<string | null>(null);
   // Seat picker — open for one player at a time
   const [seatPickerToken, setSeatPickerToken] = useState<string | null>(null);
@@ -191,7 +192,7 @@ export function AdminPanel({ room, mySessionToken, onClose }: Props) {
                       <div className="space-y-2 mt-2">
                         <div className="flex gap-1 flex-wrap">
                           {[50, 100, 200, 400].map((preset) => (
-                            <button key={preset} onClick={() => setChipsAmount(preset)}
+                            <button key={preset} onClick={() => setChipsAmountStr(String(preset))}
                               className={`text-[10px] px-2 py-1 rounded border ${
                                 chipsAmount === preset
                                   ? 'bg-poker-gold text-poker-bg border-poker-gold'
@@ -203,12 +204,15 @@ export function AdminPanel({ room, mySessionToken, onClose }: Props) {
                         </div>
                         <div className="flex gap-2">
                           <input
-                            type="number"
-                            value={chipsAmount}
-                            onChange={(e) => setChipsAmount(Math.max(1, Number(e.target.value) || 1))}
-                            min={1}
-                            step={50}
+                            type="text"
                             inputMode="numeric"
+                            value={chipsAmountStr}
+                            onChange={(e) => {
+                              const v = e.target.value.replace(/[^0-9]/g, '');
+                              setChipsAmountStr(v);
+                            }}
+                            onFocus={(e) => e.target.select()}
+                            placeholder="Amount..."
                             className="flex-1 bg-poker-bg px-3 py-2 rounded-lg text-poker-yellow outline-none border border-poker-gold/20 text-lg font-medium"
                           />
                           <button

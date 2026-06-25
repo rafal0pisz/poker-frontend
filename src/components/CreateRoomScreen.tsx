@@ -20,7 +20,7 @@ export function CreateRoomScreen({ defaultNick, onCancel, onRoomCreated }: Props
   const [smallBlind, setSmallBlind] = useState(10);
   const [bigBlind, setBigBlind] = useState(20);
   const [startingBuyIn, setStartingBuyIn] = useState(1000);
-  const [maxSeats, setMaxSeats] = useState(6);
+  const [maxSeats, setMaxSeats] = useState(9);
   const [actionTimeoutSec, setActionTimeoutSec] = useState<15 | 30 | 60>(30);
   const [creating, setCreating] = useState(false);
   const [error, setError] = useState<string | null>(null);

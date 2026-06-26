@@ -199,5 +199,5 @@ export interface Room {
 }
 
 // Reactions available as quick-tap buttons
-export const QUICK_REACTIONS = ['👍', '😂', '🔥', '😎', '😠'] as const;
+export const QUICK_REACTIONS = ['🤣', '💀', '🤑', '🫣', '🤡', '🤯'] as const;
 export type QuickReaction = typeof QUICK_REACTIONS[number];

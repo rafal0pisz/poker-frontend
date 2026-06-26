@@ -101,7 +101,7 @@ function ResultPanel({ lastResult, players, resultMessage }: {
                         </span>
                       )}
                       <span className="font-medium">{nick}</span>
-                      <span className="text-poker-gold"> +{w.amount}</span>
+                      <span className="text-poker-gold"> +{w.netAmount !== undefined ? w.netAmount : w.amount}</span>
                       {w.handDescription && (
                         <span className="text-poker-yellow/60"> · {w.handDescription}</span>
                       )}

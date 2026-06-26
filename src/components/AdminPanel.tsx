@@ -94,17 +94,8 @@ export function AdminPanel({ room, mySessionToken, onClose }: Props) {
     });
   };
 
-  const handleNextHand = () => {
-    if (!confirm('Force start a new hand now?')) return;
-    getSocket().emit('game:next-hand', (response: ActionResponse) => {
-      if (response && !response.ok) { alert(response.error || "Couldn't start next hand"); return; }
-      onClose();
-    });
-  };
-
   const eligiblePlayers = room.players.filter((p) => p.chips > 0 && p.connected);
   const canStartGame = !room.gameState && eligiblePlayers.length >= 2;
-  const canForceNextHand = eligiblePlayers.length >= 2;
 
   return (
     <div className="fixed inset-0 z-50 bg-black/70 flex items-end sm:items-center justify-center p-4">
@@ -129,10 +120,6 @@ export function AdminPanel({ room, mySessionToken, onClose }: Props) {
               <div className="bg-poker-gold/10 border border-poker-gold/20 px-3 py-2 rounded-lg text-poker-yellow/70 text-xs text-center">
                 Game in progress · hand #{room.gameState.handNumber}
               </div>
-              <button onClick={handleNextHand} disabled={!canForceNextHand}
-                className="w-full bg-poker-gold/15 border border-poker-gold/40 text-poker-gold font-medium py-2.5 rounded-xl text-sm disabled:opacity-40">
-                ⏭ Force next hand
-              </button>
               <button onClick={handlePause}
                 className={`w-full font-medium py-2.5 rounded-xl text-sm active:scale-95 border ${
                   room.paused

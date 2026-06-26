@@ -98,6 +98,7 @@ export interface PotWinBreakdown {
   winners: {
     sessionToken: string;
     amount: number;
+    netAmount?: number;
     handDescription?: string;
     drawmahaHalf?: 'omaha' | 'draw';
   }[];

@@ -940,7 +940,7 @@ export function PokerTable({ initialRoom, mySessionToken, onLeave }: Props) {
                 : <CardPlaceholder key={i} size="md" />;
             })}
           </div>
-          {gameState && <p className="text-center text-[10px] text-poker-gold/60 tracking-widest mt-2 uppercase">{gameState.phase} · hand #{gameState.handNumber}</p>}
+          {gameState && <p className="text-center text-[10px] text-poker-gold/60 tracking-widest mt-2 uppercase">{VARIANT_LABELS[currentVariant]} · #{gameState.handNumber}</p>}
           <ResultPanel lastResult={lastResult} players={room.players} resultMessage={resultMessage} />
         </div>
 

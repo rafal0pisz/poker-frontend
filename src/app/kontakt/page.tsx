@@ -25,7 +25,7 @@ export default function KontaktPage() {
 
           <div className="card" style={{ marginBottom: '1rem' }}>
             <p style={{ fontSize: '0.75rem', color: 'rgba(245,230,192,0.4)', letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: '0.5rem' }}>Email wsparcia</p>
-            <p style={{ fontWeight: 600, color: '#d4af37', fontSize: '1rem', marginBottom: '0.5rem' }}>pokerosuppport@gmail.com</p>
+            <p style={{ fontWeight: 600, color: '#d4af37', fontSize: '1rem', marginBottom: '0.5rem' }}>pokerosupport@gmail.com</p>
             <p style={{ fontSize: '0.85rem', color: 'rgba(245,230,192,0.5)', margin: 0 }}>
               Pytania, zgłoszenia błędów, sugestie — odpiszemy w ciągu 24h.
             </p>

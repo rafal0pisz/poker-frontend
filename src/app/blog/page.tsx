@@ -8,6 +8,12 @@ export const metadata: Metadata = {
 };
 
 const posts = [
+  { href: '/blog/historia-pokera/', tag: 'Historia', title: 'Historia pokera — od Dzikiego Zachodu do pokera online', desc: 'Jak poker narodził się w Nowym Orleanie, podbił Dziki Zachód, stworzył WSOP i jak Chris Moneymaker wywołał poker boom.', date: '2026-06-20' },
+  { href: '/blog/agresja-w-pokerze-cbet-3bet/', tag: 'Strategia', title: 'Agresja w pokerze — c-bet, 3-bet i budowanie puli krok po kroku', desc: 'Dlaczego agresja opłaca się matematycznie. Continuation bet, 3-bet preflop, double barrel i kiedy odpuścić.', date: '2026-06-19' },
+  { href: '/blog/bledy-w-pokerze/', tag: 'Strategia', title: '15 najczęstszych błędów w pokerze — i jak je wyeliminować', desc: 'Granie za dużo rąk, limping, ignorowanie pozycji, tilt — 15 błędów które popełnia każdy gracz i jak je naprawić.', date: '2026-06-18' },
+  { href: '/blog/drawmaha-zasady-strategia/', tag: 'Zasady', title: 'Drawmaha — kompletny przewodnik po wariancie split-pot z wymianą kart', desc: 'Zasady Drawmaha, split pot, faza wymiany kart, faza reveal i strategie wygrywające w tym autorskim wariancie.', date: '2026-06-17' },
+  { href: '/blog/czytanie-przeciwnika-telle/', tag: 'Strategia', title: 'Jak czytać przeciwnika w pokerze — telle, betting patterns i range', desc: 'Fizyczne telle, timing w grze online, rozmiar zakładu jako informacja i budowanie range przeciwnika.', date: '2026-06-16' },
+  { href: '/blog/psychologia-pokera-tilt/', tag: 'Psychologia', title: 'Psychologia pokera — tilt, emocje i mental game', desc: 'Tilt, zarządzanie emocjami, mindset i psychologia przy stole. Dlaczego mental game decyduje o wynikach bardziej niż strategia.', date: '2026-06-15' },
   { href: '/blog/poker-turniej-zasady/', tag: 'Zasady', title: 'Turniej pokerowy — zasady i format gry turniejowej', desc: 'Czym turniej różni się od cash game, struktura blindów, rebuy, strategia short stacka.', date: '2026-06-10' },
   { href: '/blog/poker-matematyka/', tag: 'Matematyka', title: 'Matematyka pokera — EV, pot odds i equity w jednym miejscu', desc: 'Expected Value, pot odds, equity, outs — wszystko z przykładami gotowymi do zastosowania.', date: '2026-06-09' },
   { href: '/blog/poker-terminy-slownik/', tag: 'Słownik', title: 'Słownik pokerowy — 45 terminów które musisz znać', desc: 'All-in, blind, tilt, equity, nuts, position — kompletny słownik pojęć pokerowych.', date: '2026-06-08' },

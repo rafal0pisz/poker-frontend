@@ -21,6 +21,12 @@ export default function sitemap(): MetadataRoute.Sitemap {
     { url: `${base}/zasady/uklady-kart/`, lastModified: now, changeFrequency: 'monthly', priority: 0.85 },
     { url: `${base}/blog/`, lastModified: now, changeFrequency: 'weekly', priority: 0.8 },
     // Nowe artykuły (czerwiec 2026)
+    { url: `${base}/blog/historia-pokera/`, lastModified: '2026-06-20', changeFrequency: 'monthly', priority: 0.75 },
+    { url: `${base}/blog/agresja-w-pokerze-cbet-3bet/`, lastModified: '2026-06-19', changeFrequency: 'monthly', priority: 0.75 },
+    { url: `${base}/blog/bledy-w-pokerze/`, lastModified: '2026-06-18', changeFrequency: 'monthly', priority: 0.75 },
+    { url: `${base}/blog/drawmaha-zasady-strategia/`, lastModified: '2026-06-17', changeFrequency: 'monthly', priority: 0.75 },
+    { url: `${base}/blog/czytanie-przeciwnika-telle/`, lastModified: '2026-06-16', changeFrequency: 'monthly', priority: 0.75 },
+    { url: `${base}/blog/psychologia-pokera-tilt/`, lastModified: '2026-06-15', changeFrequency: 'monthly', priority: 0.75 },
     { url: `${base}/blog/poker-turniej-zasady/`, lastModified: '2026-06-10', changeFrequency: 'monthly', priority: 0.75 },
     { url: `${base}/blog/poker-matematyka/`, lastModified: '2026-06-09', changeFrequency: 'monthly', priority: 0.75 },
     { url: `${base}/blog/poker-terminy-slownik/`, lastModified: '2026-06-08', changeFrequency: 'monthly', priority: 0.75 },

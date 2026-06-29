@@ -24,7 +24,7 @@ export function ContactScreen({ onBack }: Props) {
   const [copied, setCopied] = useState(false);
 
   const handleCopy = () => {
-    navigator.clipboard.writeText('pokerosuppport@gmail.com').then(() => {
+    navigator.clipboard.writeText('pokerosupport@gmail.com').then(() => {
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
     });
@@ -47,7 +47,7 @@ export function ContactScreen({ onBack }: Props) {
         <div className="bg-poker-yellow/5 border border-poker-gold/20 rounded-xl p-5 space-y-3">
           <p className="text-poker-gold/60 text-xs uppercase tracking-widest">Support email</p>
           <div className="flex items-center justify-between gap-3">
-            <p className="text-poker-yellow font-medium text-sm">pokerosuppport@gmail.com</p>
+            <p className="text-poker-yellow font-medium text-sm">pokerosupport@gmail.com</p>
             <button
               onClick={handleCopy}
               className="flex-shrink-0 bg-poker-gold/15 border border-poker-gold/30 text-poker-gold text-xs px-3 py-1.5 rounded-lg active:scale-95"

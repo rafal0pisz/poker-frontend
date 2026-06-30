@@ -777,6 +777,14 @@ export function PokerTable({ initialRoom, mySessionToken, onLeave }: Props) {
     if (!gameState || activeSeatsSorted.length < 2) return { sbSeat: -1, bbSeat: -1 };
     const dealer = gameState.dealerSeat;
     const maxS = room.settings.maxSeats;
+
+    // Heads-up: dealer/button is the small blind, the other active player is
+    // the big blind. (Mirrors backend startNewHand heads-up blind logic.)
+    if (activeSeatsSorted.length === 2) {
+      const other = activeSeatsSorted.find((s) => s !== dealer) ?? -1;
+      return { sbSeat: dealer, bbSeat: other };
+    }
+
     // Sort active seats by clockwise distance from dealer.
     // Distance 0 = dealer himself → skip. First two remaining = SB, BB.
     // No duplication — each seat appears exactly once in activeSeatsSorted.

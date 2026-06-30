@@ -131,7 +131,7 @@ export const PlayerSeat = memo(function PlayerSeat({
       {/* Avatar + badges */}
       <div className="relative flex items-center justify-center">
         {/* SB badge — left */}
-        {isSb && !isDealer && (
+        {isSb && (
           <span className="absolute -left-5 bottom-0 bg-blue-400 text-white text-[8px] font-bold w-5 h-5 rounded-full flex items-center justify-center shadow-sm">
             SB
           </span>

@@ -26,8 +26,14 @@ export function ChatModal({ messages, mySessionToken, room, onClose, handLogs }:
   const actionMessages = messages.filter((m) => m.type === 'system');
 
   useEffect(() => {
-    if (scrollRef.current) scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
-  }, [messages.length, tab]);
+    if (!scrollRef.current) return;
+    if (tab === 'actions') {
+      // Actions renders newest-first (reversed) — scroll to top to see latest
+      scrollRef.current.scrollTop = 0;
+    } else {
+      scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
+    }
+  }, [messages.length, handLogs?.length, tab]);
 
   const sendText = () => {
     const trimmed = text.trim();

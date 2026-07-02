@@ -49,7 +49,10 @@ export function useHandLog() {
     }
 
     // ── Drawmaha draw decisions ──
-    if (gs.phase === 'draw' && gs.drawState) {
+    // Check drawState regardless of phase: the last player to decide triggers
+    // a phase advance, so by the time the frontend receives the state the
+    // phase may already be 'reveal'. drawState persists, so we log here too.
+    if (gs.drawState) {
       const getNick = (token: string) =>
         room.players.find((p) => p.sessionToken === token)?.nick ?? token.slice(0, 6);
       for (const [token, ps] of Object.entries(gs.drawState.playerStates)) {

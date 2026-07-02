@@ -159,10 +159,10 @@ export default function OmahaHiLoPage() {
             <div style={{ display: 'flex', flexDirection: 'column', gap: '0.6rem' }}>
               {([
                 { rank: '🥇 #1', cards: [['A','♠'],['2','♥'],['3','♦'],['4','♣'],['5','♠']], note: 'Wheel / Bicykl — najlepsza możliwa + straight do High!' },
-                { rank: '🥈 #2', cards: [['A','♠'],['2','♥'],['3','♦'],['4','♣'],['6','♠']], note: '' },
-                { rank: '🥉 #3', cards: [['A','♠'],['2','♥'],['3','♦'],['4','♣'],['7','♠']], note: '' },
-                { rank: '#4',   cards: [['A','♠'],['2','♥'],['3','♦'],['4','♣'],['8','♠']], note: '' },
-                { rank: '#5',   cards: [['A','♠'],['2','♥'],['3','♦'],['5','♣'],['6','♠']], note: '' },
+                { rank: '🥈 #2', cards: [['A','♠'],['2','♥'],['3','♦'],['4','♣'],['6','♠']], note: 'Najwyższa: 6' },
+                { rank: '🥉 #3', cards: [['A','♠'],['2','♥'],['3','♦'],['5','♣'],['6','♠']], note: 'Najwyższa: 6 — ale 2. pozycja 5 > 4 (gorsza od #2)' },
+                { rank: '#4',   cards: [['A','♠'],['2','♥'],['4','♦'],['5','♣'],['6','♠']], note: 'Najwyższa: 6' },
+                { rank: '#5',   cards: [['A','♠'],['3','♥'],['4','♦'],['5','♣'],['6','♠']], note: 'Najwyższa: 6 — wszystkie pięć rąk z najwyższą 6 jest lepszych niż cokolwiek 7-wysokiego' },
               ] as { rank: string; cards: [string, '♠'|'♥'|'♦'|'♣'][], note: string }[]).map(({ rank, cards, note }) => (
                 <div key={rank} style={{ display: 'flex', alignItems: 'center', gap: '1rem', background: 'rgba(212,175,55,0.05)', border: '1px solid rgba(212,175,55,0.12)', borderRadius: 10, padding: '0.6rem 1rem', flexWrap: 'wrap' }}>
                   <span style={{ width: 42, fontSize: '0.85rem', color: '#d4af37', fontWeight: 700, flexShrink: 0 }}>{rank}</span>

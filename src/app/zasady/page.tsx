@@ -10,8 +10,10 @@ export const metadata: Metadata = {
 };
 
 const variants = [
-  { href: '/zasady/texas-holdem/', icon: '♠', name: "Texas Hold'em", sub: '2 karty na rękę', desc: 'Najпопуларniejszy wariant pokera na świecie. Dwie karty zakryte, pięć wspólnych. Klasyk obowiązkowy na każdym stole.' },
+  { href: '/zasady/texas-holdem/', icon: '♠', name: "Texas Hold'em", sub: '2 karty na rękę', desc: 'Najpopularniejszy wariant pokera na świecie. Dwie karty zakryte, pięć wspólnych. Klasyk obowiązkowy na każdym stole.' },
   { href: '/zasady/omaha/', icon: '♦', name: 'Omaha', sub: '4 karty na rękę', desc: 'Cztery karty na ręce — musisz użyć dokładnie 2 z nich. Więcej kombinacji, więcej emocji.' },
+  { href: '/zasady/omaha-hi-lo/', icon: '⬆⬇', name: 'Omaha Hi-Lo', sub: '4 karty · split pot', desc: 'Omaha z podziałem puli: połowa dla najlepszej ręki, połowa dla najgorszej (8 lub lepiej). Możesz zgarnąć całą pulę z jedną ręką.' },
+  { href: '/zasady/omaha-5-kartowa/', icon: '♦', name: 'Omaha 5-kartowa (Big O)', sub: '5 kart · dokładnie 2+3', desc: 'Omaha z 5 kartami na ręce zamiast 4. Jeszcze więcej kombinacji — jeszcze silniejsze układy. Zasada 2+3 obowiązuje tak samo.' },
   { href: '/zasady/crazy-pineapple/', icon: '🍍', name: 'Crazy Pineapple', sub: '3 karty na rękę', desc: 'Texas Hold\'em z 3 kartami na ręce. Więcej opcji, więcej kombinacji — te same zasady ewaluacji.' },
   { href: '/zasady/drawmaha/', icon: '🃏', name: 'Drawmaha', sub: '5 kart + wymiana', desc: 'Unikalny wariant z wymianą kart i split potem. Łączy Omahę z Five-Card Draw — pula dzielona między dwóch zwycięzców.' },
   { href: '/zasady/omaha-pot-limit/', icon: '♦', name: 'Omaha Pot Limit', sub: 'PLO · limit puli', desc: 'Omaha z ograniczeniem raise do rozmiaru puli. Bardziej strategiczna niż No Limit — pozycja i głęboka gra mają kluczowe znaczenie.' },

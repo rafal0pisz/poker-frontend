@@ -14,14 +14,17 @@ const features = [
   { icon: '🔒', title: 'Bez rejestracji', desc: 'Wejdź, podaj nick i zaproś znajomych. Tyle wystarczy.' },
   { icon: '📱', title: 'Działa na telefonie', desc: 'Pełna obsługa iOS i Android. Zagraj ze znajomymi z kanapy.' },
   { icon: '💰', title: 'Wirtualne żetony', desc: 'Gra towarzyska na żetony bez wartości. Legalnie, bez hazardu.' },
-  { icon: '🃏', title: '4 warianty gry', desc: 'Texas Hold\'em, Omaha, Crazy Pineapple i unikatowa Drawmaha.' },
+  { icon: '🃏', title: '7 wariantów gry', desc: 'Texas, Omaha, Omaha Hi-Lo, Omaha 5-kartowa, Crazy Pineapple, Pineapple Classic i Drawmaha.' },
   { icon: '👑', title: 'Panel admina', desc: 'Zarządzaj grą, dodawaj żetony, zmieniaj wariant — pełna kontrola.' },
 ];
 
 const variants = [
   { name: "Texas Hold'em", icon: '♠', href: '/zasady/texas-holdem/', desc: '2 karty na rękę, najlepsze 5 z 7. Klasyk klasycznych.' },
   { name: 'Omaha', icon: '♦', href: '/zasady/omaha/', desc: '4 karty na rękę, musisz użyć dokładnie 2. Więcej kombinacji.' },
+  { name: 'Omaha Hi-Lo', icon: '⬆⬇', href: '/zasady/omaha-hi-lo/', desc: '4 karty, pula dzielona między najlepszą i najgorszą rękę (8 lub lepiej).' },
+  { name: 'Omaha 5-kartowa', icon: '♦', href: '/zasady/omaha-5-kartowa/', desc: '5 kart na rękę, zasady Omaha — więcej kombinacji i silniejsze układy.' },
   { name: 'Crazy Pineapple', icon: '🍍', href: '/zasady/crazy-pineapple/', desc: '3 karty na rękę, zasady Texas Hold\'em.' },
+  { name: 'Pineapple Classic', icon: '🍍', href: '/zasady/pineapple-klasyczny/', desc: '3 karty, po flopie wyrzucasz jedną. Od turn grasz jak w Texas.' },
   { name: 'Drawmaha', icon: '🃏', href: '/zasady/drawmaha/', desc: 'Wymiana kart + split pot. Nasz autorski wariant.' },
 ];
 
@@ -50,7 +53,7 @@ const faqs = [
   },
   {
     q: 'Co to są Dealer\'s Choice i warianty gry?',
-    a: 'W każdej ręce dealer może wybrać wariant: Texas Hold\'em, Omaha, Crazy Pineapple lub Drawmaha. Każdy gracz może ustawić swój preferowany wariant — aktywuje się kiedy zostaje dealerem.',
+    a: 'W każdej ręce dealer wybiera wariant. Dostępne gry: Texas Hold\'em, Omaha, Omaha Hi-Lo, Omaha 5-kartowa, Crazy Pineapple, Pineapple Classic i Drawmaha. Każdy gracz może ustawić swój preferowany wariant — aktywuje się automatycznie gdy zostaje dealerem. Preferencję ustawiasz przyciskiem D ▾ w trakcie gry.',
   },
   {
     q: 'Czy mogę grać bez znajomych — solo?',
@@ -114,7 +117,7 @@ export default function HomePage() {
       {/* WARIANTY GRY */}
       <section style={{ padding: '4rem 0' }}>
         <div className="container">
-          <h2 style={{ textAlign: 'center', fontSize: '1.75rem', marginBottom: '0.5rem' }}>4 warianty gry</h2>
+          <h2 style={{ textAlign: 'center', fontSize: '1.75rem', marginBottom: '0.5rem' }}>7 wariantów gry</h2>
           <p style={{ textAlign: 'center', color: 'rgba(245,230,192,0.5)', marginBottom: '2.5rem' }}>Dealer wybiera wariant — każda ręka może być inna</p>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1rem' }}>
             {variants.map((v) => (

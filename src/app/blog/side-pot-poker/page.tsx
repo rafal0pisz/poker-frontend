@@ -12,18 +12,18 @@ export default function Post8() {
   return (
     <div className="container">
       <div style={{ marginBottom: '0.5rem' }}>
-        <Link href="/pl/" style={{ fontSize: '0.85rem', color: 'rgba(245,230,192,0.4)' }}>Strona główna</Link>
-        <span style={{ color: 'rgba(245,230,192,0.2)', margin: '0 0.5rem' }}>›</span>
-        <Link href="/blog/" style={{ fontSize: '0.85rem', color: 'rgba(245,230,192,0.4)' }}>Blog</Link>
-        <span style={{ color: 'rgba(245,230,192,0.2)', margin: '0 0.5rem' }}>›</span>
-        <span style={{ fontSize: '0.85rem', color: 'rgba(245,230,192,0.6)' }}>Side pot w pokerze</span>
+        <Link href="/pl/" style={{ fontSize: '0.85rem', color: 'rgba(var(--pk-cream-rgb),0.4)' }}>Strona główna</Link>
+        <span style={{ color: 'rgba(var(--pk-cream-rgb),0.2)', margin: '0 0.5rem' }}>›</span>
+        <Link href="/blog/" style={{ fontSize: '0.85rem', color: 'rgba(var(--pk-cream-rgb),0.4)' }}>Blog</Link>
+        <span style={{ color: 'rgba(var(--pk-cream-rgb),0.2)', margin: '0 0.5rem' }}>›</span>
+        <span style={{ fontSize: '0.85rem', color: 'rgba(var(--pk-cream-rgb),0.6)' }}>Side pot w pokerze</span>
       </div>
       <div style={{ maxWidth: 720, marginTop: '1.5rem' }}>
         <span className="badge" style={{ marginBottom: '1rem', display: 'inline-block' }}>Zasady</span>
         <h1 style={{ fontSize: 'clamp(1.6rem, 4vw, 2.25rem)', marginBottom: '0.75rem', lineHeight: 1.2 }}>
           Side pot w pokerze — co to jest i jak działa
         </h1>
-        <p style={{ color: 'rgba(245,230,192,0.4)', fontSize: '0.85rem', marginBottom: '2rem' }}>27 maja 2026 · 6 min czytania</p>
+        <p style={{ color: 'rgba(var(--pk-cream-rgb),0.4)', fontSize: '0.85rem', marginBottom: '2rem' }}>27 maja 2026 · 6 min czytania</p>
         <div className="prose">
           <p>Side pot to jeden z aspektów pokera który często dezorientuje początkujących. Kiedy gracz idzie all-in za mniej niż inni postawili — powstaje pula boczna. Na szczęście w Pokero wszystko jest liczone automatycznie.</p>
 
@@ -58,7 +58,7 @@ export default function Post8() {
           <Link href="/zasady/texas-holdem/" className="btn-outline">Zasady Texas Hold'em →</Link>
         </div>
         <hr className="divider" style={{ marginTop: '2.5rem' }} />
-        <p style={{ color: 'rgba(245,230,192,0.35)', fontSize: '0.85rem' }}>
+        <p style={{ color: 'rgba(var(--pk-cream-rgb),0.35)', fontSize: '0.85rem' }}>
           Powiązane: <Link href="/blog/uklady-kart-poker/">Układy kart w pokerze</Link> · <Link href="/zasady/drawmaha/">Zasady Drawmaha</Link>
         </p>
       </div>

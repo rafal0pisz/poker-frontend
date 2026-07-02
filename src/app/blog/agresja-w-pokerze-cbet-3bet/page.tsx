@@ -12,18 +12,18 @@ export default function PostAgresjaWPokerze() {
   return (
     <div className="container">
       <div style={{ marginBottom: '0.5rem' }}>
-        <Link href="/pl/" style={{ fontSize: '0.85rem', color: 'rgba(245,230,192,0.4)' }}>Strona główna</Link>
-        <span style={{ color: 'rgba(245,230,192,0.2)', margin: '0 0.5rem' }}>›</span>
-        <Link href="/blog/" style={{ fontSize: '0.85rem', color: 'rgba(245,230,192,0.4)' }}>Blog</Link>
-        <span style={{ color: 'rgba(245,230,192,0.2)', margin: '0 0.5rem' }}>›</span>
-        <span style={{ fontSize: '0.85rem', color: 'rgba(245,230,192,0.6)' }}>Agresja w pokerze — c-bet i 3-bet</span>
+        <Link href="/pl/" style={{ fontSize: '0.85rem', color: 'rgba(var(--pk-cream-rgb),0.4)' }}>Strona główna</Link>
+        <span style={{ color: 'rgba(var(--pk-cream-rgb),0.2)', margin: '0 0.5rem' }}>›</span>
+        <Link href="/blog/" style={{ fontSize: '0.85rem', color: 'rgba(var(--pk-cream-rgb),0.4)' }}>Blog</Link>
+        <span style={{ color: 'rgba(var(--pk-cream-rgb),0.2)', margin: '0 0.5rem' }}>›</span>
+        <span style={{ fontSize: '0.85rem', color: 'rgba(var(--pk-cream-rgb),0.6)' }}>Agresja w pokerze — c-bet i 3-bet</span>
       </div>
       <div style={{ maxWidth: 720, marginTop: '1.5rem' }}>
         <span className="badge" style={{ marginBottom: '1rem', display: 'inline-block' }}>Strategia</span>
         <h1 style={{ fontSize: 'clamp(1.6rem, 4vw, 2.25rem)', marginBottom: '0.75rem', lineHeight: 1.2 }}>
           Agresja w pokerze — c-bet, 3-bet i budowanie puli krok po kroku
         </h1>
-        <p style={{ color: 'rgba(245,230,192,0.4)', fontSize: '0.85rem', marginBottom: '2rem' }}>19 czerwca 2026 · 17 min czytania</p>
+        <p style={{ color: 'rgba(var(--pk-cream-rgb),0.4)', fontSize: '0.85rem', marginBottom: '2rem' }}>19 czerwca 2026 · 17 min czytania</p>
         <div className="prose">
 
           <p>„Bet or fold" — to hasło które słyszysz od doświadczonych graczy. Pasywne granie (sprawdzanie, call'owanie bez inicjatywy) to strategia która długoterminowo traci. Agresywna gra — raise, continuation bet, double barrel — jest matematycznie opłacalna. Nie dlatego że „wygrywa", ale dlatego że stwarza dwie drogi do wygranej: fold equity i wygranie showdown. Ten artykuł tłumaczy każdy element agresji — od c-betu przez 3-bet po wiedzę kiedy się zatrzymać.</p>
@@ -177,7 +177,7 @@ export default function PostAgresjaWPokerze() {
           <Link href="/blog/jak-blefowac-w-pokerze/" className="btn-outline">Jak blefować →</Link>
         </div>
         <hr className="divider" style={{ marginTop: '2.5rem' }} />
-        <p style={{ color: 'rgba(245,230,192,0.35)', fontSize: '0.85rem' }}>
+        <p style={{ color: 'rgba(var(--pk-cream-rgb),0.35)', fontSize: '0.85rem' }}>
           Powiązane: <Link href="/blog/jak-blefowac-w-pokerze/">Jak blefować w pokerze</Link> · <Link href="/blog/pozycja-w-pokerze/">Pozycja w pokerze</Link> · <Link href="/blog/pot-odds-poker/">Pot Odds</Link>
         </p>
       </div>

@@ -4,12 +4,12 @@ const PokeroLogo = () => (
   <svg width="140" height="34" viewBox="0 0 186 46" xmlns="http://www.w3.org/2000/svg">
     <text x="4" y="38"
       fontFamily="Rajdhani,'Arial Narrow',sans-serif"
-      fontWeight="700" fontSize="40" fill="#d4af37"
+      fontWeight="700" fontSize="40" fill="rgb(var(--pk-gold-rgb))"
       textLength="140" lengthAdjust="spacingAndGlyphs">POKER</text>
-    <circle cx="159" cy="24" r="14.5" fill="#0d0d14" stroke="#d4af37" strokeWidth="2.3"/>
+    <circle cx="159" cy="24" r="14.5" fill="#0d0d14" stroke="rgb(var(--pk-gold-rgb))" strokeWidth="2.3"/>
     <circle cx="159" cy="24" r="9.5" fill="#7a1414"/>
     <circle cx="159" cy="24" r="12.2" fill="none" stroke="#f5d76e" strokeWidth="0.8" strokeDasharray="2.2 1.9" opacity="0.75"/>
-    <circle cx="159" cy="24" r="6.2" fill="none" stroke="#d4af37" strokeWidth="1"/>
+    <circle cx="159" cy="24" r="6.2" fill="none" stroke="rgb(var(--pk-gold-rgb))" strokeWidth="1"/>
   </svg>
 );
 

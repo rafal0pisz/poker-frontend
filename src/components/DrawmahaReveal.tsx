@@ -85,7 +85,7 @@ export function DrawmahaReveal({ drawState, mySessionToken, myPlayer, players, o
                     <circle
                       cx="18" cy="18" r="15.9"
                       fill="none"
-                      stroke={timeLeft <= 5 ? '#f87171' : '#d4af37'}
+                      stroke={timeLeft <= 5 ? '#f87171' : 'rgb(var(--pk-gold-rgb))'}
                       strokeWidth="2.5"
                       strokeDasharray={`${(timeLeft / 15) * 100} 100`}
                       strokeLinecap="round"

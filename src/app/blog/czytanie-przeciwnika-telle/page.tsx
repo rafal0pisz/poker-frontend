@@ -12,18 +12,18 @@ export default function PostCzytaniePrzeciwnika() {
   return (
     <div className="container">
       <div style={{ marginBottom: '0.5rem' }}>
-        <Link href="/pl/" style={{ fontSize: '0.85rem', color: 'rgba(245,230,192,0.4)' }}>Strona główna</Link>
-        <span style={{ color: 'rgba(245,230,192,0.2)', margin: '0 0.5rem' }}>›</span>
-        <Link href="/blog/" style={{ fontSize: '0.85rem', color: 'rgba(245,230,192,0.4)' }}>Blog</Link>
-        <span style={{ color: 'rgba(245,230,192,0.2)', margin: '0 0.5rem' }}>›</span>
-        <span style={{ fontSize: '0.85rem', color: 'rgba(245,230,192,0.6)' }}>Jak czytać przeciwnika w pokerze</span>
+        <Link href="/pl/" style={{ fontSize: '0.85rem', color: 'rgba(var(--pk-cream-rgb),0.4)' }}>Strona główna</Link>
+        <span style={{ color: 'rgba(var(--pk-cream-rgb),0.2)', margin: '0 0.5rem' }}>›</span>
+        <Link href="/blog/" style={{ fontSize: '0.85rem', color: 'rgba(var(--pk-cream-rgb),0.4)' }}>Blog</Link>
+        <span style={{ color: 'rgba(var(--pk-cream-rgb),0.2)', margin: '0 0.5rem' }}>›</span>
+        <span style={{ fontSize: '0.85rem', color: 'rgba(var(--pk-cream-rgb),0.6)' }}>Jak czytać przeciwnika w pokerze</span>
       </div>
       <div style={{ maxWidth: 720, marginTop: '1.5rem' }}>
         <span className="badge" style={{ marginBottom: '1rem', display: 'inline-block' }}>Strategia</span>
         <h1 style={{ fontSize: 'clamp(1.6rem, 4vw, 2.25rem)', marginBottom: '0.75rem', lineHeight: 1.2 }}>
           Jak czytać przeciwnika w pokerze — telle, betting patterns i range
         </h1>
-        <p style={{ color: 'rgba(245,230,192,0.4)', fontSize: '0.85rem', marginBottom: '2rem' }}>16 czerwca 2026 · 20 min czytania</p>
+        <p style={{ color: 'rgba(var(--pk-cream-rgb),0.4)', fontSize: '0.85rem', marginBottom: '2rem' }}>16 czerwca 2026 · 20 min czytania</p>
         <div className="prose">
 
           <p>Poker to gra informacji — nie kart. Karty masz takie jakie masz. Ale informacje o tym co trzyma przeciwnik możesz aktywnie zbierać przez całą rękę. Umiejętność czytania przeciwnika to połączenie obserwacji, logiki i psychologii. Ten artykuł przeprowadza Cię krok po kroku przez wszystkie warstwy tej umiejętności — od fizycznych tellek w grze live po interpretację rozmiarów zakładów w grze online.</p>
@@ -186,7 +186,7 @@ export default function PostCzytaniePrzeciwnika() {
           <Link href="/blog/jak-blefowac-w-pokerze/" className="btn-outline">Jak blefować →</Link>
         </div>
         <hr className="divider" style={{ marginTop: '2.5rem' }} />
-        <p style={{ color: 'rgba(245,230,192,0.35)', fontSize: '0.85rem' }}>
+        <p style={{ color: 'rgba(var(--pk-cream-rgb),0.35)', fontSize: '0.85rem' }}>
           Powiązane: <Link href="/blog/jak-blefowac-w-pokerze/">Jak blefować w pokerze</Link> · <Link href="/blog/pozycja-w-pokerze/">Pozycja w pokerze</Link> · <Link href="/blog/psychologia-pokera-tilt/">Psychologia pokera i tilt</Link>
         </p>
       </div>

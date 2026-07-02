@@ -78,9 +78,9 @@ export function PineappleDiscard({ holeCards, onDiscard, deadline }: Props) {
         disabled={selected === null}
         className="w-full py-2.5 rounded-xl text-sm font-bold transition disabled:opacity-40"
         style={{
-          background: selected !== null ? '#d4af37' : 'transparent',
-          color: selected !== null ? '#0d0d14' : 'rgba(245,230,192,0.4)',
-          border: selected !== null ? 'none' : '1px solid rgba(212,175,55,0.2)',
+          background: selected !== null ? 'rgb(var(--pk-gold-rgb))' : 'transparent',
+          color: selected !== null ? '#0d0d14' : 'rgba(var(--pk-cream-rgb),0.4)',
+          border: selected !== null ? 'none' : '1px solid rgba(var(--pk-gold-rgb),0.2)',
         }}
       >
         {selected !== null ? 'Discard card' : 'Select a card to discard'}

@@ -29,6 +29,20 @@ export function AdminPanel({ room, mySessionToken, onClose }: Props) {
     { value: '#0d0d17', label: 'Obsidian' },
   ];
 
+  const THEMES = [
+    { value: 'classic',  label: 'Casino Classic', swatch: '#D4AF37' },
+    { value: 'emerald',  label: 'Emerald',        swatch: '#4ADE80' },
+    { value: 'midnight', label: 'Midnight',       swatch: '#8B85F4' },
+  ] as const;
+
+  const currentTheme = room.settings.theme || 'classic';
+
+  const handleTheme = (theme: string) => {
+    getSocket().emit('admin:set-theme', { theme }, (res: { ok: boolean; error?: string }) => {
+      if (!res.ok) console.error('theme error:', res.error);
+    });
+  };
+
   const tableColor = room.settings.tableColor || '#1a3a1a';
 
   const handleTableColor = (color: string) => {
@@ -377,12 +391,34 @@ export function AdminPanel({ room, mySessionToken, onClose }: Props) {
                   onClick={() => handleTableColor(value)}
                   className="flex items-center gap-2 px-2 py-2 rounded-lg border text-[10px] transition-all active:scale-95"
                   style={{
-                    borderColor: tableColor === value ? '#d4af37' : 'rgba(212,175,55,0.15)',
-                    background: tableColor === value ? 'rgba(212,175,55,0.1)' : 'transparent',
-                    color: tableColor === value ? '#d4af37' : 'rgba(245,230,192,0.5)',
+                    borderColor: tableColor === value ? 'rgb(var(--pk-gold-rgb))' : 'rgba(var(--pk-gold-rgb),0.15)',
+                    background: tableColor === value ? 'rgba(var(--pk-gold-rgb),0.1)' : 'transparent',
+                    color: tableColor === value ? 'rgb(var(--pk-gold-rgb))' : 'rgba(var(--pk-cream-rgb),0.5)',
                   }}
                 >
                   <span style={{ width: 14, height: 14, borderRadius: 3, background: value, flexShrink: 0, border: '1px solid rgba(255,255,255,0.15)', display: 'inline-block' }} />
+                  {label}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Theme */}
+          <div className="border-t border-poker-gold/10 pt-4">
+            <p className="text-xs text-poker-yellow/50 mb-3">Kolorystyka aplikacji</p>
+            <div className="grid grid-cols-3 gap-2">
+              {THEMES.map(({ value, label, swatch }) => (
+                <button
+                  key={value}
+                  onClick={() => handleTheme(value)}
+                  className="flex items-center gap-2 px-2 py-2 rounded-lg border text-[10px] transition-all active:scale-95"
+                  style={{
+                    borderColor: currentTheme === value ? 'rgb(var(--pk-gold-rgb))' : 'rgba(var(--pk-gold-rgb),0.15)',
+                    background: currentTheme === value ? 'rgba(var(--pk-gold-rgb),0.1)' : 'transparent',
+                    color: currentTheme === value ? 'rgb(var(--pk-gold-rgb))' : 'rgba(var(--pk-cream-rgb),0.5)',
+                  }}
+                >
+                  <span style={{ width: 14, height: 14, borderRadius: 999, background: swatch, flexShrink: 0, border: '1px solid rgba(255,255,255,0.15)', display: 'inline-block' }} />
                   {label}
                 </button>
               ))}

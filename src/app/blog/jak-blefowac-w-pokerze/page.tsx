@@ -12,18 +12,18 @@ export default function Post5() {
   return (
     <div className="container">
       <div style={{ marginBottom: '0.5rem' }}>
-        <Link href="/pl/" style={{ fontSize: '0.85rem', color: 'rgba(245,230,192,0.4)' }}>Strona główna</Link>
-        <span style={{ color: 'rgba(245,230,192,0.2)', margin: '0 0.5rem' }}>›</span>
-        <Link href="/blog/" style={{ fontSize: '0.85rem', color: 'rgba(245,230,192,0.4)' }}>Blog</Link>
-        <span style={{ color: 'rgba(245,230,192,0.2)', margin: '0 0.5rem' }}>›</span>
-        <span style={{ fontSize: '0.85rem', color: 'rgba(245,230,192,0.6)' }}>Jak blefować w pokerze</span>
+        <Link href="/pl/" style={{ fontSize: '0.85rem', color: 'rgba(var(--pk-cream-rgb),0.4)' }}>Strona główna</Link>
+        <span style={{ color: 'rgba(var(--pk-cream-rgb),0.2)', margin: '0 0.5rem' }}>›</span>
+        <Link href="/blog/" style={{ fontSize: '0.85rem', color: 'rgba(var(--pk-cream-rgb),0.4)' }}>Blog</Link>
+        <span style={{ color: 'rgba(var(--pk-cream-rgb),0.2)', margin: '0 0.5rem' }}>›</span>
+        <span style={{ fontSize: '0.85rem', color: 'rgba(var(--pk-cream-rgb),0.6)' }}>Jak blefować w pokerze</span>
       </div>
       <div style={{ maxWidth: 720, marginTop: '1.5rem' }}>
         <span className="badge" style={{ marginBottom: '1rem', display: 'inline-block' }}>Strategia</span>
         <h1 style={{ fontSize: 'clamp(1.6rem, 4vw, 2.25rem)', marginBottom: '0.75rem', lineHeight: 1.2 }}>
           Jak blefować w pokerze — kiedy warto i jak robić to skutecznie
         </h1>
-        <p style={{ color: 'rgba(245,230,192,0.4)', fontSize: '0.85rem', marginBottom: '2rem' }}>22 maja 2026 · 8 min czytania</p>
+        <p style={{ color: 'rgba(var(--pk-cream-rgb),0.4)', fontSize: '0.85rem', marginBottom: '2rem' }}>22 maja 2026 · 8 min czytania</p>
         <div className="prose">
           <p>Blef to jedna z najbardziej fascynujących części pokera — i jedna z najbardziej nadużywanych przez początkujących. Dobry blef to nie kłamstwo, to kalkulacja. Kiedy warto? Jak to zrobić? I kiedy odpuścić?</p>
 
@@ -71,7 +71,7 @@ export default function Post5() {
           <Link href="/blog/pozycja-w-pokerze/" className="btn-outline">Pozycja w pokerze →</Link>
         </div>
         <hr className="divider" style={{ marginTop: '2.5rem' }} />
-        <p style={{ color: 'rgba(245,230,192,0.35)', fontSize: '0.85rem' }}>
+        <p style={{ color: 'rgba(var(--pk-cream-rgb),0.35)', fontSize: '0.85rem' }}>
           Powiązane: <Link href="/blog/pozycja-w-pokerze/">Pozycja w pokerze</Link> · <Link href="/blog/zasady-pokera-texas-holdem/">Zasady Texas Hold'em</Link>
         </p>
       </div>

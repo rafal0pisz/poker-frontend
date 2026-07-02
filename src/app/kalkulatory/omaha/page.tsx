@@ -24,11 +24,11 @@ export default function OmahaCalculatorPage() {
         <div className="container" style={{ maxWidth: 860 }}>
 
           <div style={{ marginBottom: '0.5rem' }}>
-            <Link href="/pl/" style={{ fontSize: '0.85rem', color: 'rgba(245,230,192,0.4)' }}>Strona główna</Link>
-            <span style={{ color: 'rgba(245,230,192,0.2)', margin: '0 0.5rem' }}>›</span>
-            <Link href="/kalkulatory/" style={{ fontSize: '0.85rem', color: 'rgba(245,230,192,0.4)' }}>Kalkulatory</Link>
-            <span style={{ color: 'rgba(245,230,192,0.2)', margin: '0 0.5rem' }}>›</span>
-            <span style={{ fontSize: '0.85rem', color: 'rgba(245,230,192,0.6)' }}>Omaha</span>
+            <Link href="/pl/" style={{ fontSize: '0.85rem', color: 'rgba(var(--pk-cream-rgb),0.4)' }}>Strona główna</Link>
+            <span style={{ color: 'rgba(var(--pk-cream-rgb),0.2)', margin: '0 0.5rem' }}>›</span>
+            <Link href="/kalkulatory/" style={{ fontSize: '0.85rem', color: 'rgba(var(--pk-cream-rgb),0.4)' }}>Kalkulatory</Link>
+            <span style={{ color: 'rgba(var(--pk-cream-rgb),0.2)', margin: '0 0.5rem' }}>›</span>
+            <span style={{ fontSize: '0.85rem', color: 'rgba(var(--pk-cream-rgb),0.6)' }}>Omaha</span>
           </div>
 
           <div style={{ marginTop: '1.5rem', marginBottom: '2rem' }}>
@@ -36,10 +36,10 @@ export default function OmahaCalculatorPage() {
             <h1 style={{ fontSize: 'clamp(1.75rem, 4vw, 2.5rem)', marginBottom: '0.75rem' }}>
               Kalkulator szans — Omaha Poker
             </h1>
-            <p style={{ fontSize: '1.05rem', color: 'rgba(245,230,192,0.65)', maxWidth: 620 }}>
+            <p style={{ fontSize: '1.05rem', color: 'rgba(var(--pk-cream-rgb),0.65)', maxWidth: 620 }}>
               Wybierz 4 karty na rękę, ustaw liczbę rywali i opcjonalnie karty wspólne.
               Kalkulator oblicza equity z zachowaniem zasady Omaha: musisz użyć
-              <strong style={{ color: '#d4af37' }}> dokładnie 2 karty z ręki + 3 ze stołu</strong>.
+              <strong style={{ color: 'rgb(var(--pk-gold-rgb))' }}> dokładnie 2 karty z ręki + 3 ze stołu</strong>.
             </p>
           </div>
 
@@ -138,9 +138,9 @@ export default function OmahaCalculatorPage() {
             }}
           />
 
-          <div style={{ marginTop: '2rem', padding: '1.25rem', background: 'rgba(212,175,55,0.06)', border: '1px solid rgba(212,175,55,0.15)', borderRadius: 12 }}>
-            <p style={{ margin: 0, fontSize: '0.9rem', color: 'rgba(245,230,192,0.5)' }}>
-              <strong style={{ color: '#d4af37' }}>Powiązane:</strong>{' '}
+          <div style={{ marginTop: '2rem', padding: '1.25rem', background: 'rgba(var(--pk-gold-rgb),0.06)', border: '1px solid rgba(var(--pk-gold-rgb),0.15)', borderRadius: 12 }}>
+            <p style={{ margin: 0, fontSize: '0.9rem', color: 'rgba(var(--pk-cream-rgb),0.5)' }}>
+              <strong style={{ color: 'rgb(var(--pk-gold-rgb))' }}>Powiązane:</strong>{' '}
               <Link href="/kalkulatory/texas-holdem/">Kalkulator Texas Hold&apos;em</Link> ·{' '}
               <Link href="/zasady/omaha/">Zasady Omaha</Link> ·{' '}
               <Link href="/blog/omaha-strategia/">Strategia Omaha</Link> ·{' '}

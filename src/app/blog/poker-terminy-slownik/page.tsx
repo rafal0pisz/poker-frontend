@@ -60,18 +60,18 @@ export default function Post21() {
   return (
     <div className="container">
       <div style={{ marginBottom: '0.5rem' }}>
-        <Link href="/pl/" style={{ fontSize: '0.85rem', color: 'rgba(245,230,192,0.4)' }}>Strona główna</Link>
-        <span style={{ color: 'rgba(245,230,192,0.2)', margin: '0 0.5rem' }}>›</span>
-        <Link href="/blog/" style={{ fontSize: '0.85rem', color: 'rgba(245,230,192,0.4)' }}>Blog</Link>
-        <span style={{ color: 'rgba(245,230,192,0.2)', margin: '0 0.5rem' }}>›</span>
-        <span style={{ fontSize: '0.85rem', color: 'rgba(245,230,192,0.6)' }}>Słownik pokerowy</span>
+        <Link href="/pl/" style={{ fontSize: '0.85rem', color: 'rgba(var(--pk-cream-rgb),0.4)' }}>Strona główna</Link>
+        <span style={{ color: 'rgba(var(--pk-cream-rgb),0.2)', margin: '0 0.5rem' }}>›</span>
+        <Link href="/blog/" style={{ fontSize: '0.85rem', color: 'rgba(var(--pk-cream-rgb),0.4)' }}>Blog</Link>
+        <span style={{ color: 'rgba(var(--pk-cream-rgb),0.2)', margin: '0 0.5rem' }}>›</span>
+        <span style={{ fontSize: '0.85rem', color: 'rgba(var(--pk-cream-rgb),0.6)' }}>Słownik pokerowy</span>
       </div>
       <div style={{ maxWidth: 720, marginTop: '1.5rem' }}>
         <span className="badge" style={{ marginBottom: '1rem', display: 'inline-block' }}>Słownik</span>
         <h1 style={{ fontSize: 'clamp(1.6rem, 4vw, 2.25rem)', marginBottom: '0.75rem', lineHeight: 1.2 }}>
           Słownik pokerowy — {terms.length} terminów które musisz znać
         </h1>
-        <p style={{ color: 'rgba(245,230,192,0.4)', fontSize: '0.85rem', marginBottom: '2rem' }}>8 czerwca 2026 · 7 min czytania</p>
+        <p style={{ color: 'rgba(var(--pk-cream-rgb),0.4)', fontSize: '0.85rem', marginBottom: '2rem' }}>8 czerwca 2026 · 7 min czytania</p>
         <div className="prose">
           <p>
             Poker ma swój własny język — spora część terminów jest po angielsku i używana
@@ -80,9 +80,9 @@ export default function Post21() {
           </p>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', marginTop: '1.5rem' }}>
             {terms.map(t => (
-              <div key={t.term} style={{ display: 'flex', gap: '1rem', padding: '0.6rem 0', borderBottom: '1px solid rgba(212,175,55,0.08)' }}>
-                <span style={{ fontWeight: 700, color: '#d4af37', minWidth: 140, flexShrink: 0, fontSize: '0.9rem' }}>{t.term}</span>
-                <span style={{ color: 'rgba(245,230,192,0.65)', fontSize: '0.9rem' }}>{t.def}</span>
+              <div key={t.term} style={{ display: 'flex', gap: '1rem', padding: '0.6rem 0', borderBottom: '1px solid rgba(var(--pk-gold-rgb),0.08)' }}>
+                <span style={{ fontWeight: 700, color: 'rgb(var(--pk-gold-rgb))', minWidth: 140, flexShrink: 0, fontSize: '0.9rem' }}>{t.term}</span>
+                <span style={{ color: 'rgba(var(--pk-cream-rgb),0.65)', fontSize: '0.9rem' }}>{t.def}</span>
               </div>
             ))}
           </div>
@@ -92,7 +92,7 @@ export default function Post21() {
           <Link href="/zasady/texas-holdem/" className="btn-outline">Zasady Texas →</Link>
         </div>
         <hr className="divider" style={{ marginTop: '2.5rem' }} />
-        <p style={{ color: 'rgba(245,230,192,0.35)', fontSize: '0.85rem' }}>
+        <p style={{ color: 'rgba(var(--pk-cream-rgb),0.35)', fontSize: '0.85rem' }}>
           Powiązane: <Link href="/blog/zasady-pokera-texas-holdem/">Zasady Texas Hold'em</Link> · <Link href="/blog/poker-dla-poczatkujacych/">Poker dla początkujących</Link>
         </p>
       </div>

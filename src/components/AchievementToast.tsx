@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import type { Achievement } from '@/hooks/useAchievements';
 
 const COLORS: Record<Achievement['color'], { bg: string; border: string }> = {
-  gold:   { bg: 'rgba(212,175,55,0.13)',  border: 'rgba(212,175,55,0.45)'  },
+  gold:   { bg: 'rgba(var(--pk-gold-rgb),0.13)',  border: 'rgba(var(--pk-gold-rgb),0.45)'  },
   blue:   { bg: 'rgba(59,130,246,0.12)',  border: 'rgba(59,130,246,0.4)'   },
   green:  { bg: 'rgba(74,205,122,0.11)',  border: 'rgba(74,205,122,0.38)'  },
   red:    { bg: 'rgba(239,68,68,0.11)',   border: 'rgba(239,68,68,0.38)'   },
@@ -47,7 +47,7 @@ function Toast({ achievement, onDone }: { achievement: Achievement; onDone: () =
           {achievement.title}
         </p>
         {achievement.subtitle && (
-          <p style={{ fontSize: 10, color: 'rgba(245,230,192,0.45)', margin: '2px 0 0', lineHeight: 1.3 }}>
+          <p style={{ fontSize: 10, color: 'rgba(var(--pk-cream-rgb),0.45)', margin: '2px 0 0', lineHeight: 1.3 }}>
             {achievement.subtitle}
           </p>
         )}

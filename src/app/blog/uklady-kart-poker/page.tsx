@@ -16,11 +16,11 @@ export default function Post3() {
   return (
     <div className="container">
       <div style={{ marginBottom: '0.5rem' }}>
-        <Link href="/" style={{ fontSize: '0.85rem', color: 'rgba(245,230,192,0.4)' }}>Strona główna</Link>
-        <span style={{ color: 'rgba(245,230,192,0.2)', margin: '0 0.5rem' }}>›</span>
-        <Link href="/blog/" style={{ fontSize: '0.85rem', color: 'rgba(245,230,192,0.4)' }}>Blog</Link>
-        <span style={{ color: 'rgba(245,230,192,0.2)', margin: '0 0.5rem' }}>›</span>
-        <span style={{ fontSize: '0.85rem', color: 'rgba(245,230,192,0.6)' }}>Układy kart</span>
+        <Link href="/" style={{ fontSize: '0.85rem', color: 'rgba(var(--pk-cream-rgb),0.4)' }}>Strona główna</Link>
+        <span style={{ color: 'rgba(var(--pk-cream-rgb),0.2)', margin: '0 0.5rem' }}>›</span>
+        <Link href="/blog/" style={{ fontSize: '0.85rem', color: 'rgba(var(--pk-cream-rgb),0.4)' }}>Blog</Link>
+        <span style={{ color: 'rgba(var(--pk-cream-rgb),0.2)', margin: '0 0.5rem' }}>›</span>
+        <span style={{ fontSize: '0.85rem', color: 'rgba(var(--pk-cream-rgb),0.6)' }}>Układy kart</span>
       </div>
 
       <div style={{ maxWidth: 720, marginTop: '1.5rem' }}>
@@ -28,7 +28,7 @@ export default function Post3() {
         <h1 style={{ fontSize: 'clamp(1.6rem, 4vw, 2.25rem)', marginBottom: '0.75rem', lineHeight: 1.2 }}>
           Układy kart w pokerze — pełna tabela z przykładami
         </h1>
-        <p style={{ color: 'rgba(245,230,192,0.4)', fontSize: '0.85rem', marginBottom: '2rem' }}>15 maja 2026 · 5 min czytania</p>
+        <p style={{ color: 'rgba(var(--pk-cream-rgb),0.4)', fontSize: '0.85rem', marginBottom: '2rem' }}>15 maja 2026 · 5 min czytania</p>
 
         <div className="prose">
           <p>
@@ -54,8 +54,8 @@ export default function Post3() {
                 [10, 'Wysoka karta (High Card)', 'A♠ J♥ 9♦ 6♣ 2♠', 'Żaden układ — liczy się najwyższa karta.'],
               ].map(([n, name, ex, desc]) => (
                 <tr key={String(n)}>
-                  <td style={{ color: 'rgba(245,230,192,0.3)', fontWeight: 400 }}>{n}</td>
-                  <td style={{ fontWeight: 700, color: '#d4af37' }}>{name}</td>
+                  <td style={{ color: 'rgba(var(--pk-cream-rgb),0.3)', fontWeight: 400 }}>{n}</td>
+                  <td style={{ fontWeight: 700, color: 'rgb(var(--pk-gold-rgb))' }}>{name}</td>
                   <td style={{ fontFamily: 'monospace', fontSize: '0.8rem', whiteSpace: 'nowrap' }}>{ex}</td>
                   <td>{desc}</td>
                 </tr>
@@ -100,7 +100,7 @@ export default function Post3() {
         </div>
 
         <hr className="divider" style={{ marginTop: '2.5rem' }} />
-        <p style={{ color: 'rgba(245,230,192,0.35)', fontSize: '0.85rem' }}>
+        <p style={{ color: 'rgba(var(--pk-cream-rgb),0.35)', fontSize: '0.85rem' }}>
           Powiązane: <Link href="/blog/zasady-pokera-texas-holdem/">Zasady Texas Hold&apos;em</Link> · <Link href="/blog/poker-ze-znajomymi-online/">Poker ze znajomymi online</Link>
         </p>
 

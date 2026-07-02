@@ -4,11 +4,78 @@
 @tailwind components;
 @tailwind utilities;
 
+/* ─────────────────────────────────────────────
+   THEME VARIABLES
+   Motyw ustawiany przez data-theme na <html>
+   (PokerTable.tsx → useEffect). Brak atrybutu
+   lub 'classic' = obecny wygląd, bez zmian.
+   Formaty:
+   --pk-*-rgb  → triplet "R,G,B" (do rgba(var(--x), a)
+                 i do Tailwinda z <alpha-value>)
+   --pk-*      → gotowy kolor (hex)
+   ───────────────────────────────────────────── */
+
+:root,
+:root[data-theme='classic'] {
+  --pk-gold-rgb: 212,175,55;      /* akcent (obecne złoto) */
+  --pk-gold-light-rgb: 232,199,107;
+  --pk-yellow-rgb: 255,253,183;   /* jasny tekst (obecny krem) */
+  --pk-cream-rgb: 245,230,192;    /* drugi krem z inline styles */
+  --pk-coral-rgb: 255,107,107;    /* fold / ostrzeżenia */
+  --pk-bg-rgb: 31,8,8;            /* tło strony  (#1F0808) */
+  --pk-bg-light-rgb: 42,14,14;    /* modale      (#2A0E0E) */
+
+  --pk-surface: #0d0d17;          /* sidebar czatu (desktop) */
+  --pk-surface-2: #1a1a28;        /* awatary na owalu */
+  --pk-ink: #070709;              /* ciemny tekst na złotych przyciskach */
+
+  --pk-felt-dark: #3A0808;
+  --pk-felt: #5A0F0F;
+  --pk-felt-light: #8B0000;
+}
+
+:root[data-theme='emerald'] {
+  --pk-gold-rgb: 74,222,128;      /* mięta #4ADE80 */
+  --pk-gold-light-rgb: 134,239,172;
+  --pk-yellow-rgb: 232,242,237;
+  --pk-cream-rgb: 215,245,228;
+  --pk-coral-rgb: 224,138,138;
+  --pk-bg-rgb: 12,18,16;          /* #0C1210 */
+  --pk-bg-light-rgb: 20,32,27;    /* #14201B */
+
+  --pk-surface: #0F1815;
+  --pk-surface-2: #1B2A23;
+  --pk-ink: #06251A;
+
+  --pk-felt-dark: #0C2419;
+  --pk-felt: #123326;
+  --pk-felt-light: #1B4D3A;
+}
+
+:root[data-theme='midnight'] {
+  --pk-gold-rgb: 139,133,244;     /* indygo #8B85F4 */
+  --pk-gold-light-rgb: 180,175,250;
+  --pk-yellow-rgb: 233,234,246;
+  --pk-cream-rgb: 214,212,251;
+  --pk-coral-rgb: 232,138,160;
+  --pk-bg-rgb: 13,15,30;          /* #0D0F1E */
+  --pk-bg-light-rgb: 20,23,48;    /* #141730 */
+
+  --pk-surface: #12142A;
+  --pk-surface-2: #191C38;
+  --pk-ink: #12102E;
+
+  --pk-felt-dark: #12142E;
+  --pk-felt: #161A3E;
+  --pk-felt-light: #221F4A;
+}
+
 html, body {
-  background-color: #1F0808;
-  color: #FFFDB7;
+  background-color: rgb(var(--pk-bg-rgb));
+  color: rgb(var(--pk-yellow-rgb));
   font-family: 'DM Sans', system-ui, sans-serif;
   -webkit-font-smoothing: antialiased;
+  transition: background-color 0.4s ease;
 }
 
 /* Disable tap highlight on mobile */
@@ -23,15 +90,15 @@ input, textarea, select {
 
 /* Casino-style table felt — used in the center of the table */
 .poker-felt {
-  background: radial-gradient(ellipse at center, #8B0000 0%, #5A0F0F 60%, #3A0808 100%);
-  border: 3px solid rgba(212, 175, 55, 0.5);
-  box-shadow: inset 0 0 30px rgba(0,0,0,0.5), 0 0 12px rgba(212,175,55,0.15);
+  background: radial-gradient(ellipse at center, var(--pk-felt-light) 0%, var(--pk-felt) 60%, var(--pk-felt-dark) 100%);
+  border: 3px solid rgba(var(--pk-gold-rgb), 0.5);
+  box-shadow: inset 0 0 30px rgba(0,0,0,0.5), 0 0 12px rgba(var(--pk-gold-rgb), 0.15);
 }
 
 /* Wider felt for desktop */
 @media (min-width: 768px) {
   .poker-felt {
-    box-shadow: inset 0 0 40px rgba(0,0,0,0.5), 0 0 16px rgba(212,175,55,0.2);
+    box-shadow: inset 0 0 40px rgba(0,0,0,0.5), 0 0 16px rgba(var(--pk-gold-rgb), 0.2);
   }
 }
 

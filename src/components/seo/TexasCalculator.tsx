@@ -135,29 +135,29 @@ export function TexasCalculator() {
   const suitColors = { h:{bg:'#fee2e2',border:'#dc2626',text:'#dc2626'}, d:{bg:'#fee2e2',border:'#dc2626',text:'#dc2626'}, s:{bg:'#e0e7ff',border:'#3730a3',text:'#3730a3'}, c:{bg:'#d1fae5',border:'#065f46',text:'#065f46'} };
 
   return (
-    <div style={{background:'#1a1a2a',border:'1px solid rgba(212,175,55,0.2)',borderRadius:16,padding:'clamp(1rem,4vw,1.5rem)',maxWidth:700}}>
+    <div style={{background:'#1a1a2a',border:'1px solid rgba(var(--pk-gold-rgb),0.2)',borderRadius:16,padding:'clamp(1rem,4vw,1.5rem)',maxWidth:700}}>
 
       {/* Hero + opponents */}
       <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:'1rem',marginBottom:'1.25rem'}}>
         <div>
-          <div style={{fontSize:'0.7rem',fontWeight:600,color:'rgba(212,175,55,0.6)',letterSpacing:'0.07em',textTransform:'uppercase',marginBottom:8}}>Twoje karty (hero)</div>
+          <div style={{fontSize:'0.7rem',fontWeight:600,color:'rgba(var(--pk-gold-rgb),0.6)',letterSpacing:'0.07em',textTransform:'uppercase',marginBottom:8}}>Twoje karty (hero)</div>
           <div style={{display:'flex',gap:'clamp(6px,2vw,10px)'}}>
             {([0,1] as const).map(i => <div key={i} onClick={() => heroCards[i] ? clearCard(`h${i}`) : openPicker(`h${i}`)}><CardBtn card={heroCards[i]} onClick={()=>{}} /></div>)}
           </div>
         </div>
         <div>
-          <div style={{fontSize:'0.7rem',fontWeight:600,color:'rgba(212,175,55,0.6)',letterSpacing:'0.07em',textTransform:'uppercase',marginBottom:8}}>Liczba rywali</div>
+          <div style={{fontSize:'0.7rem',fontWeight:600,color:'rgba(var(--pk-gold-rgb),0.6)',letterSpacing:'0.07em',textTransform:'uppercase',marginBottom:8}}>Liczba rywali</div>
           <div style={{display:'flex',alignItems:'center',gap:10,marginTop:6}}>
-            <input type="range" min={1} max={8} value={numOpp} onChange={e=>{setNumOpp(+e.target.value);setResult(null);}} style={{flex:1,accentColor:'#d4af37'}} />
-            <span style={{fontSize:20,fontWeight:700,color:'#d4af37',minWidth:24}}>{numOpp}</span>
-            <span style={{fontSize:12,color:'rgba(245,230,192,0.5)'}}>graczy</span>
+            <input type="range" min={1} max={8} value={numOpp} onChange={e=>{setNumOpp(+e.target.value);setResult(null);}} style={{flex:1,accentColor:'rgb(var(--pk-gold-rgb))'}} />
+            <span style={{fontSize:20,fontWeight:700,color:'rgb(var(--pk-gold-rgb))',minWidth:24}}>{numOpp}</span>
+            <span style={{fontSize:12,color:'rgba(var(--pk-cream-rgb),0.5)'}}>graczy</span>
           </div>
         </div>
       </div>
 
       {/* Board */}
       <div style={{marginBottom:'1.25rem'}}>
-        <div style={{fontSize:'0.7rem',fontWeight:600,color:'rgba(212,175,55,0.6)',letterSpacing:'0.07em',textTransform:'uppercase',marginBottom:8}}>Karty wspólne (opcjonalne)</div>
+        <div style={{fontSize:'0.7rem',fontWeight:600,color:'rgba(var(--pk-gold-rgb),0.6)',letterSpacing:'0.07em',textTransform:'uppercase',marginBottom:8}}>Karty wspólne (opcjonalne)</div>
         <div style={{display:'flex',gap:'clamp(5px,1.5vw,8px)',flexWrap:'nowrap'}}>
           {([0,1,2,3,4] as const).map(i => <div key={i} onClick={() => boardCards[i] ? clearCard(`b${i}`) : openPicker(`b${i}`)}><CardBtn card={boardCards[i]} onClick={()=>{}} isBoard /></div>)}
         </div>
@@ -165,9 +165,9 @@ export function TexasCalculator() {
 
       {/* Picker */}
       {pickerTarget && (
-        <div style={{background:'#13131f',border:'1px solid rgba(212,175,55,0.25)',borderRadius:12,padding:'clamp(0.75rem,3vw,1rem)',marginBottom:'1.25rem'}}>
-          <div style={{fontSize:12,fontWeight:500,color:'rgba(245,230,192,0.5)',marginBottom:10}}>
-            Wybierz kolor — <strong style={{color:'#d4af37'}}>{slotLabel[pickerTarget]}</strong>
+        <div style={{background:'#13131f',border:'1px solid rgba(var(--pk-gold-rgb),0.25)',borderRadius:12,padding:'clamp(0.75rem,3vw,1rem)',marginBottom:'1.25rem'}}>
+          <div style={{fontSize:12,fontWeight:500,color:'rgba(var(--pk-cream-rgb),0.5)',marginBottom:10}}>
+            Wybierz kolor — <strong style={{color:'rgb(var(--pk-gold-rgb))'}}>{slotLabel[pickerTarget]}</strong>
           </div>
           {/* Suit buttons — 2x2 on mobile, 1x4 on wider */}
           <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:6,marginBottom:12}}>
@@ -190,7 +190,7 @@ export function TexasCalculator() {
             })}
           </div>
           {/* Rank grid — larger touch targets */}
-          <div style={{fontSize:12,fontWeight:500,color:'rgba(245,230,192,0.5)',marginBottom:8}}>Wybierz wartość:</div>
+          <div style={{fontSize:12,fontWeight:500,color:'rgba(var(--pk-cream-rgb),0.5)',marginBottom:8}}>Wybierz wartość:</div>
           <div style={{display:'grid',gridTemplateColumns:'repeat(7,1fr)',gap:'clamp(4px,1.5vw,6px)'}}>
             {RANKS.map(r => {
               const key=r+activeSuit;
@@ -219,12 +219,12 @@ export function TexasCalculator() {
 
       {/* Calculate */}
       {heroFilled===2 && (
-        <button onClick={calcEquity} disabled={running} style={{width:'100%',padding:'clamp(10px,3vw,14px)',borderRadius:10,background:'#d4af37',border:'none',color:'#0d0d14',fontSize:'clamp(14px,4vw,16px)',fontWeight:700,cursor:running?'default':'pointer',opacity:running?0.7:1,marginBottom:'1.25rem',WebkitTapHighlightColor:'transparent'}}>
+        <button onClick={calcEquity} disabled={running} style={{width:'100%',padding:'clamp(10px,3vw,14px)',borderRadius:10,background:'rgb(var(--pk-gold-rgb))',border:'none',color:'#0d0d14',fontSize:'clamp(14px,4vw,16px)',fontWeight:700,cursor:running?'default':'pointer',opacity:running?0.7:1,marginBottom:'1.25rem',WebkitTapHighlightColor:'transparent'}}>
           {running?'Obliczam (5000 symulacji)...':'🎯 Oblicz szanse na wygraną'}
         </button>
       )}
       {heroFilled<2 && (
-        <div style={{padding:'10px 14px',background:'rgba(212,175,55,0.06)',borderLeft:'3px solid rgba(212,175,55,0.3)',borderRadius:6,fontSize:13,color:'rgba(245,230,192,0.5)',marginBottom:'1rem'}}>
+        <div style={{padding:'10px 14px',background:'rgba(var(--pk-gold-rgb),0.06)',borderLeft:'3px solid rgba(var(--pk-gold-rgb),0.3)',borderRadius:6,fontSize:13,color:'rgba(var(--pk-cream-rgb),0.5)',marginBottom:'1rem'}}>
           Wybierz {2-heroFilled} {2-heroFilled===1?'kartę':'karty'} na rękę.
         </div>
       )}
@@ -234,14 +234,14 @@ export function TexasCalculator() {
         <div style={{marginBottom:'1rem'}}>
           <div style={{display:'grid',gridTemplateColumns:'repeat(3,1fr)',gap:8,marginBottom:14}}>
             {[{label:'Wygrana',val:result.win,col:'#1d4ed8'},{label:'Remis',val:result.tie,col:'#9ca3af'},{label:'Przegrana',val:result.lose,col:'#dc2626'}].map(s=>(
-              <div key={s.label} style={{background:'#13131f',border:'1px solid rgba(212,175,55,0.15)',borderRadius:8,padding:'10px 6px',textAlign:'center'}}>
-                <div style={{fontSize:11,color:'rgba(245,230,192,0.4)',marginBottom:4}}>{s.label}</div>
+              <div key={s.label} style={{background:'#13131f',border:'1px solid rgba(var(--pk-gold-rgb),0.15)',borderRadius:8,padding:'10px 6px',textAlign:'center'}}>
+                <div style={{fontSize:11,color:'rgba(var(--pk-cream-rgb),0.4)',marginBottom:4}}>{s.label}</div>
                 <div style={{fontSize:'clamp(18px,5vw,22px)',fontWeight:700,color:s.col}}>{s.val.toFixed(1)}%</div>
               </div>
             ))}
           </div>
           <div style={{display:'flex',flexDirection:'column',gap:0}}>
-            <div style={{display:'flex',alignItems:'center',gap:10,padding:'8px 0',borderBottom:'1px solid rgba(212,175,55,0.08)'}}>
+            <div style={{display:'flex',alignItems:'center',gap:10,padding:'8px 0',borderBottom:'1px solid rgba(var(--pk-gold-rgb),0.08)'}}>
               <div style={{width:32,height:32,borderRadius:'50%',background:'#1d3a8a',display:'flex',alignItems:'center',justifyContent:'center',fontSize:11,fontWeight:700,color:'#93c5fd',flexShrink:0}}>H</div>
               <div style={{fontSize:13,fontWeight:600,flex:'0 0 auto',color:'#1d4ed8',minWidth:60}}>Ty (Hero)</div>
               <div style={{flex:1,height:8,background:'#2d2d3f',borderRadius:4,overflow:'hidden'}}><div style={{height:8,width:`${result.win.toFixed(1)}%`,background:'#1d4ed8',borderRadius:4,transition:'width 0.4s'}}/></div>
@@ -250,9 +250,9 @@ export function TexasCalculator() {
             {Array.from({length:numOpp},(_,i)=>{
               const col=PLAYER_COLORS[i+1]||PLAYER_COLORS[PLAYER_COLORS.length-1];
               return (
-                <div key={i} style={{display:'flex',alignItems:'center',gap:10,padding:'8px 0',borderBottom:i<numOpp-1?'1px solid rgba(212,175,55,0.08)':'none'}}>
-                  <div style={{width:32,height:32,borderRadius:'50%',background:'rgba(212,175,55,0.1)',display:'flex',alignItems:'center',justifyContent:'center',fontSize:11,fontWeight:700,color:col,flexShrink:0}}>{i+1}</div>
-                  <div style={{fontSize:13,color:'rgba(245,230,192,0.5)',flex:'0 0 auto',minWidth:60}}>Rywal {i+1}</div>
+                <div key={i} style={{display:'flex',alignItems:'center',gap:10,padding:'8px 0',borderBottom:i<numOpp-1?'1px solid rgba(var(--pk-gold-rgb),0.08)':'none'}}>
+                  <div style={{width:32,height:32,borderRadius:'50%',background:'rgba(var(--pk-gold-rgb),0.1)',display:'flex',alignItems:'center',justifyContent:'center',fontSize:11,fontWeight:700,color:col,flexShrink:0}}>{i+1}</div>
+                  <div style={{fontSize:13,color:'rgba(var(--pk-cream-rgb),0.5)',flex:'0 0 auto',minWidth:60}}>Rywal {i+1}</div>
                   <div style={{flex:1,height:8,background:'#2d2d3f',borderRadius:4,overflow:'hidden'}}><div style={{height:8,width:`${result.oppAvg.toFixed(1)}%`,background:col,borderRadius:4,transition:'width 0.4s'}}/></div>
                   <div style={{fontSize:'clamp(15px,4vw,18px)',fontWeight:700,minWidth:52,textAlign:'right',color:col}}>{result.oppAvg.toFixed(1)}%</div>
                 </div>
@@ -267,7 +267,7 @@ export function TexasCalculator() {
       )}
 
       <div style={{display:'flex',gap:8,justifyContent:'flex-end'}}>
-        <button onClick={reset} style={{padding:'6px 14px',fontSize:13,borderRadius:8,border:'1px solid rgba(212,175,55,0.25)',background:'transparent',color:'rgba(245,230,192,0.5)',cursor:'pointer',WebkitTapHighlightColor:'transparent'}}>
+        <button onClick={reset} style={{padding:'6px 14px',fontSize:13,borderRadius:8,border:'1px solid rgba(var(--pk-gold-rgb),0.25)',background:'transparent',color:'rgba(var(--pk-cream-rgb),0.5)',cursor:'pointer',WebkitTapHighlightColor:'transparent'}}>
           ↺ Reset
         </button>
       </div>

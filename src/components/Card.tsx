@@ -77,7 +77,7 @@ export const Card = memo(function Card({ card, size = 'md', facedown = false, wi
     :                        { transition: 'transform 150ms ease, box-shadow 150ms ease' };
 
   const winningCls = winning
-    ? '-translate-y-2 ring-2 ring-poker-gold ring-offset-2 ring-offset-poker-bg shadow-[0_0_12px_rgba(212,175,55,0.6)]'
+    ? '-translate-y-2 ring-2 ring-poker-gold ring-offset-2 ring-offset-poker-bg shadow-[0_0_12px_rgba(var(--pk-gold-rgb),0.6)]'
     : '';
   const discardCls = selectedForDiscard ? 'translate-y-1.5 opacity-70 ring-2 ring-red-500' : '';
   const clickCls   = onClick ? 'cursor-pointer hover:scale-105 active:scale-95' : '';

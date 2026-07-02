@@ -51,7 +51,7 @@ function TimerRing({ deadline, timeoutSec }: { deadline: number; timeoutSec: num
   const R = 23;
   const CIRC = 2 * Math.PI * R;
   const dash = progress * CIRC;
-  const color = progress > 0.4 ? '#d4af37' : progress > 0.2 ? '#e07b39' : '#e05050';
+  const color = progress > 0.4 ? 'rgb(var(--pk-gold-rgb))' : progress > 0.2 ? '#e07b39' : '#e05050';
 
   return (
     <svg
@@ -59,7 +59,7 @@ function TimerRing({ deadline, timeoutSec }: { deadline: number; timeoutSec: num
       style={{ position: 'absolute', top: '-3px', left: '-3px', pointerEvents: 'none' }}
     >
       {/* Background track */}
-      <circle cx="24" cy="24" r={R} fill="none" stroke="rgba(212,175,55,0.12)" strokeWidth="3" />
+      <circle cx="24" cy="24" r={R} fill="none" stroke="rgba(var(--pk-gold-rgb),0.12)" strokeWidth="3" />
       {/* Progress arc */}
       <circle
         cx="24" cy="24" r={R}

@@ -12,18 +12,18 @@ export default function PostPsychologiaPokera() {
   return (
     <div className="container">
       <div style={{ marginBottom: '0.5rem' }}>
-        <Link href="/pl/" style={{ fontSize: '0.85rem', color: 'rgba(245,230,192,0.4)' }}>Strona główna</Link>
-        <span style={{ color: 'rgba(245,230,192,0.2)', margin: '0 0.5rem' }}>›</span>
-        <Link href="/blog/" style={{ fontSize: '0.85rem', color: 'rgba(245,230,192,0.4)' }}>Blog</Link>
-        <span style={{ color: 'rgba(245,230,192,0.2)', margin: '0 0.5rem' }}>›</span>
-        <span style={{ fontSize: '0.85rem', color: 'rgba(245,230,192,0.6)' }}>Psychologia pokera — tilt i mental game</span>
+        <Link href="/pl/" style={{ fontSize: '0.85rem', color: 'rgba(var(--pk-cream-rgb),0.4)' }}>Strona główna</Link>
+        <span style={{ color: 'rgba(var(--pk-cream-rgb),0.2)', margin: '0 0.5rem' }}>›</span>
+        <Link href="/blog/" style={{ fontSize: '0.85rem', color: 'rgba(var(--pk-cream-rgb),0.4)' }}>Blog</Link>
+        <span style={{ color: 'rgba(var(--pk-cream-rgb),0.2)', margin: '0 0.5rem' }}>›</span>
+        <span style={{ fontSize: '0.85rem', color: 'rgba(var(--pk-cream-rgb),0.6)' }}>Psychologia pokera — tilt i mental game</span>
       </div>
       <div style={{ maxWidth: 720, marginTop: '1.5rem' }}>
         <span className="badge" style={{ marginBottom: '1rem', display: 'inline-block' }}>Psychologia</span>
         <h1 style={{ fontSize: 'clamp(1.6rem, 4vw, 2.25rem)', marginBottom: '0.75rem', lineHeight: 1.2 }}>
           Psychologia pokera — tilt, emocje i mental game
         </h1>
-        <p style={{ color: 'rgba(245,230,192,0.4)', fontSize: '0.85rem', marginBottom: '2rem' }}>15 czerwca 2026 · 18 min czytania</p>
+        <p style={{ color: 'rgba(var(--pk-cream-rgb),0.4)', fontSize: '0.85rem', marginBottom: '2rem' }}>15 czerwca 2026 · 18 min czytania</p>
         <div className="prose">
 
           <p>Wyobraź sobie dwóch graczy. Pierwszy zna teorię pokera na wylot — pot odds, equity, range. Drugi gra intuicyjnie, ale potrafi kontrolować emocje i nigdy nie traci głowy. W długim terminie wygra drugi. Brzmi paradoksalnie? To jedna z najważniejszych prawd pokera: <strong>mental game jest ważniejszy niż wiedza techniczna</strong>. Ten artykuł to kompletny przewodnik po psychologii pokera — od tiltu przez zarządzanie bankrollem po budowanie właściwego mindset.</p>
@@ -149,7 +149,7 @@ export default function PostPsychologiaPokera() {
           <Link href="/blog/jak-blefowac-w-pokerze/" className="btn-outline">Jak blefować →</Link>
         </div>
         <hr className="divider" style={{ marginTop: '2.5rem' }} />
-        <p style={{ color: 'rgba(245,230,192,0.35)', fontSize: '0.85rem' }}>
+        <p style={{ color: 'rgba(var(--pk-cream-rgb),0.35)', fontSize: '0.85rem' }}>
           Powiązane: <Link href="/blog/jak-blefowac-w-pokerze/">Jak blefować w pokerze</Link> · <Link href="/blog/poker-strategia-poczatkujacy/">Strategia dla początkujących</Link> · <Link href="/blog/pozycja-w-pokerze/">Pozycja w pokerze</Link>
         </p>
       </div>

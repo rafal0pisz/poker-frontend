@@ -44,9 +44,9 @@ function CardPip({ card }: { card: string }) {
   return (
     <span style={{
       display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
-      background: 'rgba(245,230,192,0.08)', border: '0.5px solid rgba(245,230,192,0.2)',
+      background: 'rgba(var(--pk-cream-rgb),0.08)', border: '0.5px solid rgba(var(--pk-cream-rgb),0.2)',
       borderRadius: 4, padding: '1px 4px', fontSize: 11, fontWeight: 500,
-      color: isRed ? '#ef4444' : 'rgba(245,230,192,0.85)', minWidth: 22, margin: '0 1px',
+      color: isRed ? '#ef4444' : 'rgba(var(--pk-cream-rgb),0.85)', minWidth: 22, margin: '0 1px',
     }}>
       {rank}{suitSymbol[suit] ?? suit}
     </span>
@@ -322,7 +322,7 @@ function DesktopChat({ messages, mySessionToken, room, onSend, onSendReaction }:
                 const pos = s.netResult > 0;
                 const neg = s.netResult < 0;
                 return (
-                  <div key={s.sessionToken} className={`rounded-lg border px-2.5 py-2 ${isMe ? 'border-poker-gold/40' : 'border-poker-gold/15'}`} style={isMe ? { background: 'rgba(212,175,55,0.06)' } : undefined}>
+                  <div key={s.sessionToken} className={`rounded-lg border px-2.5 py-2 ${isMe ? 'border-poker-gold/40' : 'border-poker-gold/15'}`} style={isMe ? { background: 'rgba(var(--pk-gold-rgb),0.06)' } : undefined}>
                     <div className="flex items-center justify-between">
                       <span className="text-poker-yellow text-xs font-medium">
                         {s.nick}{isMe ? ' ★' : ''}{left ? ' (left)' : ''}
@@ -379,7 +379,7 @@ function DesktopChat({ messages, mySessionToken, room, onSend, onSendReaction }:
                 {REACTIONS.map(e => (
                   <button key={e} onClick={() => { onSendReaction(e); setShowEmojiPicker(false); }}
                     className="text-xl flex-1 py-1 rounded-lg active:scale-90 transition"
-                    style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(212,175,55,0.12)' }}>
+                    style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(var(--pk-gold-rgb),0.12)' }}>
                     {e}
                   </button>
                 ))}
@@ -389,7 +389,7 @@ function DesktopChat({ messages, mySessionToken, room, onSend, onSendReaction }:
               <button
                 onClick={() => setShowEmojiPicker(p => !p)}
                 className="w-8 h-8 rounded-lg text-sm flex items-center justify-center flex-shrink-0 transition-all"
-                style={{ background: showEmojiPicker ? 'rgba(212,175,55,0.2)' : 'rgba(212,175,55,0.06)', border: `1px solid ${showEmojiPicker ? 'rgba(212,175,55,0.5)' : 'rgba(212,175,55,0.15)'}` }}
+                style={{ background: showEmojiPicker ? 'rgba(var(--pk-gold-rgb),0.2)' : 'rgba(var(--pk-gold-rgb),0.06)', border: `1px solid ${showEmojiPicker ? 'rgba(var(--pk-gold-rgb),0.5)' : 'rgba(var(--pk-gold-rgb),0.15)'}` }}
               >😊</button>
               <input type="text" value={text} onChange={(e) => setText(e.target.value)} onKeyDown={(e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleSend(); } }} maxLength={200} placeholder="Message..." className="flex-1 bg-poker-yellow/10 border border-poker-gold/20 px-3 py-1.5 rounded-full text-poker-yellow text-xs outline-none placeholder:text-poker-yellow/40" />
               <button onClick={handleSend} disabled={!text.trim()} className="bg-poker-gold text-poker-bg w-7 h-7 rounded-full text-xs font-medium disabled:opacity-40 active:scale-95 flex items-center justify-center">↑</button>
@@ -415,6 +415,12 @@ export function PokerTable({ initialRoom, mySessionToken, onLeave }: Props) {
   const [discardIndices, setDiscardIndices] = useState(new Set<number>());
   const [drawSubmitted, setDrawSubmitted] = useState(false);
   const tableColor = room.settings.tableColor || '#1a3a1a';
+
+  // Motyw kolorystyczny — ustawiany na <html>, żeby objął też modale/portale
+  useEffect(() => {
+    document.documentElement.dataset.theme = room.settings.theme || 'classic';
+    return () => { delete document.documentElement.dataset.theme; };
+  }, [room.settings.theme]);
   const [selectedStatsToken, setSelectedStatsToken] = useState<string | null>(null);
   const [messages, setMessages] = useState<ChatMessage[]>(initialRoom.messages || []);
   const [unreadCount, setUnreadCount] = useState(0);
@@ -896,7 +902,7 @@ export function PokerTable({ initialRoom, mySessionToken, onLeave }: Props) {
         </div>
 
         {/* Variant bar */}
-        <div className="flex items-center justify-between border border-poker-gold/30 px-3 py-1.5 rounded-lg mb-2" style={{ background: 'rgba(212,175,55,0.08)' }}>
+        <div className="flex items-center justify-between border border-poker-gold/30 px-3 py-1.5 rounded-lg mb-2" style={{ background: 'rgba(var(--pk-gold-rgb),0.08)' }}>
           <div className="flex items-center gap-2 min-w-0">
             <span className="text-poker-gold/60 text-[9px] tracking-widest flex-shrink-0">NOW PLAYING</span>
             <span className="text-poker-gold text-xs font-medium truncate">{VARIANT_LABELS[currentVariant]}</span>
@@ -934,7 +940,7 @@ export function PokerTable({ initialRoom, mySessionToken, onLeave }: Props) {
         </div>
 
         {/* Table center */}
-        <div className="rounded-2xl p-4 my-2" style={{ background: `radial-gradient(ellipse at 50% 35%, ${tableColor}ee, ${tableColor}88 70%, ${tableColor}33)`, border: "2px solid rgba(212,175,55,0.15)" }}>
+        <div className="rounded-2xl p-4 my-2" style={{ background: `radial-gradient(ellipse at 50% 35%, ${tableColor}ee, ${tableColor}88 70%, ${tableColor}33)`, border: "2px solid rgba(var(--pk-gold-rgb),0.15)" }}>
           <p className="text-center text-[10px] text-poker-gold/70 tracking-widest mb-1">POT</p>
           <p className="text-center text-2xl text-poker-yellow font-medium mb-3">{gameState ? gameState.pot : 0}</p>
           <div className="flex justify-center gap-1">
@@ -1093,7 +1099,7 @@ export function PokerTable({ initialRoom, mySessionToken, onLeave }: Props) {
               onClick={handleShowHand}
               disabled={myHandShown}
               className="w-full text-xs font-medium py-1.5 px-3 rounded-lg border transition-colors"
-              style={{ background: myHandShown ? 'rgba(212,175,55,0.15)' : 'rgba(212,175,55,0.06)', borderColor: myHandShown ? 'rgba(212,175,55,0.4)' : 'rgba(212,175,55,0.2)', color: myHandShown ? '#d4af37' : 'rgba(245,230,192,0.6)', cursor: myHandShown ? 'default' : 'pointer' }}
+              style={{ background: myHandShown ? 'rgba(var(--pk-gold-rgb),0.15)' : 'rgba(var(--pk-gold-rgb),0.06)', borderColor: myHandShown ? 'rgba(var(--pk-gold-rgb),0.4)' : 'rgba(var(--pk-gold-rgb),0.2)', color: myHandShown ? 'rgb(var(--pk-gold-rgb))' : 'rgba(var(--pk-cream-rgb),0.6)', cursor: myHandShown ? 'default' : 'pointer' }}
             >
               {myHandShown ? '✓ Hand shown' : 'Show Hand'}
             </button>
@@ -1147,12 +1153,12 @@ export function PokerTable({ initialRoom, mySessionToken, onLeave }: Props) {
                 <span style={{ fontSize: 11, color: '#f59e0b' }}>⏳ Requested {me.chipRequest} chips</span>
                 <button
                   onClick={() => { getSocket().emit('game:cancel-chip-request', {}, () => {}); setChipRequestSent(false); }}
-                  style={{ fontSize: 10, color: 'rgba(245,230,192,0.4)', background: 'none', border: 'none', cursor: 'pointer', textDecoration: 'underline', padding: 0 }}
+                  style={{ fontSize: 10, color: 'rgba(var(--pk-cream-rgb),0.4)', background: 'none', border: 'none', cursor: 'pointer', textDecoration: 'underline', padding: 0 }}
                 >cancel</button>
               </div>
             ) : (
               <div style={{ display: 'flex', flexDirection: 'column', gap: 6, marginBottom: 6 }}>
-                <p style={{ fontSize: 11, color: 'rgba(245,230,192,0.5)', margin: 0 }}>Request chips from admin</p>
+                <p style={{ fontSize: 11, color: 'rgba(var(--pk-cream-rgb),0.5)', margin: 0 }}>Request chips from admin</p>
                 <div style={{ display: 'flex', gap: 6 }}>
                   {[100, 200, 400].map((amt) => (
                     <button
@@ -1160,9 +1166,9 @@ export function PokerTable({ initialRoom, mySessionToken, onLeave }: Props) {
                       onClick={() => setChipRequestAmount(amt)}
                       style={{
                         fontSize: 11, padding: '3px 10px', borderRadius: 8, cursor: 'pointer',
-                        background: chipRequestAmount === amt ? 'rgba(212,175,55,0.15)' : 'rgba(212,175,55,0.05)',
-                        border: `1px solid ${chipRequestAmount === amt ? 'rgba(212,175,55,0.6)' : 'rgba(212,175,55,0.2)'}`,
-                        color: chipRequestAmount === amt ? '#d4af37' : 'rgba(245,230,192,0.5)',
+                        background: chipRequestAmount === amt ? 'rgba(var(--pk-gold-rgb),0.15)' : 'rgba(var(--pk-gold-rgb),0.05)',
+                        border: `1px solid ${chipRequestAmount === amt ? 'rgba(var(--pk-gold-rgb),0.6)' : 'rgba(var(--pk-gold-rgb),0.2)'}`,
+                        color: chipRequestAmount === amt ? 'rgb(var(--pk-gold-rgb))' : 'rgba(var(--pk-cream-rgb),0.5)',
                       }}
                     >+{amt}</button>
                   ))}
@@ -1173,7 +1179,7 @@ export function PokerTable({ initialRoom, mySessionToken, onLeave }: Props) {
                       if (res.ok) setChipRequestSent(true);
                     });
                   }}
-                  style={{ fontSize: 12, padding: '6px 14px', borderRadius: 8, cursor: 'pointer', background: 'rgba(212,175,55,0.1)', border: '1px solid rgba(212,175,55,0.4)', color: '#d4af37' }}
+                  style={{ fontSize: 12, padding: '6px 14px', borderRadius: 8, cursor: 'pointer', background: 'rgba(var(--pk-gold-rgb),0.1)', border: '1px solid rgba(var(--pk-gold-rgb),0.4)', color: 'rgb(var(--pk-gold-rgb))' }}
                 >
                   Request {chipRequestAmount} chips
                 </button>

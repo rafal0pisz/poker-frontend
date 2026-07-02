@@ -359,7 +359,7 @@ export function ActionPanel({ me, gameState, settings, players }: Props) {
             className="h-1 rounded-full"
             style={{
               width: `${Math.min(100, (secondsLeft / settings.actionTimeoutSec) * 100)}%`,
-              background: secondsLeft > 10 ? '#d4af37' : secondsLeft > 5 ? '#e07b39' : '#e05050',
+              background: secondsLeft > 10 ? 'rgb(var(--pk-gold-rgb))' : secondsLeft > 5 ? '#e07b39' : '#e05050',
               transition: 'width 0.9s linear, background 0.3s',
             }}
           />

@@ -88,7 +88,7 @@ export function ChatModal({ messages, mySessionToken, room, onClose, handLogs }:
         {/* Header */}
         <div className="flex items-center justify-between px-4 pt-4 pb-2 flex-shrink-0">
           <h2 className="font-serif italic text-xl text-poker-gold">Messages</h2>
-          <button onClick={onClose} className="text-poker-yellow/60 hover:text-poker-yellow leading-none flex items-center justify-center" style={{ fontSize: 28, width: 44, height: 44, borderRadius: 10, background: "rgba(212,175,55,0.08)" }}>×</button>
+          <button onClick={onClose} className="text-poker-yellow/60 hover:text-poker-yellow leading-none flex items-center justify-center" style={{ fontSize: 28, width: 44, height: 44, borderRadius: 10, background: "rgba(var(--pk-gold-rgb),0.08)" }}>×</button>
         </div>
 
         {/* Tabs */}
@@ -142,7 +142,7 @@ export function ChatModal({ messages, mySessionToken, room, onClose, handLogs }:
                           ? 'border-poker-gold/40 bg-poker-gold/8'
                           : 'border-poker-gold/15 bg-poker-yellow/5'
                       }`}
-                      style={isMe ? { background: 'rgba(212,175,55,0.08)' } : undefined}
+                      style={isMe ? { background: 'rgba(var(--pk-gold-rgb),0.08)' } : undefined}
                     >
                       <div className="flex items-center justify-between">
                         <div className="flex items-center gap-2">
@@ -207,7 +207,7 @@ export function ChatModal({ messages, mySessionToken, room, onClose, handLogs }:
                 [...(actionEntries ?? [])].reverse().map((e) => (
                   <p key={e.id} style={{
                     fontSize: 11,
-                    color: e.highlight ? '#d4af37' : e.type === 'result' ? '#f5e6c0' : e.type === 'phase' ? 'rgba(212,175,55,0.7)' : 'rgba(245,230,192,0.45)',
+                    color: e.highlight ? 'rgb(var(--pk-gold-rgb))' : e.type === 'result' ? 'rgb(var(--pk-cream-rgb))' : e.type === 'phase' ? 'rgba(var(--pk-gold-rgb),0.7)' : 'rgba(var(--pk-cream-rgb),0.45)',
                     fontWeight: e.highlight ? 500 : 400,
                     textAlign: (e.type === 'phase' || e.type === 'system') ? 'center' : 'left',
                     fontStyle: e.type === 'system' ? 'italic' : 'normal',

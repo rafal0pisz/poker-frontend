@@ -29,13 +29,13 @@ export default function ZasadyPage() {
       <main style={{ padding: '3rem 0 4rem' }}>
         <div className="container">
           <div style={{ marginBottom: '0.5rem' }}>
-            <Link href="/" style={{ fontSize: '0.85rem', color: 'rgba(245,230,192,0.4)' }}>Strona główna</Link>
-            <span style={{ color: 'rgba(245,230,192,0.2)', margin: '0 0.5rem' }}>›</span>
-            <span style={{ fontSize: '0.85rem', color: 'rgba(245,230,192,0.6)' }}>Zasady gry</span>
+            <Link href="/" style={{ fontSize: '0.85rem', color: 'rgba(var(--pk-cream-rgb),0.4)' }}>Strona główna</Link>
+            <span style={{ color: 'rgba(var(--pk-cream-rgb),0.2)', margin: '0 0.5rem' }}>›</span>
+            <span style={{ fontSize: '0.85rem', color: 'rgba(var(--pk-cream-rgb),0.6)' }}>Zasady gry</span>
           </div>
 
           <h1 style={{ fontSize: '2rem', margin: '1.5rem 0 0.75rem' }}>Zasady gry w pokera</h1>
-          <p style={{ color: 'rgba(245,230,192,0.6)', fontSize: '1.05rem', maxWidth: 580, marginBottom: '2.5rem' }}>
+          <p style={{ color: 'rgba(var(--pk-cream-rgb),0.6)', fontSize: '1.05rem', maxWidth: 580, marginBottom: '2.5rem' }}>
             Wszystko co musisz wiedzieć żeby zacząć grać. Wybierz wariant który Cię interesuje lub zacznij od układów kart.
           </p>
 
@@ -47,19 +47,19 @@ export default function ZasadyPage() {
                   <div style={{ fontSize: '2rem', lineHeight: 1, flexShrink: 0, marginTop: '0.1rem' }}>{v.icon}</div>
                   <div style={{ flex: 1 }}>
                     <div style={{ display: 'flex', alignItems: 'baseline', gap: '0.75rem', flexWrap: 'wrap' }}>
-                      <h2 style={{ fontSize: '1.05rem', margin: 0, color: '#d4af37' }}>{v.name}</h2>
+                      <h2 style={{ fontSize: '1.05rem', margin: 0, color: 'rgb(var(--pk-gold-rgb))' }}>{v.name}</h2>
                       <span className="badge">{v.sub}</span>
                     </div>
-                    <p style={{ margin: '0.4rem 0 0', fontSize: '0.9rem', color: 'rgba(245,230,192,0.55)' }}>{v.desc}</p>
+                    <p style={{ margin: '0.4rem 0 0', fontSize: '0.9rem', color: 'rgba(var(--pk-cream-rgb),0.55)' }}>{v.desc}</p>
                   </div>
-                  <span style={{ color: '#d4af37', flexShrink: 0, alignSelf: 'center' }}>→</span>
+                  <span style={{ color: 'rgb(var(--pk-gold-rgb))', flexShrink: 0, alignSelf: 'center' }}>→</span>
                 </div>
               </Link>
             ))}
           </div>
 
           <div className="card" style={{ marginTop: '2.5rem', textAlign: 'center', padding: '2rem' }}>
-            <p style={{ color: 'rgba(245,230,192,0.6)', marginBottom: '1.25rem' }}>Znasz zasady? Czas zagrać.</p>
+            <p style={{ color: 'rgba(var(--pk-cream-rgb),0.6)', marginBottom: '1.25rem' }}>Znasz zasady? Czas zagrać.</p>
             <Link href="/" className="btn-primary">🎰 Zagraj teraz — za darmo</Link>
           </div>
         </div>

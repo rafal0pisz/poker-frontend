@@ -38,7 +38,7 @@ function Hand({ cards, label, winner }: {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6 }}>
       {label && (
-        <span style={{ fontSize: '0.78rem', color: winner ? '#d4af37' : 'rgba(245,230,192,0.45)', fontWeight: winner ? 700 : 400 }}>
+        <span style={{ fontSize: '0.78rem', color: winner ? 'rgb(var(--pk-gold-rgb))' : 'rgba(var(--pk-cream-rgb),0.45)', fontWeight: winner ? 700 : 400 }}>
           {label}
         </span>
       )}
@@ -48,9 +48,9 @@ function Hand({ cards, label, winner }: {
       {winner !== undefined && (
         <span style={{
           fontSize: '0.75rem', fontWeight: 700, padding: '2px 8px', borderRadius: 12,
-          background: winner ? 'rgba(212,175,55,0.2)' : 'rgba(180,60,60,0.15)',
-          color: winner ? '#d4af37' : '#e07070',
-          border: `1px solid ${winner ? 'rgba(212,175,55,0.4)' : 'rgba(180,60,60,0.3)'}`,
+          background: winner ? 'rgba(var(--pk-gold-rgb),0.2)' : 'rgba(180,60,60,0.15)',
+          color: winner ? 'rgb(var(--pk-gold-rgb))' : '#e07070',
+          border: `1px solid ${winner ? 'rgba(var(--pk-gold-rgb),0.4)' : 'rgba(180,60,60,0.3)'}`,
         }}>
           {winner ? '✓ Wygrywa' : '✗ Przegrywa'}
         </span>
@@ -67,15 +67,15 @@ function Vs({ left, right, note }: {
 }) {
   return (
     <div style={{
-      background: 'rgba(30,20,10,0.45)', border: '1px solid rgba(212,175,55,0.15)',
+      background: 'rgba(30,20,10,0.45)', border: '1px solid rgba(var(--pk-gold-rgb),0.15)',
       borderRadius: 12, padding: '1.25rem 1rem', marginBottom: '1rem',
     }}>
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '1.5rem', flexWrap: 'wrap' }}>
         <Hand cards={left.cards} label={left.label} winner={left.wins} />
-        <span style={{ color: 'rgba(245,230,192,0.3)', fontSize: '1.5rem', fontWeight: 300 }}>vs</span>
+        <span style={{ color: 'rgba(var(--pk-cream-rgb),0.3)', fontSize: '1.5rem', fontWeight: 300 }}>vs</span>
         <Hand cards={right.cards} label={right.label} winner={right.wins} />
       </div>
-      {note && <p style={{ textAlign: 'center', margin: '0.75rem 0 0', fontSize: '0.82rem', color: 'rgba(245,230,192,0.5)' }}>{note}</p>}
+      {note && <p style={{ textAlign: 'center', margin: '0.75rem 0 0', fontSize: '0.82rem', color: 'rgba(var(--pk-cream-rgb),0.5)' }}>{note}</p>}
     </div>
   );
 }
@@ -98,14 +98,14 @@ function PokerTable() {
         </g>
       ))}
       {/* HIGH label top */}
-      <text x="80" y="80" textAnchor="middle" fill="#d4af37" fontSize="11" fontWeight="bold">HIGH</text>
-      <text x="80" y="94" textAnchor="middle" fill="rgba(245,230,192,0.4)" fontSize="9">najlepsza ręka</text>
+      <text x="80" y="80" textAnchor="middle" fill="rgb(var(--pk-gold-rgb))" fontSize="11" fontWeight="bold">HIGH</text>
+      <text x="80" y="94" textAnchor="middle" fill="rgba(var(--pk-cream-rgb),0.4)" fontSize="9">najlepsza ręka</text>
       {/* LOW label top */}
       <text x="440" y="80" textAnchor="middle" fill="#7ec8e3" fontSize="11" fontWeight="bold">LOW</text>
-      <text x="440" y="94" textAnchor="middle" fill="rgba(245,230,192,0.4)" fontSize="9">najgorsza ręka</text>
+      <text x="440" y="94" textAnchor="middle" fill="rgba(var(--pk-cream-rgb),0.4)" fontSize="9">najgorsza ręka</text>
       {/* Arrow left */}
-      <text x="260" y="60" textAnchor="middle" fill="rgba(245,230,192,0.5)" fontSize="10">½ puli → High winner</text>
-      <text x="260" y="75" textAnchor="middle" fill="rgba(245,230,192,0.5)" fontSize="10">½ puli → Low winner</text>
+      <text x="260" y="60" textAnchor="middle" fill="rgba(var(--pk-cream-rgb),0.5)" fontSize="10">½ puli → High winner</text>
+      <text x="260" y="75" textAnchor="middle" fill="rgba(var(--pk-cream-rgb),0.5)" fontSize="10">½ puli → Low winner</text>
     </svg>
   );
 }
@@ -119,24 +119,24 @@ export default function OmahaHiLoPage() {
 
           {/* Breadcrumb */}
           <div style={{ marginBottom: '0.5rem' }}>
-            <Link href="/pl/" style={{ fontSize: '0.85rem', color: 'rgba(245,230,192,0.4)' }}>Strona główna</Link>
-            <span style={{ color: 'rgba(245,230,192,0.2)', margin: '0 0.5rem' }}>›</span>
-            <Link href="/zasady/" style={{ fontSize: '0.85rem', color: 'rgba(245,230,192,0.4)' }}>Zasady gry</Link>
-            <span style={{ color: 'rgba(245,230,192,0.2)', margin: '0 0.5rem' }}>›</span>
-            <span style={{ fontSize: '0.85rem', color: 'rgba(245,230,192,0.6)' }}>Omaha Hi-Lo</span>
+            <Link href="/pl/" style={{ fontSize: '0.85rem', color: 'rgba(var(--pk-cream-rgb),0.4)' }}>Strona główna</Link>
+            <span style={{ color: 'rgba(var(--pk-cream-rgb),0.2)', margin: '0 0.5rem' }}>›</span>
+            <Link href="/zasady/" style={{ fontSize: '0.85rem', color: 'rgba(var(--pk-cream-rgb),0.4)' }}>Zasady gry</Link>
+            <span style={{ color: 'rgba(var(--pk-cream-rgb),0.2)', margin: '0 0.5rem' }}>›</span>
+            <span style={{ fontSize: '0.85rem', color: 'rgba(var(--pk-cream-rgb),0.6)' }}>Omaha Hi-Lo</span>
           </div>
 
           {/* Hero */}
           <div style={{ marginTop: '1.5rem', marginBottom: '2rem' }}>
             <span className="badge" style={{ marginBottom: '1rem', display: 'inline-block' }}>4 karty · split pot · 8 or better</span>
             <h1 style={{ fontSize: 'clamp(1.75rem, 4vw, 2.5rem)', marginBottom: '1rem' }}>Zasady Omaha Hi-Lo</h1>
-            <p style={{ fontSize: '1.05rem', color: 'rgba(245,230,192,0.65)', maxWidth: 640 }}>
+            <p style={{ fontSize: '1.05rem', color: 'rgba(var(--pk-cream-rgb),0.65)', maxWidth: 640 }}>
               Omaha Hi-Lo (zwana też Omaha 8-or-Better) to wariant, w którym <strong>pula dzielona jest na pół</strong> — połowa trafia do gracza z <em>najlepszą</em> ręką (High), połowa do gracza z <em>najlepszą kwalifikującą się</em> ręką Low. Możesz wygrać obie połowy — to <strong>scoop</strong>.
             </p>
           </div>
 
           {/* Table graphic */}
-          <div style={{ marginBottom: '2.5rem', padding: '1.5rem', background: 'rgba(0,0,0,0.3)', borderRadius: 16, border: '1px solid rgba(212,175,55,0.1)' }}>
+          <div style={{ marginBottom: '2.5rem', padding: '1.5rem', background: 'rgba(0,0,0,0.3)', borderRadius: 16, border: '1px solid rgba(var(--pk-gold-rgb),0.1)' }}>
             <PokerTable />
           </div>
 
@@ -155,7 +155,7 @@ export default function OmahaHiLoPage() {
 
           {/* Top 5 best hands */}
           <div style={{ margin: '2rem 0' }}>
-            <h2 style={{ fontSize: '1.3rem', marginBottom: '1rem', color: '#d4af37' }}>5 najlepszych rąk Low</h2>
+            <h2 style={{ fontSize: '1.3rem', marginBottom: '1rem', color: 'rgb(var(--pk-gold-rgb))' }}>5 najlepszych rąk Low</h2>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '0.6rem' }}>
               {([
                 { rank: '🥇 #1', cards: [['A','♠'],['2','♥'],['3','♦'],['4','♣'],['5','♠']], note: 'Wheel / Bicykl — najlepsza możliwa + straight do High!' },
@@ -164,17 +164,17 @@ export default function OmahaHiLoPage() {
                 { rank: '#4',   cards: [['A','♠'],['2','♥'],['4','♦'],['5','♣'],['6','♠']], note: 'Najwyższa: 6' },
                 { rank: '#5',   cards: [['A','♠'],['3','♥'],['4','♦'],['5','♣'],['6','♠']], note: 'Najwyższa: 6 — wszystkie pięć rąk z najwyższą 6 jest lepszych niż cokolwiek 7-wysokiego' },
               ] as { rank: string; cards: [string, '♠'|'♥'|'♦'|'♣'][], note: string }[]).map(({ rank, cards, note }) => (
-                <div key={rank} style={{ display: 'flex', alignItems: 'center', gap: '1rem', background: 'rgba(212,175,55,0.05)', border: '1px solid rgba(212,175,55,0.12)', borderRadius: 10, padding: '0.6rem 1rem', flexWrap: 'wrap' }}>
-                  <span style={{ width: 42, fontSize: '0.85rem', color: '#d4af37', fontWeight: 700, flexShrink: 0 }}>{rank}</span>
+                <div key={rank} style={{ display: 'flex', alignItems: 'center', gap: '1rem', background: 'rgba(var(--pk-gold-rgb),0.05)', border: '1px solid rgba(var(--pk-gold-rgb),0.12)', borderRadius: 10, padding: '0.6rem 1rem', flexWrap: 'wrap' }}>
+                  <span style={{ width: 42, fontSize: '0.85rem', color: 'rgb(var(--pk-gold-rgb))', fontWeight: 700, flexShrink: 0 }}>{rank}</span>
                   <div style={{ display: 'flex' }}>
                     {cards.map(([v, s], i) => <Card key={i} value={v} suit={s as '♠'|'♥'|'♦'|'♣'} />)}
                   </div>
-                  {note && <span style={{ fontSize: '0.8rem', color: 'rgba(245,230,192,0.45)', fontStyle: 'italic' }}>{note}</span>}
+                  {note && <span style={{ fontSize: '0.8rem', color: 'rgba(var(--pk-cream-rgb),0.45)', fontStyle: 'italic' }}>{note}</span>}
                 </div>
               ))}
             </div>
-            <p style={{ marginTop: '0.75rem', fontSize: '0.85rem', color: 'rgba(245,230,192,0.4)' }}>
-              Najgorsza kwalifikująca się ręka Low: <strong style={{ color: 'rgba(245,230,192,0.7)' }}>8-7-6-5-4</strong> (wszystkie maksymalne dozwolone wartości)
+            <p style={{ marginTop: '0.75rem', fontSize: '0.85rem', color: 'rgba(var(--pk-cream-rgb),0.4)' }}>
+              Najgorsza kwalifikująca się ręka Low: <strong style={{ color: 'rgba(var(--pk-cream-rgb),0.7)' }}>8-7-6-5-4</strong> (wszystkie maksymalne dozwolone wartości)
             </p>
           </div>
 
@@ -185,7 +185,7 @@ export default function OmahaHiLoPage() {
 
           {/* Visual comparisons */}
           <div style={{ margin: '1.5rem 0' }}>
-            <h3 style={{ fontSize: '1.1rem', marginBottom: '1rem', color: 'rgba(245,230,192,0.8)' }}>Przykłady porównań</h3>
+            <h3 style={{ fontSize: '1.1rem', marginBottom: '1rem', color: 'rgba(var(--pk-cream-rgb),0.8)' }}>Przykłady porównań</h3>
 
             <Vs
               left={{ cards: [['A','♠'],['2','♥'],['3','♦'],['4','♣'],['5','♠']], label: 'A-2-3-4-5', wins: true }}
@@ -262,9 +262,9 @@ export default function OmahaHiLoPage() {
             <Link href="/" className="btn-primary">Zagraj teraz</Link>
           </div>
 
-          <div style={{ marginTop: '2rem', padding: '1.25rem', background: 'rgba(212,175,55,0.06)', border: '1px solid rgba(212,175,55,0.15)', borderRadius: 12 }}>
-            <p style={{ margin: 0, fontSize: '0.9rem', color: 'rgba(245,230,192,0.5)' }}>
-              <strong style={{ color: '#d4af37' }}>Inne warianty:</strong>{' '}
+          <div style={{ marginTop: '2rem', padding: '1.25rem', background: 'rgba(var(--pk-gold-rgb),0.06)', border: '1px solid rgba(var(--pk-gold-rgb),0.15)', borderRadius: 12 }}>
+            <p style={{ margin: 0, fontSize: '0.9rem', color: 'rgba(var(--pk-cream-rgb),0.5)' }}>
+              <strong style={{ color: 'rgb(var(--pk-gold-rgb))' }}>Inne warianty:</strong>{' '}
               <Link href="/zasady/texas-holdem/">Texas Hold&apos;em</Link> ·{' '}
               <Link href="/zasady/omaha/">Omaha</Link> ·{' '}
               <Link href="/zasady/omaha-5-kartowa/">Omaha 5-kartowa</Link> ·{' '}

@@ -16,17 +16,17 @@ export default function TexasHoldemPage() {
       <main style={{ padding: '3rem 0 4rem' }}>
         <div className="container">
           <div style={{ marginBottom: '0.5rem' }}>
-            <Link href="/pl/" style={{ fontSize: '0.85rem', color: 'rgba(245,230,192,0.4)' }}>Strona główna</Link>
-            <span style={{ color: 'rgba(245,230,192,0.2)', margin: '0 0.5rem' }}>›</span>
-            <Link href="/zasady/" style={{ fontSize: '0.85rem', color: 'rgba(245,230,192,0.4)' }}>Zasady gry</Link>
-            <span style={{ color: 'rgba(245,230,192,0.2)', margin: '0 0.5rem' }}>›</span>
-            <span style={{ fontSize: '0.85rem', color: 'rgba(245,230,192,0.6)' }}>Texas Hold&apos;em</span>
+            <Link href="/pl/" style={{ fontSize: '0.85rem', color: 'rgba(var(--pk-cream-rgb),0.4)' }}>Strona główna</Link>
+            <span style={{ color: 'rgba(var(--pk-cream-rgb),0.2)', margin: '0 0.5rem' }}>›</span>
+            <Link href="/zasady/" style={{ fontSize: '0.85rem', color: 'rgba(var(--pk-cream-rgb),0.4)' }}>Zasady gry</Link>
+            <span style={{ color: 'rgba(var(--pk-cream-rgb),0.2)', margin: '0 0.5rem' }}>›</span>
+            <span style={{ fontSize: '0.85rem', color: 'rgba(var(--pk-cream-rgb),0.6)' }}>Texas Hold&apos;em</span>
           </div>
 
           <div style={{ marginTop: '1.5rem', marginBottom: '2.5rem' }}>
             <span className="badge" style={{ marginBottom: '1rem', display: 'inline-block' }}>2 karty · 5 wspólnych · najlepsza 5-kartowa ręka</span>
             <h1 style={{ fontSize: 'clamp(1.75rem, 4vw, 2.5rem)', marginBottom: '1rem' }}>Zasady Texas Hold&apos;em</h1>
-            <p style={{ fontSize: '1.05rem', color: 'rgba(245,230,192,0.65)', maxWidth: 640 }}>
+            <p style={{ fontSize: '1.05rem', color: 'rgba(var(--pk-cream-rgb),0.65)', maxWidth: 640 }}>
               Texas Hold&apos;em to najpopularniejsza forma pokera na świecie — ta sama którą widzisz w World Series of Poker i w kasynach online. Każdy gracz dostaje 2 karty zakryte i łączy je z 5 kartami wspólnymi na stole, by zbudować najlepszą 5-kartową rękę.
             </p>
           </div>
@@ -106,9 +106,9 @@ export default function TexasHoldemPage() {
             <Link href="/" className="btn-primary">Zagraj teraz</Link>
           </div>
 
-          <div style={{ marginTop: '2rem', padding: '1.25rem', background: 'rgba(212,175,55,0.06)', border: '1px solid rgba(212,175,55,0.15)', borderRadius: 12 }}>
-            <p style={{ margin: 0, fontSize: '0.9rem', color: 'rgba(245,230,192,0.5)' }}>
-              <strong style={{ color: '#d4af37' }}>Inne warianty:</strong>{' '}
+          <div style={{ marginTop: '2rem', padding: '1.25rem', background: 'rgba(var(--pk-gold-rgb),0.06)', border: '1px solid rgba(var(--pk-gold-rgb),0.15)', borderRadius: 12 }}>
+            <p style={{ margin: 0, fontSize: '0.9rem', color: 'rgba(var(--pk-cream-rgb),0.5)' }}>
+              <strong style={{ color: 'rgb(var(--pk-gold-rgb))' }}>Inne warianty:</strong>{' '}
               <Link href="/zasady/omaha/">Omaha</Link> ·{' '}
               <Link href="/zasady/omaha-pot-limit/">Omaha Pot Limit</Link> ·{' '}
               <Link href="/zasady/crazy-pineapple/">Crazy Pineapple</Link> ·{' '}

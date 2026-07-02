@@ -16,17 +16,17 @@ export default function OmahaPage() {
       <main style={{ padding: '3rem 0 4rem' }}>
         <div className="container">
           <div style={{ marginBottom: '0.5rem' }}>
-            <Link href="/pl/" style={{ fontSize: '0.85rem', color: 'rgba(245,230,192,0.4)' }}>Strona główna</Link>
-            <span style={{ color: 'rgba(245,230,192,0.2)', margin: '0 0.5rem' }}>›</span>
-            <Link href="/zasady/" style={{ fontSize: '0.85rem', color: 'rgba(245,230,192,0.4)' }}>Zasady gry</Link>
-            <span style={{ color: 'rgba(245,230,192,0.2)', margin: '0 0.5rem' }}>›</span>
-            <span style={{ fontSize: '0.85rem', color: 'rgba(245,230,192,0.6)' }}>Omaha</span>
+            <Link href="/pl/" style={{ fontSize: '0.85rem', color: 'rgba(var(--pk-cream-rgb),0.4)' }}>Strona główna</Link>
+            <span style={{ color: 'rgba(var(--pk-cream-rgb),0.2)', margin: '0 0.5rem' }}>›</span>
+            <Link href="/zasady/" style={{ fontSize: '0.85rem', color: 'rgba(var(--pk-cream-rgb),0.4)' }}>Zasady gry</Link>
+            <span style={{ color: 'rgba(var(--pk-cream-rgb),0.2)', margin: '0 0.5rem' }}>›</span>
+            <span style={{ fontSize: '0.85rem', color: 'rgba(var(--pk-cream-rgb),0.6)' }}>Omaha</span>
           </div>
 
           <div style={{ marginTop: '1.5rem', marginBottom: '2.5rem' }}>
             <span className="badge" style={{ marginBottom: '1rem', display: 'inline-block' }}>4 karty · dokładnie 2+3 · silniejsze układy</span>
             <h1 style={{ fontSize: 'clamp(1.75rem, 4vw, 2.5rem)', marginBottom: '1rem' }}>Zasady Omaha</h1>
-            <p style={{ fontSize: '1.05rem', color: 'rgba(245,230,192,0.65)', maxWidth: 640 }}>
+            <p style={{ fontSize: '1.05rem', color: 'rgba(var(--pk-cream-rgb),0.65)', maxWidth: 640 }}>
               Omaha to drugi co do popularności wariant pokera. Wygląda jak Texas Hold&apos;em — te same rundy licytacji, te same 5 kart wspólnych — ale każdy gracz dostaje <strong>4 karty</strong> zamiast 2, z obowiązkiem użycia dokładnie 2 z nich i dokładnie 3 ze stołu. Ta jedna zasada zmienia wszystko.
             </p>
           </div>
@@ -90,9 +90,9 @@ export default function OmahaPage() {
             <Link href="/" className="btn-primary">Zagraj teraz</Link>
           </div>
 
-          <div style={{ marginTop: '2rem', padding: '1.25rem', background: 'rgba(212,175,55,0.06)', border: '1px solid rgba(212,175,55,0.15)', borderRadius: 12 }}>
-            <p style={{ margin: 0, fontSize: '0.9rem', color: 'rgba(245,230,192,0.5)' }}>
-              <strong style={{ color: '#d4af37' }}>Inne warianty:</strong>{' '}
+          <div style={{ marginTop: '2rem', padding: '1.25rem', background: 'rgba(var(--pk-gold-rgb),0.06)', border: '1px solid rgba(var(--pk-gold-rgb),0.15)', borderRadius: 12 }}>
+            <p style={{ margin: 0, fontSize: '0.9rem', color: 'rgba(var(--pk-cream-rgb),0.5)' }}>
+              <strong style={{ color: 'rgb(var(--pk-gold-rgb))' }}>Inne warianty:</strong>{' '}
               <Link href="/zasady/texas-holdem/">Texas Hold&apos;em</Link> ·{' '}
               <Link href="/zasady/omaha-pot-limit/">Omaha Pot Limit</Link> ·{' '}
               <Link href="/zasady/crazy-pineapple/">Crazy Pineapple</Link> ·{' '}

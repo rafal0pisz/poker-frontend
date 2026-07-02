@@ -20,7 +20,7 @@ export default function InstallPage() {
             <h1 style={{ fontSize: 'clamp(1.5rem, 4vw, 2.2rem)', marginBottom: '0.75rem' }}>
               Zainstaluj Pokero na telefonie
             </h1>
-            <p style={{ color: 'rgba(245,230,192,0.65)', lineHeight: 1.7 }}>
+            <p style={{ color: 'rgba(var(--pk-cream-rgb),0.65)', lineHeight: 1.7 }}>
               Pokero działa jako aplikacja (PWA) — dodaj ją do ekranu głównego i uruchamiaj jak normalną appkę, bez paska przeglądarki i bez pobierania czegokolwiek z App Store.
             </p>
           </div>
@@ -28,7 +28,7 @@ export default function InstallPage() {
           <div className="prose">
 
             {/* iOS */}
-            <div style={{ background: 'rgba(212,175,55,0.06)', border: '1px solid rgba(212,175,55,0.15)', borderRadius: 12, padding: '1.25rem', marginBottom: '1.5rem' }}>
+            <div style={{ background: 'rgba(var(--pk-gold-rgb),0.06)', border: '1px solid rgba(var(--pk-gold-rgb),0.15)', borderRadius: 12, padding: '1.25rem', marginBottom: '1.5rem' }}>
               <h2 style={{ marginTop: 0 }}>iPhone / iPad (Safari)</h2>
               <ol style={{ paddingLeft: '1.25rem' }}>
                 <li>Otwórz <strong>pokero.pl</strong> w przeglądarce <strong>Safari</strong> (inne przeglądarki na iOS nie obsługują PWA)</li>
@@ -37,13 +37,13 @@ export default function InstallPage() {
                 <li>Wpisz nazwę (domyślnie &quot;Pokero&quot;) i kliknij <strong>&quot;Dodaj&quot;</strong></li>
                 <li>Ikona pojawi się na ekranie głównym — uruchamiaj jak normalną aplikację</li>
               </ol>
-              <p style={{ fontSize: '0.85rem', color: 'rgba(245,230,192,0.45)', marginBottom: 0 }}>
+              <p style={{ fontSize: '0.85rem', color: 'rgba(var(--pk-cream-rgb),0.45)', marginBottom: 0 }}>
                 Wymagany iOS 14+ i Safari. Chrome/Firefox na iOS nie obsługują instalacji PWA.
               </p>
             </div>
 
             {/* Android */}
-            <div style={{ background: 'rgba(212,175,55,0.06)', border: '1px solid rgba(212,175,55,0.15)', borderRadius: 12, padding: '1.25rem', marginBottom: '1.5rem' }}>
+            <div style={{ background: 'rgba(var(--pk-gold-rgb),0.06)', border: '1px solid rgba(var(--pk-gold-rgb),0.15)', borderRadius: 12, padding: '1.25rem', marginBottom: '1.5rem' }}>
               <h2 style={{ marginTop: 0 }}>Android (Chrome)</h2>
               <ol style={{ paddingLeft: '1.25rem' }}>
                 <li>Otwórz <strong>pokero.pl</strong> w przeglądarce <strong>Chrome</strong></li>
@@ -52,13 +52,13 @@ export default function InstallPage() {
                 <li>Potwierdź klikając <strong>&quot;Zainstaluj&quot;</strong></li>
                 <li>Pokero pojawi się na ekranie głównym i w szufladzie aplikacji</li>
               </ol>
-              <p style={{ fontSize: '0.85rem', color: 'rgba(245,230,192,0.45)', marginBottom: 0 }}>
+              <p style={{ fontSize: '0.85rem', color: 'rgba(var(--pk-cream-rgb),0.45)', marginBottom: 0 }}>
                 Na niektórych Androidach pojawia się automatyczny baner &quot;Zainstaluj Pokero&quot; po odwiedzeniu strony.
               </p>
             </div>
 
             {/* Desktop */}
-            <div style={{ background: 'rgba(212,175,55,0.06)', border: '1px solid rgba(212,175,55,0.15)', borderRadius: 12, padding: '1.25rem', marginBottom: '2rem' }}>
+            <div style={{ background: 'rgba(var(--pk-gold-rgb),0.06)', border: '1px solid rgba(var(--pk-gold-rgb),0.15)', borderRadius: 12, padding: '1.25rem', marginBottom: '2rem' }}>
               <h2 style={{ marginTop: 0 }}>Komputer (Chrome / Edge)</h2>
               <ol style={{ paddingLeft: '1.25rem' }}>
                 <li>Otwórz <strong>pokero.pl</strong> w Chrome lub Edge</li>

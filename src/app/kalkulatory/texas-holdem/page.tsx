@@ -25,11 +25,11 @@ export default function TexasCalculatorPage() {
 
           {/* Breadcrumb */}
           <div style={{ marginBottom: '0.5rem' }}>
-            <Link href="/pl/" style={{ fontSize: '0.85rem', color: 'rgba(245,230,192,0.4)' }}>Strona główna</Link>
-            <span style={{ color: 'rgba(245,230,192,0.2)', margin: '0 0.5rem' }}>›</span>
-            <Link href="/kalkulatory/" style={{ fontSize: '0.85rem', color: 'rgba(245,230,192,0.4)' }}>Kalkulatory</Link>
-            <span style={{ color: 'rgba(245,230,192,0.2)', margin: '0 0.5rem' }}>›</span>
-            <span style={{ fontSize: '0.85rem', color: 'rgba(245,230,192,0.6)' }}>Texas Hold&apos;em</span>
+            <Link href="/pl/" style={{ fontSize: '0.85rem', color: 'rgba(var(--pk-cream-rgb),0.4)' }}>Strona główna</Link>
+            <span style={{ color: 'rgba(var(--pk-cream-rgb),0.2)', margin: '0 0.5rem' }}>›</span>
+            <Link href="/kalkulatory/" style={{ fontSize: '0.85rem', color: 'rgba(var(--pk-cream-rgb),0.4)' }}>Kalkulatory</Link>
+            <span style={{ color: 'rgba(var(--pk-cream-rgb),0.2)', margin: '0 0.5rem' }}>›</span>
+            <span style={{ fontSize: '0.85rem', color: 'rgba(var(--pk-cream-rgb),0.6)' }}>Texas Hold&apos;em</span>
           </div>
 
           <div style={{ marginTop: '1.5rem', marginBottom: '2rem' }}>
@@ -37,7 +37,7 @@ export default function TexasCalculatorPage() {
             <h1 style={{ fontSize: 'clamp(1.75rem, 4vw, 2.5rem)', marginBottom: '0.75rem' }}>
               Kalkulator szans — Texas Hold&apos;em
             </h1>
-            <p style={{ fontSize: '1.05rem', color: 'rgba(245,230,192,0.65)', maxWidth: 600 }}>
+            <p style={{ fontSize: '1.05rem', color: 'rgba(var(--pk-cream-rgb),0.65)', maxWidth: 600 }}>
               Wybierz swoje karty, ustaw liczbę rywali i opcjonalnie dodaj karty wspólne.
               Kalkulator pokaże Ci szanse na wygraną oparte na symulacji 5000 rozdań.
             </p>
@@ -145,9 +145,9 @@ export default function TexasCalculatorPage() {
             }}
           />
 
-          <div style={{ marginTop: '2rem', padding: '1.25rem', background: 'rgba(212,175,55,0.06)', border: '1px solid rgba(212,175,55,0.15)', borderRadius: 12 }}>
-            <p style={{ margin: 0, fontSize: '0.9rem', color: 'rgba(245,230,192,0.5)' }}>
-              <strong style={{ color: '#d4af37' }}>Powiązane:</strong>{' '}
+          <div style={{ marginTop: '2rem', padding: '1.25rem', background: 'rgba(var(--pk-gold-rgb),0.06)', border: '1px solid rgba(var(--pk-gold-rgb),0.15)', borderRadius: 12 }}>
+            <p style={{ margin: 0, fontSize: '0.9rem', color: 'rgba(var(--pk-cream-rgb),0.5)' }}>
+              <strong style={{ color: 'rgb(var(--pk-gold-rgb))' }}>Powiązane:</strong>{' '}
               <Link href="/zasady/texas-holdem/">Zasady Texas Hold&apos;em</Link> ·{' '}
               <Link href="/zasady/uklady-kart/">Układy kart</Link> ·{' '}
               <Link href="/blog/jak-blefowac-w-pokerze/">Jak blefować</Link> ·{' '}

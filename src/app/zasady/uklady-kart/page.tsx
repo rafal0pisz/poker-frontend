@@ -29,16 +29,16 @@ export default function UkladyKartPage() {
       <main style={{ padding: '3rem 0 4rem' }}>
         <div className="container">
           <div style={{ marginBottom: '0.5rem' }}>
-            <Link href="/" style={{ fontSize: '0.85rem', color: 'rgba(245,230,192,0.4)' }}>Strona główna</Link>
-            <span style={{ color: 'rgba(245,230,192,0.2)', margin: '0 0.5rem' }}>›</span>
-            <Link href="/zasady/" style={{ fontSize: '0.85rem', color: 'rgba(245,230,192,0.4)' }}>Zasady gry</Link>
-            <span style={{ color: 'rgba(245,230,192,0.2)', margin: '0 0.5rem' }}>›</span>
-            <span style={{ fontSize: '0.85rem', color: 'rgba(245,230,192,0.6)' }}>Układy kart</span>
+            <Link href="/" style={{ fontSize: '0.85rem', color: 'rgba(var(--pk-cream-rgb),0.4)' }}>Strona główna</Link>
+            <span style={{ color: 'rgba(var(--pk-cream-rgb),0.2)', margin: '0 0.5rem' }}>›</span>
+            <Link href="/zasady/" style={{ fontSize: '0.85rem', color: 'rgba(var(--pk-cream-rgb),0.4)' }}>Zasady gry</Link>
+            <span style={{ color: 'rgba(var(--pk-cream-rgb),0.2)', margin: '0 0.5rem' }}>›</span>
+            <span style={{ fontSize: '0.85rem', color: 'rgba(var(--pk-cream-rgb),0.6)' }}>Układy kart</span>
           </div>
 
           <div style={{ marginTop: '1.5rem', marginBottom: '2.5rem' }}>
             <h1 style={{ fontSize: 'clamp(1.75rem, 4vw, 2.5rem)', marginBottom: '1rem' }}>Układy kart w pokerze</h1>
-            <p style={{ fontSize: '1.05rem', color: 'rgba(245,230,192,0.65)', maxWidth: 600 }}>
+            <p style={{ fontSize: '1.05rem', color: 'rgba(var(--pk-cream-rgb),0.65)', maxWidth: 600 }}>
               Kompletna tabela 10 układów pokerowych od najsilniejszego do najsłabszego. Obowiązuje we wszystkich wariantach: Texas Hold&apos;em, Omaha, Crazy Pineapple i Drawmaha.
             </p>
           </div>
@@ -57,9 +57,9 @@ export default function UkladyKartPage() {
               <tbody>
                 {hands.map((h) => (
                   <tr key={h.rank}>
-                    <td style={{ color: 'rgba(245,230,192,0.35)', fontWeight: 400 }}>{h.rank}</td>
-                    <td style={{ fontWeight: 700, color: '#d4af37', whiteSpace: 'nowrap' }}>{h.name}</td>
-                    <td style={{ color: 'rgba(245,230,192,0.7)', whiteSpace: 'nowrap' }}>{h.pl}</td>
+                    <td style={{ color: 'rgba(var(--pk-cream-rgb),0.35)', fontWeight: 400 }}>{h.rank}</td>
+                    <td style={{ fontWeight: 700, color: 'rgb(var(--pk-gold-rgb))', whiteSpace: 'nowrap' }}>{h.name}</td>
+                    <td style={{ color: 'rgba(var(--pk-cream-rgb),0.7)', whiteSpace: 'nowrap' }}>{h.pl}</td>
                     <td style={{ fontFamily: 'monospace', fontSize: '0.85rem', whiteSpace: 'nowrap' }}>{h.example}</td>
                     <td>{h.desc}</td>
                   </tr>

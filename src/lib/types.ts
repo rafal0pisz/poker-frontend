@@ -47,6 +47,8 @@ export interface Player {
   pendingAction: 'check-fold' | 'fold' | null;
 }
 
+export type PokerTheme = 'classic' | 'emerald' | 'midnight';
+
 export interface RoomSettings {
   smallBlind: number;
   bigBlind: number;
@@ -54,6 +56,7 @@ export interface RoomSettings {
   maxSeats: number;
   actionTimeoutSec: 15 | 30 | 60;
   tableColor?: string;
+  theme?: PokerTheme;
 }
 
 // 'draw' = Drawmaha draw phase (after flop, before turn)

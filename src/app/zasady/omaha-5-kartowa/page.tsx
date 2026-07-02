@@ -16,17 +16,17 @@ export default function Omaha5Page() {
       <main style={{ padding: '3rem 0 4rem' }}>
         <div className="container">
           <div style={{ marginBottom: '0.5rem' }}>
-            <Link href="/pl/" style={{ fontSize: '0.85rem', color: 'rgba(245,230,192,0.4)' }}>Strona główna</Link>
-            <span style={{ color: 'rgba(245,230,192,0.2)', margin: '0 0.5rem' }}>›</span>
-            <Link href="/zasady/" style={{ fontSize: '0.85rem', color: 'rgba(245,230,192,0.4)' }}>Zasady gry</Link>
-            <span style={{ color: 'rgba(245,230,192,0.2)', margin: '0 0.5rem' }}>›</span>
-            <span style={{ fontSize: '0.85rem', color: 'rgba(245,230,192,0.6)' }}>Omaha 5-kartowa</span>
+            <Link href="/pl/" style={{ fontSize: '0.85rem', color: 'rgba(var(--pk-cream-rgb),0.4)' }}>Strona główna</Link>
+            <span style={{ color: 'rgba(var(--pk-cream-rgb),0.2)', margin: '0 0.5rem' }}>›</span>
+            <Link href="/zasady/" style={{ fontSize: '0.85rem', color: 'rgba(var(--pk-cream-rgb),0.4)' }}>Zasady gry</Link>
+            <span style={{ color: 'rgba(var(--pk-cream-rgb),0.2)', margin: '0 0.5rem' }}>›</span>
+            <span style={{ fontSize: '0.85rem', color: 'rgba(var(--pk-cream-rgb),0.6)' }}>Omaha 5-kartowa</span>
           </div>
 
           <div style={{ marginTop: '1.5rem', marginBottom: '2.5rem' }}>
             <span className="badge" style={{ marginBottom: '1rem', display: 'inline-block' }}>5 kart na rękę · dokładnie 2+3 · silniejsze układy</span>
             <h1 style={{ fontSize: 'clamp(1.75rem, 4vw, 2.5rem)', marginBottom: '1rem' }}>Zasady Omaha 5-kartowej (Big O)</h1>
-            <p style={{ fontSize: '1.05rem', color: 'rgba(245,230,192,0.65)', maxWidth: 640 }}>
+            <p style={{ fontSize: '1.05rem', color: 'rgba(var(--pk-cream-rgb),0.65)', maxWidth: 640 }}>
               Omaha 5-kartowa, znana jako <strong>Big O</strong>, to Omaha z jedną zmianą: każdy gracz dostaje <strong>5 kart</strong> zamiast 4. Reguła 2+3 pozostaje taka sama — musisz użyć dokładnie 2 kart z ręki i dokładnie 3 ze stołu. Więcej kart na ręce oznacza silniejsze układy i więcej dramatycznych showdownów.
             </p>
           </div>
@@ -84,9 +84,9 @@ export default function Omaha5Page() {
             <Link href="/" className="btn-primary">Zagraj teraz</Link>
           </div>
 
-          <div style={{ marginTop: '2rem', padding: '1.25rem', background: 'rgba(212,175,55,0.06)', border: '1px solid rgba(212,175,55,0.15)', borderRadius: 12 }}>
-            <p style={{ margin: 0, fontSize: '0.9rem', color: 'rgba(245,230,192,0.5)' }}>
-              <strong style={{ color: '#d4af37' }}>Inne warianty:</strong>{' '}
+          <div style={{ marginTop: '2rem', padding: '1.25rem', background: 'rgba(var(--pk-gold-rgb),0.06)', border: '1px solid rgba(var(--pk-gold-rgb),0.15)', borderRadius: 12 }}>
+            <p style={{ margin: 0, fontSize: '0.9rem', color: 'rgba(var(--pk-cream-rgb),0.5)' }}>
+              <strong style={{ color: 'rgb(var(--pk-gold-rgb))' }}>Inne warianty:</strong>{' '}
               <Link href="/zasady/texas-holdem/">Texas Hold&apos;em</Link> ·{' '}
               <Link href="/zasady/omaha/">Omaha</Link> ·{' '}
               <Link href="/zasady/omaha-hi-lo/">Omaha Hi-Lo</Link> ·{' '}

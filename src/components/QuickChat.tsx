@@ -89,7 +89,7 @@ export function QuickChat({ messages, mySessionToken, onSendChat, onSendReaction
                 return (
                   <div key={m.id} className={`text-[11px] leading-snug ${isReaction ? 'text-xl' : ''}`}>
                     {!isReaction && (
-                      <span className="font-semibold" style={{ color: m.senderSessionToken === mySessionToken ? '#d4af37' : 'rgba(212,175,55,0.6)' }}>
+                      <span className="font-semibold" style={{ color: m.senderSessionToken === mySessionToken ? 'rgb(var(--pk-gold-rgb))' : 'rgba(var(--pk-gold-rgb),0.6)' }}>
                         {m.senderNick ?? 'You'}:{' '}
                       </span>
                     )}
@@ -109,7 +109,7 @@ export function QuickChat({ messages, mySessionToken, onSendChat, onSendReaction
                   key={e}
                   onClick={() => sendReaction(e)}
                   className="text-xl flex-1 py-1 rounded-lg active:scale-90 transition"
-                  style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(212,175,55,0.12)' }}
+                  style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(var(--pk-gold-rgb),0.12)' }}
                 >{e}</button>
               ))}
             </div>
@@ -121,7 +121,7 @@ export function QuickChat({ messages, mySessionToken, onSendChat, onSendReaction
               <button
                 onClick={() => setShowEmojiPicker(p => !p)}
                 className="w-8 h-8 rounded-lg text-sm flex items-center justify-center flex-shrink-0 transition-all"
-                style={{ background: showEmojiPicker ? 'rgba(212,175,55,0.2)' : 'rgba(212,175,55,0.06)', border: `1px solid ${showEmojiPicker ? 'rgba(212,175,55,0.5)' : 'rgba(212,175,55,0.15)'}` }}
+                style={{ background: showEmojiPicker ? 'rgba(var(--pk-gold-rgb),0.2)' : 'rgba(var(--pk-gold-rgb),0.06)', border: `1px solid ${showEmojiPicker ? 'rgba(var(--pk-gold-rgb),0.5)' : 'rgba(var(--pk-gold-rgb),0.15)'}` }}
               >😊</button>
             )}
             <input

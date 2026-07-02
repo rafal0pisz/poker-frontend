@@ -17,7 +17,7 @@ const VARIANTS = [
     players: '2–9',
     href: '/zasady/texas-holdem/',
     tag: 'Najpopularniejszy',
-    tagColor: '#d4af37',
+    tagColor: 'rgb(var(--pk-gold-rgb))',
   },
   {
     id: 'omaha',
@@ -47,7 +47,7 @@ const VARIANTS = [
     players: '2–9',
     href: '/zasady/omaha-pot-limit/',
     tag: 'Popularne PLO',
-    tagColor: '#d4af37',
+    tagColor: 'rgb(var(--pk-gold-rgb))',
   },
   {
     id: 'pineapple',
@@ -105,7 +105,7 @@ function DifficultyDots({ level }: { level: number }) {
       {[1, 2, 3].map(i => (
         <div key={i} style={{
           width: 8, height: 8, borderRadius: '50%',
-          background: i <= level ? '#d4af37' : 'rgba(212,175,55,0.2)',
+          background: i <= level ? 'rgb(var(--pk-gold-rgb))' : 'rgba(var(--pk-gold-rgb),0.2)',
         }} />
       ))}
     </div>
@@ -142,13 +142,13 @@ export function VariantComparison() {
     textAlign: 'left' as const,
     fontSize: 11,
     fontWeight: 500,
-    color: sort === key ? '#d4af37' : 'rgba(245,230,192,0.5)',
+    color: sort === key ? 'rgb(var(--pk-gold-rgb))' : 'rgba(var(--pk-cream-rgb),0.5)',
     whiteSpace: 'nowrap' as const,
     cursor: 'pointer',
     userSelect: 'none' as const,
     letterSpacing: '0.06em',
     textTransform: 'uppercase' as const,
-    borderBottom: '1px solid rgba(212,175,55,0.15)',
+    borderBottom: '1px solid rgba(var(--pk-gold-rgb),0.15)',
   });
 
   const filters: { key: Filter; label: string }[] = [
@@ -171,9 +171,9 @@ export function VariantComparison() {
             style={{
               padding: '5px 14px',
               borderRadius: 20,
-              border: `1px solid ${filter === f.key ? '#d4af37' : 'rgba(212,175,55,0.25)'}`,
-              background: filter === f.key ? 'rgba(212,175,55,0.12)' : 'transparent',
-              color: filter === f.key ? '#d4af37' : 'rgba(245,230,192,0.55)',
+              border: `1px solid ${filter === f.key ? 'rgb(var(--pk-gold-rgb))' : 'rgba(var(--pk-gold-rgb),0.25)'}`,
+              background: filter === f.key ? 'rgba(var(--pk-gold-rgb),0.12)' : 'transparent',
+              color: filter === f.key ? 'rgb(var(--pk-gold-rgb))' : 'rgba(var(--pk-cream-rgb),0.55)',
               fontSize: 13,
               cursor: 'pointer',
             }}
@@ -206,12 +206,12 @@ export function VariantComparison() {
           </thead>
           <tbody>
             {sorted.map((v, i) => (
-              <tr key={v.id} style={{ background: i % 2 === 0 ? 'rgba(212,175,55,0.03)' : 'transparent' }}>
-                <td style={{ padding: '12px 12px', borderBottom: '1px solid rgba(212,175,55,0.08)' }}>
+              <tr key={v.id} style={{ background: i % 2 === 0 ? 'rgba(var(--pk-gold-rgb),0.03)' : 'transparent' }}>
+                <td style={{ padding: '12px 12px', borderBottom: '1px solid rgba(var(--pk-gold-rgb),0.08)' }}>
                   <div>
                     <Link
                       href={v.href}
-                      style={{ fontSize: 14, fontWeight: 500, color: '#f5e6c0', textDecoration: 'none' }}
+                      style={{ fontSize: 14, fontWeight: 500, color: 'rgb(var(--pk-cream-rgb))', textDecoration: 'none' }}
                     >
                       {v.name}
                     </Link>
@@ -235,31 +235,31 @@ export function VariantComparison() {
                     </div>
                   </div>
                 </td>
-                <td style={{ padding: '12px 12px', fontSize: 14, color: '#d4af37', fontWeight: 500, borderBottom: '1px solid rgba(212,175,55,0.08)' }}>
+                <td style={{ padding: '12px 12px', fontSize: 14, color: 'rgb(var(--pk-gold-rgb))', fontWeight: 500, borderBottom: '1px solid rgba(var(--pk-gold-rgb),0.08)' }}>
                   {v.cards}
                 </td>
-                <td style={{ padding: '12px 12px', fontSize: 12, color: 'rgba(245,230,192,0.55)', borderBottom: '1px solid rgba(212,175,55,0.08)' }}>
+                <td style={{ padding: '12px 12px', fontSize: 12, color: 'rgba(var(--pk-cream-rgb),0.55)', borderBottom: '1px solid rgba(var(--pk-gold-rgb),0.08)' }}>
                   {v.rule}
                 </td>
-                <td style={{ padding: '12px 12px', borderBottom: '1px solid rgba(212,175,55,0.08)' }}>
+                <td style={{ padding: '12px 12px', borderBottom: '1px solid rgba(var(--pk-gold-rgb),0.08)' }}>
                   <span style={{
                     fontSize: 11,
                     padding: '2px 8px',
                     borderRadius: 4,
-                    background: v.limit === 'Pot Limit' ? 'rgba(251,146,60,0.1)' : 'rgba(245,230,192,0.06)',
-                    border: `1px solid ${v.limit === 'Pot Limit' ? 'rgba(251,146,60,0.3)' : 'rgba(245,230,192,0.15)'}`,
-                    color: v.limit === 'Pot Limit' ? '#fb923c' : 'rgba(245,230,192,0.6)',
+                    background: v.limit === 'Pot Limit' ? 'rgba(251,146,60,0.1)' : 'rgba(var(--pk-cream-rgb),0.06)',
+                    border: `1px solid ${v.limit === 'Pot Limit' ? 'rgba(251,146,60,0.3)' : 'rgba(var(--pk-cream-rgb),0.15)'}`,
+                    color: v.limit === 'Pot Limit' ? '#fb923c' : 'rgba(var(--pk-cream-rgb),0.6)',
                   }}>
                     {v.limit}
                   </span>
                 </td>
-                <td style={{ padding: '12px 12px', borderBottom: '1px solid rgba(212,175,55,0.08)' }}>
+                <td style={{ padding: '12px 12px', borderBottom: '1px solid rgba(var(--pk-gold-rgb),0.08)' }}>
                   <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
                     <DifficultyDots level={v.difficulty} />
-                    <span style={{ fontSize: 10, color: 'rgba(245,230,192,0.4)' }}>{v.difficultyLabel}</span>
+                    <span style={{ fontSize: 10, color: 'rgba(var(--pk-cream-rgb),0.4)' }}>{v.difficultyLabel}</span>
                   </div>
                 </td>
-                <td style={{ padding: '12px 12px', fontSize: 13, color: 'rgba(245,230,192,0.6)', borderBottom: '1px solid rgba(212,175,55,0.08)' }}>
+                <td style={{ padding: '12px 12px', fontSize: 13, color: 'rgba(var(--pk-cream-rgb),0.6)', borderBottom: '1px solid rgba(var(--pk-gold-rgb),0.08)' }}>
                   {v.players}
                 </td>
               </tr>
@@ -269,12 +269,12 @@ export function VariantComparison() {
       </div>
 
       {sorted.length === 0 && (
-        <p style={{ textAlign: 'center', color: 'rgba(245,230,192,0.4)', padding: '2rem', fontSize: 14 }}>
+        <p style={{ textAlign: 'center', color: 'rgba(var(--pk-cream-rgb),0.4)', padding: '2rem', fontSize: 14 }}>
           Brak wariantów pasujących do filtra.
         </p>
       )}
 
-      <p style={{ marginTop: 16, fontSize: 12, color: 'rgba(245,230,192,0.3)' }}>
+      <p style={{ marginTop: 16, fontSize: 12, color: 'rgba(var(--pk-cream-rgb),0.3)' }}>
         Kliknij nagłówek kolumny aby sortować. Kliknij nazwę wariantu aby przejść do pełnych zasad.
       </p>
     </div>

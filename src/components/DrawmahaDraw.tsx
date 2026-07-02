@@ -66,7 +66,7 @@ export function DrawmahaDraw({
                 />
                 <circle cx="14" cy="14" r="11"
                   fill="none"
-                  stroke={timeLeft <= 5 ? '#f87171' : timeLeft <= 10 ? '#ff8282' : '#d4af37'}
+                  stroke={timeLeft <= 5 ? '#f87171' : timeLeft <= 10 ? '#ff8282' : 'rgb(var(--pk-gold-rgb))'}
                   strokeWidth="2.5"
                   strokeDasharray={`${(timeLeft / (deadline ? Math.ceil((deadline - Date.now() + timeLeft * 1000) / 1000) : 30)) * 69.1} 69.1`}
                   strokeLinecap="round"

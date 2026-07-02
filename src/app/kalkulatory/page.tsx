@@ -40,24 +40,24 @@ export default function KalkulatoryPage() {
       <main style={{ padding: '3rem 0 4rem' }}>
         <div className="container">
           <div style={{ marginBottom: '0.5rem' }}>
-            <Link href="/pl/" style={{ fontSize: '0.85rem', color: 'rgba(245,230,192,0.4)' }}>Strona główna</Link>
-            <span style={{ color: 'rgba(245,230,192,0.2)', margin: '0 0.5rem' }}>›</span>
-            <span style={{ fontSize: '0.85rem', color: 'rgba(245,230,192,0.6)' }}>Kalkulatory</span>
+            <Link href="/pl/" style={{ fontSize: '0.85rem', color: 'rgba(var(--pk-cream-rgb),0.4)' }}>Strona główna</Link>
+            <span style={{ color: 'rgba(var(--pk-cream-rgb),0.2)', margin: '0 0.5rem' }}>›</span>
+            <span style={{ fontSize: '0.85rem', color: 'rgba(var(--pk-cream-rgb),0.6)' }}>Kalkulatory</span>
           </div>
           <h1 style={{ fontSize: '2rem', margin: '1.5rem 0 0.75rem' }}>Kalkulatory pokerowe</h1>
-          <p style={{ color: 'rgba(245,230,192,0.6)', marginBottom: '2.5rem', maxWidth: 560 }}>
+          <p style={{ color: 'rgba(var(--pk-cream-rgb),0.6)', marginBottom: '2.5rem', maxWidth: 560 }}>
             Darmowe narzędzia które pomogą Ci lepiej rozumieć matematykę pokera. Sprawdź swoje szanse na wygraną przed siadaniem do stołu w <Link href="/">Pokero</Link>.
           </p>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', maxWidth: 580 }}>
             {calcs.map(c => (
               <Link key={c.href} href={c.href} style={{ textDecoration: 'none' }}>
                 <div className="card card-hover" style={{ display: 'flex', gap: '1.25rem', alignItems: 'center' }}>
-                  <div style={{ fontSize: '2.5rem', flexShrink: 0, color: '#d4af37' }}>{c.icon}</div>
+                  <div style={{ fontSize: '2.5rem', flexShrink: 0, color: 'rgb(var(--pk-gold-rgb))' }}>{c.icon}</div>
                   <div style={{ flex: 1 }}>
-                    <p style={{ fontWeight: 700, color: '#d4af37', margin: '0 0 0.3rem', fontSize: '1.05rem' }}>{c.name}</p>
-                    <p style={{ margin: 0, fontSize: '0.875rem', color: 'rgba(245,230,192,0.55)' }}>{c.desc}</p>
+                    <p style={{ fontWeight: 700, color: 'rgb(var(--pk-gold-rgb))', margin: '0 0 0.3rem', fontSize: '1.05rem' }}>{c.name}</p>
+                    <p style={{ margin: 0, fontSize: '0.875rem', color: 'rgba(var(--pk-cream-rgb),0.55)' }}>{c.desc}</p>
                   </div>
-                  <span style={{ color: '#d4af37', flexShrink: 0 }}>→</span>
+                  <span style={{ color: 'rgb(var(--pk-gold-rgb))', flexShrink: 0 }}>→</span>
                 </div>
               </Link>
             ))}

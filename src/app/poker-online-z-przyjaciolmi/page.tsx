@@ -18,7 +18,7 @@ export default function PokerOnlinePage() {
           <div style={{ marginTop: '1.5rem', marginBottom: '2.5rem' }}>
             <span className="badge" style={{ marginBottom: '1rem', display: 'inline-block' }}>Darmowe · Bez rejestracji · Działa w przeglądarce</span>
             <h1 style={{ fontSize: 'clamp(1.75rem, 4vw, 2.8rem)', marginBottom: '1rem' }}>Poker online z przyjaciółmi</h1>
-            <p style={{ fontSize: '1.1rem', color: 'rgba(245,230,192,0.65)', maxWidth: 640, lineHeight: 1.7 }}>
+            <p style={{ fontSize: '1.1rem', color: 'rgba(var(--pk-cream-rgb),0.65)', maxWidth: 640, lineHeight: 1.7 }}>
               Wirtualny stół pokerowy dla znajomych — otwórz pokój, wyślij link i zacznijcie grać w minutę. Żadnej rejestracji, żadnego pobierania, żadnych prawdziwych pieniędzy.
             </p>
             <div style={{ marginTop: '1.5rem', display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>

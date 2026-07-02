@@ -47,7 +47,7 @@ function BetChip({ amount, side = 'bottom' }: BetChipProps) {
     right:  { position: 'absolute', right: -36, top: '50%', transform: 'translateY(-50%)' },
   };
   return (
-    <div style={{ ...styleMap[side], background: '#d4af37', color: '#070709', fontSize: 9, fontWeight: 700, padding: '2px 6px', borderRadius: 8, whiteSpace: 'nowrap', zIndex: 20 }}>
+    <div style={{ ...styleMap[side], background: 'rgb(var(--pk-gold-rgb))', color: 'var(--pk-ink)', fontSize: 9, fontWeight: 700, padding: '2px 6px', borderRadius: 8, whiteSpace: 'nowrap', zIndex: 20 }}>
       {amount}
     </div>
   );
@@ -99,9 +99,9 @@ function OvalSeat({
         {isCurrent && actionDeadline && (
           <TimerRingSmall deadline={actionDeadline} timeoutSec={actionTimeoutSec ?? 30} />
         )}
-        <div onClick={onAvatarClick} style={{ width: 42, height: 42, borderRadius: '50%', background: isCurrent ? 'rgba(212,175,55,0.2)' : '#1a1a28', border: isCurrent ? '2px solid #d4af37' : '1.5px solid rgba(212,175,55,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 11, fontWeight: 600, color: isCurrent ? '#d4af37' : 'rgba(245,230,192,0.6)', boxShadow: isCurrent ? '0 0 12px rgba(212,175,55,0.3)' : 'none', position: 'relative', cursor: onAvatarClick ? 'pointer' : 'default' }}>
+        <div onClick={onAvatarClick} style={{ width: 42, height: 42, borderRadius: '50%', background: isCurrent ? 'rgba(var(--pk-gold-rgb),0.2)' : 'var(--pk-surface-2)', border: isCurrent ? '2px solid rgb(var(--pk-gold-rgb))' : '1.5px solid rgba(var(--pk-gold-rgb),0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 11, fontWeight: 600, color: isCurrent ? 'rgb(var(--pk-gold-rgb))' : 'rgba(var(--pk-cream-rgb),0.6)', boxShadow: isCurrent ? '0 0 12px rgba(var(--pk-gold-rgb),0.3)' : 'none', position: 'relative', cursor: onAvatarClick ? 'pointer' : 'default' }}>
           {player.nick.slice(0, 2).toUpperCase()}
-          {isDealer && <span style={{ position: 'absolute', top: -4, right: -4, width: 14, height: 14, background: '#fff', borderRadius: '50%', fontSize: 7, fontWeight: 800, color: '#070709', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>D</span>}
+          {isDealer && <span style={{ position: 'absolute', top: -4, right: -4, width: 14, height: 14, background: '#fff', borderRadius: '50%', fontSize: 7, fontWeight: 800, color: 'var(--pk-ink)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>D</span>}
           {isSb && <span style={{ position: 'absolute', bottom: -4, left: -4, width: 14, height: 14, background: '#3b82f6', borderRadius: '50%', fontSize: 7, fontWeight: 800, color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>S</span>}
           {isBb && !isDealer && <span style={{ position: 'absolute', bottom: -4, right: -4, width: 14, height: 14, background: '#7c3aed', borderRadius: '50%', fontSize: 7, fontWeight: 800, color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>B</span>}
         </div>
@@ -113,12 +113,12 @@ function OvalSeat({
 
       {/* Name + chips */}
       <div style={{ textAlign: 'center' }}>
-        <p style={{ fontSize: 9, color: isCurrent ? '#d4af37' : 'rgba(245,230,192,0.55)', whiteSpace: 'nowrap', maxWidth: 70, overflow: 'hidden', textOverflow: 'ellipsis' }}>{player.nick}</p>
-        <p style={{ fontSize: 10, fontWeight: 600, color: 'rgba(245,230,192,0.85)' }}>{player.chips}</p>
+        <p style={{ fontSize: 9, color: isCurrent ? 'rgb(var(--pk-gold-rgb))' : 'rgba(var(--pk-cream-rgb),0.55)', whiteSpace: 'nowrap', maxWidth: 70, overflow: 'hidden', textOverflow: 'ellipsis' }}>{player.nick}</p>
+        <p style={{ fontSize: 10, fontWeight: 600, color: 'rgba(var(--pk-cream-rgb),0.85)' }}>{player.chips}</p>
       </div>
 
       {/* Hand name at showdown */}
-      {handName && <span style={{ fontSize: 8, color: '#d4af37', background: 'rgba(212,175,55,0.1)', border: '1px solid rgba(212,175,55,0.25)', borderRadius: 4, padding: '1px 5px', maxWidth: 80, textAlign: 'center', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{handName}</span>}
+      {handName && <span style={{ fontSize: 8, color: 'rgb(var(--pk-gold-rgb))', background: 'rgba(var(--pk-gold-rgb),0.1)', border: '1px solid rgba(var(--pk-gold-rgb),0.25)', borderRadius: 4, padding: '1px 5px', maxWidth: 80, textAlign: 'center', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{handName}</span>}
       {equity !== undefined && (
         <span style={{ fontSize: 10, fontWeight: 700, color: equity >= 50 ? '#4ade80' : '#f87171', background: equity >= 50 ? 'rgba(74,222,128,0.12)' : 'rgba(248,113,113,0.12)', border: `1px solid ${equity >= 50 ? 'rgba(74,222,128,0.3)' : 'rgba(248,113,113,0.3)'}`, borderRadius: 4, padding: '1px 6px', whiteSpace: 'nowrap' }}>
           {equity}%
@@ -145,7 +145,7 @@ function TimerRingSmall({ deadline, timeoutSec }: { deadline: number; timeoutSec
     const R = 23, CIRC = 2 * Math.PI * R;
     const update = () => {
       const progress = Math.max(0, (deadline - Date.now()) / (timeoutSec * 1000));
-      const color = progress > 0.4 ? '#d4af37' : progress > 0.2 ? '#e07b39' : '#e05050';
+      const color = progress > 0.4 ? 'rgb(var(--pk-gold-rgb))' : progress > 0.2 ? '#e07b39' : '#e05050';
       if (ref.current) {
         ref.current.style.strokeDasharray = `${progress * CIRC} ${(1 - progress) * CIRC}`;
         ref.current.style.stroke = color;
@@ -158,7 +158,7 @@ function TimerRingSmall({ deadline, timeoutSec }: { deadline: number; timeoutSec
   const R = 23, CIRC = 2 * Math.PI * R;
   return (
     <svg width="48" height="48" viewBox="0 0 48 48" style={{ position: 'absolute', top: -3, left: -3, pointerEvents: 'none' }}>
-      <circle cx="24" cy="24" r={R} fill="none" stroke="rgba(212,175,55,0.12)" strokeWidth="3" />
+      <circle cx="24" cy="24" r={R} fill="none" stroke="rgba(var(--pk-gold-rgb),0.12)" strokeWidth="3" />
       <circle ref={ref} cx="24" cy="24" r={R} fill="none" strokeWidth="3" strokeDasharray={`0 ${CIRC}`} strokeDashoffset={CIRC / 4} strokeLinecap="round" style={{ transition: 'stroke-dasharray 0.1s linear, stroke 0.3s' }} />
     </svg>
   );
@@ -299,21 +299,21 @@ export function OvalTable({
   const formatTime = (ts: number) => new Date(ts).toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' });
 
   return (
-    <div style={{ display: 'flex', height: '100vh', background: '#070709', overflow: 'hidden' }}>
+    <div style={{ display: 'flex', height: '100vh', background: 'var(--pk-ink)', overflow: 'hidden' }}>
 
       {/* ── LEFT PANEL ── */}
-      <div style={{ width: 240, flexShrink: 0, background: '#0d0d17', borderRight: '1px solid rgba(212,175,55,0.1)', display: 'flex', flexDirection: 'column' }}>
+      <div style={{ width: 240, flexShrink: 0, background: 'var(--pk-surface)', borderRight: '1px solid rgba(var(--pk-gold-rgb),0.1)', display: 'flex', flexDirection: 'column' }}>
         {/* Room code + controls */}
-        <div style={{ padding: '10px 12px', borderBottom: '1px solid rgba(212,175,55,0.08)', display: 'flex', alignItems: 'center', gap: 6, flexWrap: 'wrap' }}>
-          <button onClick={onCopyCode} style={{ display: 'flex', alignItems: 'center', gap: 4, background: 'rgba(212,175,55,0.08)', border: '1px solid rgba(212,175,55,0.15)', borderRadius: 8, padding: '4px 10px', cursor: 'pointer', flex: 1 }}>
-            <span style={{ fontSize: 9, color: 'rgba(212,175,55,0.5)' }}>#</span>
-            <span style={{ fontFamily: 'monospace', color: '#d4af37', fontSize: 13, letterSpacing: 2 }}>{room.id}</span>
-            <span style={{ fontSize: 9, color: 'rgba(212,175,55,0.35)' }}>{codeCopied ? '✓' : '⧉'}</span>
+        <div style={{ padding: '10px 12px', borderBottom: '1px solid rgba(var(--pk-gold-rgb),0.08)', display: 'flex', alignItems: 'center', gap: 6, flexWrap: 'wrap' }}>
+          <button onClick={onCopyCode} style={{ display: 'flex', alignItems: 'center', gap: 4, background: 'rgba(var(--pk-gold-rgb),0.08)', border: '1px solid rgba(var(--pk-gold-rgb),0.15)', borderRadius: 8, padding: '4px 10px', cursor: 'pointer', flex: 1 }}>
+            <span style={{ fontSize: 9, color: 'rgba(var(--pk-gold-rgb),0.5)' }}>#</span>
+            <span style={{ fontFamily: 'monospace', color: 'rgb(var(--pk-gold-rgb))', fontSize: 13, letterSpacing: 2 }}>{room.id}</span>
+            <span style={{ fontSize: 9, color: 'rgba(var(--pk-gold-rgb),0.35)' }}>{codeCopied ? '✓' : '⧉'}</span>
           </button>
-          <button onClick={() => { onEnableAudio(); onToggleMute(); }} style={{ background: 'rgba(212,175,55,0.06)', border: '1px solid rgba(212,175,55,0.12)', borderRadius: 7, padding: '4px 8px', fontSize: 12, color: 'rgba(245,230,192,0.6)', cursor: 'pointer' }}>{muted ? '🔇' : '🔊'}</button>
-          {isAdmin && <button onClick={onShowAdmin} style={{ background: 'rgba(212,175,55,0.12)', border: '1px solid rgba(212,175,55,0.35)', borderRadius: 8, padding: '5px 12px', fontSize: 12, fontWeight: 600, color: '#d4af37', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4 }}>⚙ Admin</button>}
+          <button onClick={() => { onEnableAudio(); onToggleMute(); }} style={{ background: 'rgba(var(--pk-gold-rgb),0.06)', border: '1px solid rgba(var(--pk-gold-rgb),0.12)', borderRadius: 7, padding: '4px 8px', fontSize: 12, color: 'rgba(var(--pk-cream-rgb),0.6)', cursor: 'pointer' }}>{muted ? '🔇' : '🔊'}</button>
+          {isAdmin && <button onClick={onShowAdmin} style={{ background: 'rgba(var(--pk-gold-rgb),0.12)', border: '1px solid rgba(var(--pk-gold-rgb),0.35)', borderRadius: 8, padding: '5px 12px', fontSize: 12, fontWeight: 600, color: 'rgb(var(--pk-gold-rgb))', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4 }}>⚙ Admin</button>}
           {isSittingOut
-            ? <button onClick={() => onSitBack()} style={{ background: 'rgba(212,175,55,0.12)', border: '1px solid rgba(212,175,55,0.3)', borderRadius: 7, padding: '4px 8px', fontSize: 10, color: '#d4af37', cursor: 'pointer' }}>▶ Back</button>
+            ? <button onClick={() => onSitBack()} style={{ background: 'rgba(var(--pk-gold-rgb),0.12)', border: '1px solid rgba(var(--pk-gold-rgb),0.3)', borderRadius: 7, padding: '4px 8px', fontSize: 10, color: 'rgb(var(--pk-gold-rgb))', cursor: 'pointer' }}>▶ Back</button>
             : canSitOut
             ? <button
                 onClick={() => (me as any)?.pendingSitOut ? onSitBack() : onSitOut()}
@@ -321,30 +321,30 @@ export function OvalTable({
                   background: (me as any)?.pendingSitOut ? 'rgba(245,158,11,0.15)' : 'rgba(255,255,255,0.03)',
                   border: (me as any)?.pendingSitOut ? '1px solid rgba(245,158,11,0.4)' : '1px solid rgba(255,255,255,0.07)',
                   borderRadius: 7, padding: '4px 8px', fontSize: 10,
-                  color: (me as any)?.pendingSitOut ? 'rgb(251,191,36)' : 'rgba(245,230,192,0.5)',
+                  color: (me as any)?.pendingSitOut ? 'rgb(251,191,36)' : 'rgba(var(--pk-cream-rgb),0.5)',
                   cursor: 'pointer',
                 }}
               >
                 {(me as any)?.pendingSitOut ? '✕ Cancel' : '⏸ Out'}
               </button>
             : null}
-          <button onClick={onLeave} style={{ background: 'transparent', border: 'none', fontSize: 10, color: 'rgba(245,230,192,0.35)', cursor: 'pointer', padding: '4px 4px' }}>Leave</button>
+          <button onClick={onLeave} style={{ background: 'transparent', border: 'none', fontSize: 10, color: 'rgba(var(--pk-cream-rgb),0.35)', cursor: 'pointer', padding: '4px 4px' }}>Leave</button>
         </div>
 
         {/* Variant pill */}
-        <div style={{ padding: '6px 12px', borderBottom: '1px solid rgba(212,175,55,0.06)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+        <div style={{ padding: '6px 12px', borderBottom: '1px solid rgba(var(--pk-gold-rgb),0.06)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-            <span style={{ fontSize: 8, color: 'rgba(212,175,55,0.4)', letterSpacing: '0.08em', textTransform: 'uppercase' }}>Playing</span>
-            <span style={{ fontSize: 11, fontWeight: 600, color: '#d4af37' }}>{VARIANT_LABELS[currentVariant]}</span>
-            {isDrawPhase && <span style={{ fontSize: 8, background: 'rgba(212,175,55,0.15)', color: '#d4af37', padding: '1px 5px', borderRadius: 4 }}>DRAW</span>}
+            <span style={{ fontSize: 8, color: 'rgba(var(--pk-gold-rgb),0.4)', letterSpacing: '0.08em', textTransform: 'uppercase' }}>Playing</span>
+            <span style={{ fontSize: 11, fontWeight: 600, color: 'rgb(var(--pk-gold-rgb))' }}>{VARIANT_LABELS[currentVariant]}</span>
+            {isDrawPhase && <span style={{ fontSize: 8, background: 'rgba(var(--pk-gold-rgb),0.15)', color: 'rgb(var(--pk-gold-rgb))', padding: '1px 5px', borderRadius: 4 }}>DRAW</span>}
           </div>
-          <button onClick={onShowVariantPicker} style={{ background: '#d4af37', color: '#070709', fontSize: 10, fontWeight: 700, padding: '2px 7px', borderRadius: 5, border: 'none', cursor: 'pointer' }}>D ▾</button>
+          <button onClick={onShowVariantPicker} style={{ background: 'rgb(var(--pk-gold-rgb))', color: 'var(--pk-ink)', fontSize: 10, fontWeight: 700, padding: '2px 7px', borderRadius: 5, border: 'none', cursor: 'pointer' }}>D ▾</button>
         </div>
 
         {/* Chat tabs */}
-        <div style={{ display: 'flex', borderBottom: '1px solid rgba(212,175,55,0.08)' }}>
+        <div style={{ display: 'flex', borderBottom: '1px solid rgba(var(--pk-gold-rgb),0.08)' }}>
           {(['chat', 'actions', 'summary'] as const).map(t => (
-            <button key={t} onClick={() => setTab(t)} style={{ flex: 1, padding: '8px 4px', fontSize: 10, fontWeight: 500, color: tab === t ? '#d4af37' : 'rgba(245,230,192,0.3)', background: 'transparent', border: 'none', borderBottom: tab === t ? '2px solid #d4af37' : '2px solid transparent', cursor: 'pointer', transition: 'color 0.15s' }}>
+            <button key={t} onClick={() => setTab(t)} style={{ flex: 1, padding: '8px 4px', fontSize: 10, fontWeight: 500, color: tab === t ? 'rgb(var(--pk-gold-rgb))' : 'rgba(var(--pk-cream-rgb),0.3)', background: 'transparent', border: 'none', borderBottom: tab === t ? '2px solid rgb(var(--pk-gold-rgb))' : '2px solid transparent', cursor: 'pointer', transition: 'color 0.15s' }}>
               {t === 'chat' ? `💬 Chat${chatMessages.length > 0 && tab !== 'chat' ? ` (${chatMessages.length})` : ''}` : t === 'actions' ? `📋 Actions${actionMessages.length > 0 && tab !== 'actions' ? ` (${actionMessages.length})` : ''}` : `📊 Summary`}
             </button>
           ))}
@@ -353,22 +353,22 @@ export function OvalTable({
         {/* Messages */}
         <div ref={scrollRef} style={{ flex: 1, overflowY: 'auto', padding: 10, display: 'flex', flexDirection: 'column', gap: 5, scrollbarWidth: 'none' }}>
           {tab === 'chat' && (chatMessages.length === 0
-            ? <p style={{ fontSize: 11, color: 'rgba(245,230,192,0.25)', textAlign: 'center', marginTop: 20 }}>No messages yet</p>
+            ? <p style={{ fontSize: 11, color: 'rgba(var(--pk-cream-rgb),0.25)', textAlign: 'center', marginTop: 20 }}>No messages yet</p>
             : chatMessages.map(m => (
               <div key={m.id} style={{ fontSize: 11, lineHeight: 1.4 }}>
-                <span style={{ fontWeight: 600, color: m.senderSessionToken === mySessionToken ? '#d4af37' : 'rgba(212,175,55,0.6)' }}>{m.senderNick ?? 'You'}: </span>
-                <span style={{ color: 'rgba(245,230,192,0.7)' }}>{m.content}</span>
-                <span style={{ fontSize: 9, color: 'rgba(245,230,192,0.2)', marginLeft: 4 }}>{formatTime(m.timestamp)}</span>
+                <span style={{ fontWeight: 600, color: m.senderSessionToken === mySessionToken ? 'rgb(var(--pk-gold-rgb))' : 'rgba(var(--pk-gold-rgb),0.6)' }}>{m.senderNick ?? 'You'}: </span>
+                <span style={{ color: 'rgba(var(--pk-cream-rgb),0.7)' }}>{m.content}</span>
+                <span style={{ fontSize: 9, color: 'rgba(var(--pk-cream-rgb),0.2)', marginLeft: 4 }}>{formatTime(m.timestamp)}</span>
               </div>
             ))
           )}
           {tab === 'actions' && (() => {
             const entries = handLogs && handLogs.length > 0 ? handLogs : [];
-            if (entries.length === 0) return <p style={{ fontSize: 11, color: 'rgba(245,230,192,0.25)', textAlign: 'center', marginTop: 20 }}>No actions yet</p>;
+            if (entries.length === 0) return <p style={{ fontSize: 11, color: 'rgba(var(--pk-cream-rgb),0.25)', textAlign: 'center', marginTop: 20 }}>No actions yet</p>;
             return entries.slice().reverse().map(e => (
               <p key={e.id} style={{
                 fontSize: 10,
-                color: e.highlight ? '#d4af37' : e.type === 'result' ? '#f5e6c0' : e.type === 'phase' ? 'rgba(212,175,55,0.7)' : 'rgba(245,230,192,0.45)',
+                color: e.highlight ? 'rgb(var(--pk-gold-rgb))' : e.type === 'result' ? 'rgb(var(--pk-cream-rgb))' : e.type === 'phase' ? 'rgba(var(--pk-gold-rgb),0.7)' : 'rgba(var(--pk-cream-rgb),0.45)',
                 fontWeight: e.highlight ? 500 : 400,
                 textAlign: (e.type === 'phase' || e.type === 'system') ? 'center' as const : 'left' as const,
                 fontStyle: e.type === 'system' ? 'italic' : 'normal',
@@ -377,17 +377,17 @@ export function OvalTable({
             ));
           })()}
           {tab === 'summary' && (allSummary.length === 0
-            ? <p style={{ fontSize: 11, color: 'rgba(245,230,192,0.25)', textAlign: 'center', marginTop: 20 }}>No data yet</p>
+            ? <p style={{ fontSize: 11, color: 'rgba(var(--pk-cream-rgb),0.25)', textAlign: 'center', marginTop: 20 }}>No data yet</p>
             : allSummary.map(s => {
               const isMe = s.sessionToken === mySessionToken;
               const pos = s.netResult > 0, neg = s.netResult < 0;
               return (
-                <div key={s.sessionToken} style={{ background: isMe ? 'rgba(212,175,55,0.06)' : 'transparent', border: `1px solid ${isMe ? 'rgba(212,175,55,0.3)' : 'rgba(212,175,55,0.1)'}`, borderRadius: 8, padding: '8px 10px' }}>
+                <div key={s.sessionToken} style={{ background: isMe ? 'rgba(var(--pk-gold-rgb),0.06)' : 'transparent', border: `1px solid ${isMe ? 'rgba(var(--pk-gold-rgb),0.3)' : 'rgba(var(--pk-gold-rgb),0.1)'}`, borderRadius: 8, padding: '8px 10px' }}>
                   <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                    <span style={{ fontSize: 11, fontWeight: 500, color: 'rgba(245,230,192,0.85)' }}>{s.nick}{isMe ? ' (you)' : ''}{s.leftAt > 0 ? ' · left' : ''}</span>
-                    <span style={{ fontSize: 13, fontWeight: 700, color: pos ? '#4ade80' : neg ? '#f87171' : 'rgba(245,230,192,0.4)' }}>{pos ? '+' : ''}{s.netResult}</span>
+                    <span style={{ fontSize: 11, fontWeight: 500, color: 'rgba(var(--pk-cream-rgb),0.85)' }}>{s.nick}{isMe ? ' (you)' : ''}{s.leftAt > 0 ? ' · left' : ''}</span>
+                    <span style={{ fontSize: 13, fontWeight: 700, color: pos ? '#4ade80' : neg ? '#f87171' : 'rgba(var(--pk-cream-rgb),0.4)' }}>{pos ? '+' : ''}{s.netResult}</span>
                   </div>
-                  <p style={{ fontSize: 9, color: 'rgba(245,230,192,0.35)', marginTop: 2 }}>buy-in {s.totalBuyIn} · {s.leftAt > 0 ? 'left' : 'now'} {s.finalChips}</p>
+                  <p style={{ fontSize: 9, color: 'rgba(var(--pk-cream-rgb),0.35)', marginTop: 2 }}>buy-in {s.totalBuyIn} · {s.leftAt > 0 ? 'left' : 'now'} {s.finalChips}</p>
                 </div>
               );
             })
@@ -398,29 +398,29 @@ export function OvalTable({
         {tab === 'chat' && (
           <>
             {showEmojiPicker && (
-              <div style={{ borderTop: '1px solid rgba(212,175,55,0.08)', padding: '7px 8px', display: 'flex', gap: 4, justifyContent: 'space-between' }}>
+              <div style={{ borderTop: '1px solid rgba(var(--pk-gold-rgb),0.08)', padding: '7px 8px', display: 'flex', gap: 4, justifyContent: 'space-between' }}>
                 {REACTIONS.map(e => (
                   <button key={e} onClick={() => { sendReaction(e); setShowEmojiPicker(false); }}
-                    style={{ fontSize: 20, background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(212,175,55,0.12)', borderRadius: 10, width: 36, height: 36, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'background .12s' }}
-                    onMouseEnter={ev => (ev.currentTarget.style.background = 'rgba(212,175,55,0.14)')}
+                    style={{ fontSize: 20, background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(var(--pk-gold-rgb),0.12)', borderRadius: 10, width: 36, height: 36, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'background .12s' }}
+                    onMouseEnter={ev => (ev.currentTarget.style.background = 'rgba(var(--pk-gold-rgb),0.14)')}
                     onMouseLeave={ev => (ev.currentTarget.style.background = 'rgba(255,255,255,0.03)')}
                   >{e}</button>
                 ))}
               </div>
             )}
-            <div style={{ borderTop: '1px solid rgba(212,175,55,0.08)', padding: 8, display: 'flex', gap: 6 }}>
+            <div style={{ borderTop: '1px solid rgba(var(--pk-gold-rgb),0.08)', padding: 8, display: 'flex', gap: 6 }}>
               <button
                 onClick={() => setShowEmojiPicker(p => !p)}
-                style={{ width: 30, height: 30, background: showEmojiPicker ? 'rgba(212,175,55,0.2)' : 'rgba(212,175,55,0.06)', border: `1px solid ${showEmojiPicker ? 'rgba(212,175,55,0.5)' : 'rgba(212,175,55,0.15)'}`, borderRadius: 7, fontSize: 14, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}
+                style={{ width: 30, height: 30, background: showEmojiPicker ? 'rgba(var(--pk-gold-rgb),0.2)' : 'rgba(var(--pk-gold-rgb),0.06)', border: `1px solid ${showEmojiPicker ? 'rgba(var(--pk-gold-rgb),0.5)' : 'rgba(var(--pk-gold-rgb),0.15)'}`, borderRadius: 7, fontSize: 14, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}
               >😊</button>
               <input
                 value={chatText}
                 onChange={e => setChatText(e.target.value)}
                 onKeyDown={e => e.key === 'Enter' && handleSendChat()}
                 placeholder="Message..."
-                style={{ flex: 1, background: 'rgba(212,175,55,0.05)', border: '1px solid rgba(212,175,55,0.12)', borderRadius: 8, padding: '6px 10px', fontSize: 11, color: 'rgba(245,230,192,0.7)', outline: 'none' }}
+                style={{ flex: 1, background: 'rgba(var(--pk-gold-rgb),0.05)', border: '1px solid rgba(var(--pk-gold-rgb),0.12)', borderRadius: 8, padding: '6px 10px', fontSize: 11, color: 'rgba(var(--pk-cream-rgb),0.7)', outline: 'none' }}
               />
-              <button onClick={handleSendChat} style={{ width: 30, height: 30, background: 'rgba(212,175,55,0.1)', border: '1px solid rgba(212,175,55,0.2)', borderRadius: 7, color: '#d4af37', fontSize: 13, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>↑</button>
+              <button onClick={handleSendChat} style={{ width: 30, height: 30, background: 'rgba(var(--pk-gold-rgb),0.1)', border: '1px solid rgba(var(--pk-gold-rgb),0.2)', borderRadius: 7, color: 'rgb(var(--pk-gold-rgb))', fontSize: 13, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>↑</button>
             </div>
           </>
         )}
@@ -435,17 +435,17 @@ export function OvalTable({
 
             {/* Felt oval */}
             <div style={{ position: 'absolute', inset: 0, borderRadius: '50%', background: `radial-gradient(ellipse at 50% 35%, ${tableColor}ee, ${tableColor}99 70%, ${tableColor}44)`, border: '8px solid #1a0f04', boxShadow: '0 0 0 3px #3d2208, 0 0 0 5px #1a0f04, inset 0 0 100px rgba(0,0,0,0.5), 0 20px 80px rgba(0,0,0,0.7)' }}>
-              <div style={{ position: 'absolute', inset: 14, borderRadius: '50%', border: '1px solid rgba(212,175,55,0.1)' }} />
+              <div style={{ position: 'absolute', inset: 14, borderRadius: '50%', border: '1px solid rgba(var(--pk-gold-rgb),0.1)' }} />
             </div>
 
             {/* Community cards + pot — center of oval */}
             <div style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8, zIndex: 5 }}>
               {lastResult && (
-                <div style={{ fontSize: 11, color: '#d4af37', background: 'rgba(212,175,55,0.1)', border: '1px solid rgba(212,175,55,0.25)', borderRadius: 8, padding: '4px 12px', textAlign: 'center', maxWidth: 280 }}>
+                <div style={{ fontSize: 11, color: 'rgb(var(--pk-gold-rgb))', background: 'rgba(var(--pk-gold-rgb),0.1)', border: '1px solid rgba(var(--pk-gold-rgb),0.25)', borderRadius: 8, padding: '4px 12px', textAlign: 'center', maxWidth: 280 }}>
                   {resultMessage}
                 </div>
               )}
-              <div style={{ background: 'rgba(0,0,0,0.5)', border: '1px solid rgba(212,175,55,0.3)', borderRadius: 20, padding: '4px 16px', fontSize: 13, fontWeight: 700, color: '#d4af37' }}>
+              <div style={{ background: 'rgba(0,0,0,0.5)', border: '1px solid rgba(var(--pk-gold-rgb),0.3)', borderRadius: 20, padding: '4px 16px', fontSize: 13, fontWeight: 700, color: 'rgb(var(--pk-gold-rgb))' }}>
                 POT {gameState ? gameState.pot : 0}
               </div>
               <div style={{ display: 'flex', gap: 6 }}>
@@ -457,7 +457,7 @@ export function OvalTable({
                     : <CardPlaceholder key={i} size="lg" />;
                 })}
               </div>
-              {gameState && <p style={{ fontSize: 9, color: 'rgba(212,175,55,0.4)', letterSpacing: '0.06em', textTransform: 'uppercase' }}>{VARIANT_LABELS[currentVariant]} · #{gameState.handNumber}</p>}
+              {gameState && <p style={{ fontSize: 9, color: 'rgba(var(--pk-gold-rgb),0.4)', letterSpacing: '0.06em', textTransform: 'uppercase' }}>{VARIANT_LABELS[currentVariant]} · #{gameState.handNumber}</p>}
             </div>
 
             {/* Opponent seats */}
@@ -503,18 +503,18 @@ export function OvalTable({
               <div style={{ position: 'relative', width: 42, height: 42 }}>
                 <div onClick={() => setSelectedStatsToken(mySessionToken)} style={{ width: 42, height: 42, borderRadius: '50%', background: 'rgba(99,179,237,0.15)', border: '2px solid rgba(99,179,237,0.6)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 11, fontWeight: 600, color: '#90cdf4', position: 'relative', cursor: 'pointer' }}>
                   {me.nick.slice(0, 2).toUpperCase()}
-                  {gameState?.dealerSeat === me.seat && <span style={{ position: 'absolute', top: -4, right: -4, width: 14, height: 14, background: '#fff', borderRadius: '50%', fontSize: 7, fontWeight: 800, color: '#070709', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>D</span>}
+                  {gameState?.dealerSeat === me.seat && <span style={{ position: 'absolute', top: -4, right: -4, width: 14, height: 14, background: '#fff', borderRadius: '50%', fontSize: 7, fontWeight: 800, color: 'var(--pk-ink)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>D</span>}
                   {me.seat === sbSeat && <span style={{ position: 'absolute', bottom: -4, left: -4, width: 14, height: 14, background: '#3b82f6', borderRadius: '50%', fontSize: 7, fontWeight: 800, color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>S</span>}
                   {me.seat === bbSeat && gameState?.dealerSeat !== me.seat && <span style={{ position: 'absolute', bottom: -4, right: -4, width: 14, height: 14, background: '#7c3aed', borderRadius: '50%', fontSize: 7, fontWeight: 800, color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>B</span>}
                 </div>
                 {me.currentBet > 0 && (
-                  <div style={{ position: 'absolute', top: -18, left: '50%', transform: 'translateX(-50%)', background: '#d4af37', color: '#070709', fontSize: 9, fontWeight: 700, padding: '2px 6px', borderRadius: 8, whiteSpace: 'nowrap', zIndex: 20 }}>{me.currentBet}</div>
+                  <div style={{ position: 'absolute', top: -18, left: '50%', transform: 'translateX(-50%)', background: 'rgb(var(--pk-gold-rgb))', color: 'var(--pk-ink)', fontSize: 9, fontWeight: 700, padding: '2px 6px', borderRadius: 8, whiteSpace: 'nowrap', zIndex: 20 }}>{me.currentBet}</div>
                 )}
               </div>
               {/* YOU badge */}
               <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 1 }}>
                 <span style={{ fontSize: 8, fontWeight: 700, color: 'rgba(99,179,237,0.7)', letterSpacing: '0.08em', textTransform: 'uppercase' }}>YOU</span>
-                <span style={{ fontSize: 9, fontWeight: 600, color: 'rgba(245,230,192,0.7)' }}>{me.chips}</span>
+                <span style={{ fontSize: 9, fontWeight: 600, color: 'rgba(var(--pk-cream-rgb),0.7)' }}>{me.chips}</span>
                 {showEquity && equityMap[mySessionToken] !== undefined && (
                   <span style={{ fontSize: 10, fontWeight: 700, color: (equityMap[mySessionToken] ?? 0) >= 50 ? '#4ade80' : '#f87171', background: (equityMap[mySessionToken] ?? 0) >= 50 ? 'rgba(74,222,128,0.12)' : 'rgba(248,113,113,0.12)', border: `1px solid ${(equityMap[mySessionToken] ?? 0) >= 50 ? 'rgba(74,222,128,0.3)' : 'rgba(248,113,113,0.3)'}`, borderRadius: 4, padding: '1px 6px' }}>
                     {equityMap[mySessionToken]}%
@@ -526,43 +526,43 @@ export function OvalTable({
             {/* Waiting message */}
             {!gameState && otherPlayers.length === 0 && (
               <div style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', textAlign: 'center', zIndex: 5 }}>
-                <p style={{ fontSize: 13, color: 'rgba(245,230,192,0.4)' }}>No one else here yet...</p>
+                <p style={{ fontSize: 13, color: 'rgba(var(--pk-cream-rgb),0.4)' }}>No one else here yet...</p>
               </div>
             )}
           </div>
         </div>
 
         {/* ── BOTTOM BAR ── */}
-        <div style={{ flexShrink: 0, background: 'rgba(7,7,9,0.97)', borderTop: '1px solid rgba(212,175,55,0.1)', padding: '10px 20px', display: 'flex', alignItems: 'center', gap: 16 }}>
+        <div style={{ flexShrink: 0, background: 'rgba(7,7,9,0.97)', borderTop: '1px solid rgba(var(--pk-gold-rgb),0.1)', padding: '10px 20px', display: 'flex', alignItems: 'center', gap: 16 }}>
           {/* FloatingBubble for own player is intentionally hidden in bottom bar */}
           {/* Own messages are visible to others via their FloatingBubbles */}
           <div style={{ position: 'relative' }} />
 
           {/* My info */}
           <div style={{ display: 'flex', flexDirection: 'column', gap: 2, flexShrink: 0 }}>
-            <p style={{ fontSize: 10, color: 'rgba(245,230,192,0.4)' }}>{me.nick} (you)</p>
-            <p style={{ fontSize: 15, fontWeight: 700, color: '#f5e6c0' }}>{me.chips}</p>
-            {gameState?.dealerSeat === me.seat && <span style={{ fontSize: 8, background: '#fff', color: '#070709', borderRadius: 10, padding: '1px 5px', fontWeight: 800 }}>D</span>}
+            <p style={{ fontSize: 10, color: 'rgba(var(--pk-cream-rgb),0.4)' }}>{me.nick} (you)</p>
+            <p style={{ fontSize: 15, fontWeight: 700, color: 'rgb(var(--pk-cream-rgb))' }}>{me.chips}</p>
+            {gameState?.dealerSeat === me.seat && <span style={{ fontSize: 8, background: '#fff', color: 'var(--pk-ink)', borderRadius: 10, padding: '1px 5px', fontWeight: 800 }}>D</span>}
           </div>
 
-          <div style={{ width: 1, height: 44, background: 'rgba(212,175,55,0.1)', flexShrink: 0 }} />
+          <div style={{ width: 1, height: 44, background: 'rgba(var(--pk-gold-rgb),0.1)', flexShrink: 0 }} />
 
           {/* Actions / draw UI */}
           <div style={{ flex: 1, minWidth: 0 }}>
             {isSpectator && (
-              <button onClick={() => onTakeSeat()} style={{ background: '#d4af37', color: '#070709', fontWeight: 600, padding: '10px 20px', borderRadius: 10, border: 'none', cursor: 'pointer', fontSize: 13 }}>
+              <button onClick={() => onTakeSeat()} style={{ background: 'rgb(var(--pk-gold-rgb))', color: 'var(--pk-ink)', fontWeight: 600, padding: '10px 20px', borderRadius: 10, border: 'none', cursor: 'pointer', fontSize: 13 }}>
                 🪑 Take a seat
               </button>
             )}
             {!gameState && !isSpectator && (
-              <p style={{ fontSize: 12, color: 'rgba(245,230,192,0.5)' }}>
+              <p style={{ fontSize: 12, color: 'rgba(var(--pk-cream-rgb),0.5)' }}>
                 {isAdmin ? 'Open admin panel → Start game' : 'Waiting for admin to start…'}
-                {nextDealerVariant && <span style={{ color: 'rgba(212,175,55,0.6)', marginLeft: 8 }}>▸ Next: {VARIANT_LABELS[nextDealerVariant]}</span>}
+                {nextDealerVariant && <span style={{ color: 'rgba(var(--pk-gold-rgb),0.6)', marginLeft: 8 }}>▸ Next: {VARIANT_LABELS[nextDealerVariant]}</span>}
               </p>
             )}
             {drawUI}
             {isShowdown && !isSpectator && myHoleCards.length > 0 && (
-              <button onClick={onShowHand} disabled={myHandShown} style={{ marginBottom: 6, padding: '5px 14px', borderRadius: 8, border: `1px solid ${myHandShown ? 'rgba(212,175,55,0.4)' : 'rgba(212,175,55,0.2)'}`, background: myHandShown ? 'rgba(212,175,55,0.15)' : 'rgba(212,175,55,0.06)', color: myHandShown ? '#d4af37' : 'rgba(245,230,192,0.6)', fontSize: 11, fontWeight: 500, cursor: myHandShown ? 'default' : 'pointer', display: 'block' }}>
+              <button onClick={onShowHand} disabled={myHandShown} style={{ marginBottom: 6, padding: '5px 14px', borderRadius: 8, border: `1px solid ${myHandShown ? 'rgba(var(--pk-gold-rgb),0.4)' : 'rgba(var(--pk-gold-rgb),0.2)'}`, background: myHandShown ? 'rgba(var(--pk-gold-rgb),0.15)' : 'rgba(var(--pk-gold-rgb),0.06)', color: myHandShown ? 'rgb(var(--pk-gold-rgb))' : 'rgba(var(--pk-cream-rgb),0.6)', fontSize: 11, fontWeight: 500, cursor: myHandShown ? 'default' : 'pointer', display: 'block' }}>
                 {myHandShown ? '✓ Hand shown' : 'Show Hand'}
               </button>
             )}

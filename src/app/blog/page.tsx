@@ -43,12 +43,12 @@ export default function BlogPage() {
   return (
     <div className="container">
       <div style={{ marginBottom: '0.5rem' }}>
-        <Link href="/pl/" style={{ fontSize: '0.85rem', color: 'rgba(245,230,192,0.4)' }}>Strona główna</Link>
-        <span style={{ color: 'rgba(245,230,192,0.2)', margin: '0 0.5rem' }}>›</span>
-        <span style={{ fontSize: '0.85rem', color: 'rgba(245,230,192,0.6)' }}>Blog</span>
+        <Link href="/pl/" style={{ fontSize: '0.85rem', color: 'rgba(var(--pk-cream-rgb),0.4)' }}>Strona główna</Link>
+        <span style={{ color: 'rgba(var(--pk-cream-rgb),0.2)', margin: '0 0.5rem' }}>›</span>
+        <span style={{ fontSize: '0.85rem', color: 'rgba(var(--pk-cream-rgb),0.6)' }}>Blog</span>
       </div>
       <h1 style={{ fontSize: '2rem', margin: '1.5rem 0 0.5rem' }}>Blog</h1>
-      <p style={{ color: 'rgba(245,230,192,0.5)', marginBottom: '2.5rem' }}>
+      <p style={{ color: 'rgba(var(--pk-cream-rgb),0.5)', marginBottom: '2.5rem' }}>
         Zasady, strategie i wszystko o pokerze — {posts.length} artykułów
       </p>
       <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
@@ -57,12 +57,12 @@ export default function BlogPage() {
             <div className="card card-hover">
               <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '0.6rem' }}>
                 <span className="badge">{p.tag}</span>
-                <span style={{ fontSize: '0.8rem', color: 'rgba(245,230,192,0.3)' }}>
+                <span style={{ fontSize: '0.8rem', color: 'rgba(var(--pk-cream-rgb),0.3)' }}>
                   {new Date(p.date).toLocaleDateString('pl-PL', { day: 'numeric', month: 'long', year: 'numeric' })}
                 </span>
               </div>
               <h2 style={{ fontSize: '1.1rem', marginBottom: '0.4rem', lineHeight: 1.35 }}>{p.title}</h2>
-              <p style={{ fontSize: '0.9rem', color: 'rgba(245,230,192,0.55)', margin: 0 }}>{p.desc}</p>
+              <p style={{ fontSize: '0.9rem', color: 'rgba(var(--pk-cream-rgb),0.55)', margin: 0 }}>{p.desc}</p>
             </div>
           </Link>
         ))}

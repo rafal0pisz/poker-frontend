@@ -224,6 +224,12 @@ export default function OmahaHiLoPage() {
             />
 
             <Vs
+              left={{ cards: [['A','♠'],['2','♥'],['3','♦'],['4','♣'],['8','♠']], label: 'A-2-3-4-8', wins: false }}
+              right={{ cards: [['2','♠'],['3','♥'],['4','♦'],['5','♣'],['6','♠']], label: '2-3-4-5-6', wins: true }}
+              note="Najwyższa karta: 8 vs 6 → 6 < 8 → 2-3-4-5-6 wygrywa już na 1. pozycji. As nie pomaga gdy wyższa karta jest lepsza po drugiej stronie"
+            />
+
+            <Vs
               left={{ cards: [['A','♠'],['3','♥'],['4','♦'],['5','♣'],['6','♠']], label: 'A-3-4-5-6', wins: true }}
               right={{ cards: [['2','♠'],['3','♥'],['4','♦'],['5','♣'],['6','♠']], label: '2-3-4-5-6', wins: false }}
               note="Kolejno: 6=6, 5=5, 4=4, 3=3, teraz A(1) vs 2 → 1 < 2 → A-3-4-5-6 wygrywa! Tu As rozstrzyga na ostatniej pozycji"

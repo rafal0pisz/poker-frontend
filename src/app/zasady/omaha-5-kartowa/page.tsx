@@ -70,7 +70,7 @@ export default function Omaha5Page() {
             <ul>
               <li><strong>Graj ręce skoordynowane</strong> — 5 kart daje więcej możliwości, ale nieskoordynowane karty (np. 5 niepowiązanych) są słabsze niż w 4-kartowej Omaha</li>
               <li><strong>Double-suited jest ważniejszy</strong> — z 5 kart łatwiej trafić w nut flush draw</li>
-              <li><strong>Nut draw > inne drawy</strong> — jak w Omaha, nie-nut draw często prowadzi do utraty całego stacku</li>
+              <li><strong>Nut draw &gt; inne drawy</strong> — jak w Omaha, nie-nut draw często prowadzi do utraty całego stacku</li>
               <li><strong>Oceniaj rękę globalnie</strong> — przy 5 kartach kuszące jest budowanie oczekiwań na zbyt wielu frontach jednocześnie</li>
             </ul>
 

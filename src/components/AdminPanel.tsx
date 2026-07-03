@@ -405,7 +405,7 @@ export function AdminPanel({ room, mySessionToken, onClose }: Props) {
 
           {/* Theme */}
           <div className="border-t border-poker-gold/10 pt-4">
-            <p className="text-xs text-poker-yellow/50 mb-3">Kolorystyka aplikacji</p>
+            <p className="text-xs text-poker-yellow/50 mb-3">App theme</p>
             <div className="grid grid-cols-3 gap-2">
               {THEMES.map(({ value, label, swatch }) => (
                 <button

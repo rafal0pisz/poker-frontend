@@ -31,8 +31,8 @@ export function AdminPanel({ room, mySessionToken, onClose }: Props) {
 
   const THEMES = [
     { value: 'classic',  label: 'Casino Classic', swatch: '#D4AF37' },
-    { value: 'emerald',  label: 'Emerald',        swatch: '#4ADE80' },
-    { value: 'midnight', label: 'Midnight',       swatch: '#8B85F4' },
+    { value: 'sage',     label: 'Sage',            swatch: '#9AA67C' },
+    { value: 'amber',    label: 'Amber',           swatch: '#C49A5C' },
   ] as const;
 
   const currentTheme = room.settings.theme || 'classic';

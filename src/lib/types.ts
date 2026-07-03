@@ -47,7 +47,7 @@ export interface Player {
   pendingAction: 'check-fold' | 'fold' | null;
 }
 
-export type PokerTheme = 'classic' | 'emerald' | 'midnight';
+export type PokerTheme = 'classic' | 'sage' | 'amber';
 
 export interface RoomSettings {
   smallBlind: number;

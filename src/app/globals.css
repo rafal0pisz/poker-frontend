@@ -9,65 +9,61 @@
    Motyw ustawiany przez data-theme na <html>
    (PokerTable.tsx → useEffect). Brak atrybutu
    lub 'classic' = obecny wygląd, bez zmian.
-   Formaty:
-   --pk-*-rgb  → triplet "R,G,B" (do rgba(var(--x), a)
-                 i do Tailwinda z <alpha-value>)
-   --pk-*      → gotowy kolor (hex)
    ───────────────────────────────────────────── */
 
 :root,
 :root[data-theme='classic'] {
-  --pk-gold-rgb: 212,175,55;      /* akcent (obecne złoto) */
+  --pk-gold-rgb: 212,175,55;
   --pk-gold-light-rgb: 232,199,107;
-  --pk-yellow-rgb: 255,253,183;   /* jasny tekst (obecny krem) */
-  --pk-cream-rgb: 245,230,192;    /* drugi krem z inline styles */
-  --pk-coral-rgb: 255,107,107;    /* fold / ostrzeżenia */
-  --pk-bg-rgb: 31,8,8;            /* tło strony  (#1F0808) */
-  --pk-bg-light-rgb: 42,14,14;    /* modale      (#2A0E0E) */
+  --pk-yellow-rgb: 255,253,183;
+  --pk-cream-rgb: 245,230,192;
+  --pk-coral-rgb: 255,107,107;
+  --pk-bg-rgb: 31,8,8;
+  --pk-bg-light-rgb: 42,14,14;
 
-  --pk-surface: #0d0d17;          /* sidebar czatu (desktop) */
-  --pk-surface-2: #1a1a28;        /* awatary na owalu */
-  --pk-ink: #070709;              /* ciemny tekst na złotych przyciskach */
+  --pk-surface: #0d0d17;
+  --pk-surface-2: #1a1a28;
+  --pk-ink: #070709;
 
   --pk-felt-dark: #3A0808;
   --pk-felt: #5A0F0F;
   --pk-felt-light: #8B0000;
 }
 
-:root[data-theme='emerald'] {
-  --pk-gold-rgb: 74,222,128;      /* mięta #4ADE80 */
-  --pk-gold-light-rgb: 134,239,172;
-  --pk-yellow-rgb: 232,242,237;
-  --pk-cream-rgb: 215,245,228;
-  --pk-coral-rgb: 224,138,138;
-  --pk-bg-rgb: 12,18,16;          /* #0C1210 */
-  --pk-bg-light-rgb: 20,32,27;    /* #14201B */
+:root[data-theme='sage'] {
+  --pk-gold-rgb: 154,166,124;       /* oliwkowy #9AA67C */
+  --pk-gold-light-rgb: 180,192,152;
+  --pk-yellow-rgb: 221,224,210;     /* #DDE0D2 */
+  --pk-cream-rgb: 196,202,178;      /* #C4CAB2 */
+  --pk-coral-rgb: 208,138,126;      /* #D08A7E */
+  --pk-bg-rgb: 18,19,15;            /* #12130F */
+  --pk-bg-light-rgb: 24,26,20;      /* #181A14 */
 
-  --pk-surface: #0F1815;
-  --pk-surface-2: #1B2A23;
-  --pk-ink: #06251A;
+  --pk-surface: #151710;
+  --pk-surface-2: #1C1E16;
+  --pk-ink: #0E0F0B;
 
-  --pk-felt-dark: #0C2419;
-  --pk-felt: #123326;
-  --pk-felt-light: #1B4D3A;
+  --pk-felt-dark: #141A0E;
+  --pk-felt: #1C2416;
+  --pk-felt-light: #2A3620;
 }
 
-:root[data-theme='midnight'] {
-  --pk-gold-rgb: 139,133,244;     /* indygo #8B85F4 */
-  --pk-gold-light-rgb: 180,175,250;
-  --pk-yellow-rgb: 233,234,246;
-  --pk-cream-rgb: 214,212,251;
-  --pk-coral-rgb: 232,138,160;
-  --pk-bg-rgb: 13,15,30;          /* #0D0F1E */
-  --pk-bg-light-rgb: 20,23,48;    /* #141730 */
+:root[data-theme='amber'] {
+  --pk-gold-rgb: 196,154,92;        /* bursztyn #C49A5C */
+  --pk-gold-light-rgb: 216,180,128;
+  --pk-yellow-rgb: 232,223,210;     /* #E8DFD2 */
+  --pk-cream-rgb: 212,197,172;      /* #D4C5AC */
+  --pk-coral-rgb: 208,138,126;      /* #D08A7E */
+  --pk-bg-rgb: 20,17,16;            /* #141110 */
+  --pk-bg-light-rgb: 26,22,19;      /* #1A1613 */
 
-  --pk-surface: #12142A;
-  --pk-surface-2: #191C38;
-  --pk-ink: #12102E;
+  --pk-surface: #171310;
+  --pk-surface-2: #1E1812;
+  --pk-ink: #100E0B;
 
-  --pk-felt-dark: #12142E;
-  --pk-felt: #161A3E;
-  --pk-felt-light: #221F4A;
+  --pk-felt-dark: #1A1408;
+  --pk-felt: #241C0E;
+  --pk-felt-light: #362A16;
 }
 
 html, body {
@@ -78,31 +74,26 @@ html, body {
   transition: background-color 0.4s ease;
 }
 
-/* Disable tap highlight on mobile */
 * {
   -webkit-tap-highlight-color: transparent;
 }
 
-/* Prevent zoom on input focus (iOS) */
 input, textarea, select {
   font-size: 16px;
 }
 
-/* Casino-style table felt — used in the center of the table */
 .poker-felt {
   background: radial-gradient(ellipse at center, var(--pk-felt-light) 0%, var(--pk-felt) 60%, var(--pk-felt-dark) 100%);
   border: 3px solid rgba(var(--pk-gold-rgb), 0.5);
   box-shadow: inset 0 0 30px rgba(0,0,0,0.5), 0 0 12px rgba(var(--pk-gold-rgb), 0.15);
 }
 
-/* Wider felt for desktop */
 @media (min-width: 768px) {
   .poker-felt {
     box-shadow: inset 0 0 40px rgba(0,0,0,0.5), 0 0 16px rgba(var(--pk-gold-rgb), 0.2);
   }
 }
 
-/* Hide scrollbar in chat (WebKit/Safari) while keeping scroll functionality */
 .chat-scroll::-webkit-scrollbar {
   display: none;
 }

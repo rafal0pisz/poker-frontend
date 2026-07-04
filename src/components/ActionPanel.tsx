@@ -192,10 +192,13 @@ export function ActionPanel({ me, gameState, settings, players }: Props) {
     const waitingMsg =
       me.status === 'folded' ? 'You folded — waiting for end of hand' :
       me.status === 'all-in' ? 'All-in — waiting for end of hand' :
+      // 'no-chips' must be checked before the chips===0 fallback below —
+      // a busted, no-chips player always has chips===0, and without this
+      // ordering they'd incorrectly see "All-in" instead of "No chips".
+      me.status === 'no-chips' ? 'No chips — waiting for admin to add' :
       me.chips === 0 ? 'All-in — waiting for end of hand' :
       me.status === 'waiting' ? 'Waiting for the next hand to start' :
       me.status === 'sitting-out' ? "You're sitting out" :
-      me.status === 'no-chips' ? 'No chips — waiting for admin to add' :
       null;
 
     if (waitingMsg) {

@@ -161,6 +161,15 @@ export function ActionPanel({ me, gameState, settings, players }: Props) {
     });
   };
 
+  // Time Bank: 2 uses per session, +30s each — hidden entirely once both are spent.
+  const timeBankUsesLeft = me.timeBankUsesLeft ?? 2;
+  const canCallTime = !!settings.timeBankEnabled && timeBankUsesLeft > 0;
+  const callTime = () => {
+    getSocket().emit('game:call-time', (response: ActionResponse) => {
+      if (response && !response.ok) console.warn('Call time failed:', response.error);
+    });
+  };
+
   const sendPreAction = useCallback(
     (action: PreAction) => {
       const next = action === pendingAction ? null : action;
@@ -303,6 +312,17 @@ export function ActionPanel({ me, gameState, settings, players }: Props) {
   // ── MAIN ACTION BUTTONS ───────────────────────────────────────────────
   return (
     <div className="bg-poker-yellow/5 border border-poker-gold/25 rounded-xl p-3 space-y-2">
+      {canCallTime && (
+        <div className="flex justify-end">
+          <button
+            onClick={callTime}
+            className="text-[11px] font-medium px-3 py-1.5 rounded-lg active:scale-95"
+            style={{ background: 'rgba(91,155,213,0.15)', border: '1px solid rgba(91,155,213,0.5)', color: '#5b9bd5' }}
+          >
+            ⏱ +Time
+          </button>
+        </div>
+      )}
       <div className="grid grid-cols-3 gap-1.5">
         {/* Fold */}
         <button
@@ -359,7 +379,7 @@ export function ActionPanel({ me, gameState, settings, players }: Props) {
             className="h-1 rounded-full"
             style={{
               width: `${Math.min(100, (secondsLeft / settings.actionTimeoutSec) * 100)}%`,
-              background: secondsLeft > 10 ? 'rgb(var(--pk-gold-rgb))' : secondsLeft > 5 ? '#e07b39' : '#e05050',
+              background: gameState.timeBankActive ? '#5b9bd5' : secondsLeft > 10 ? 'rgb(var(--pk-gold-rgb))' : secondsLeft > 5 ? '#e07b39' : '#e05050',
               transition: 'width 0.9s linear, background 0.3s',
             }}
           />

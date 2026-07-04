@@ -21,6 +21,7 @@ interface Props {
   actionTimeoutSec?: number;
   revealedCards?: CardType[];
   equity?: number;
+  timeBankActive?: boolean;
 }
 
 const STATUS_LABEL: Record<PlayerStatus, string> = {
@@ -35,7 +36,7 @@ const STATUS_LABEL: Record<PlayerStatus, string> = {
 };
 
 // SVG ring timer — animates circumference as time runs out
-function TimerRing({ deadline, timeoutSec }: { deadline: number; timeoutSec: number }) {
+function TimerRing({ deadline, timeoutSec, active }: { deadline: number; timeoutSec: number; active?: boolean }) {
   const [progress, setProgress] = useState(1); // 1 = full, 0 = empty
 
   useEffect(() => {
@@ -52,7 +53,9 @@ function TimerRing({ deadline, timeoutSec }: { deadline: number; timeoutSec: num
   const R = 23;
   const CIRC = 2 * Math.PI * R;
   const dash = progress * CIRC;
-  const color = progress > 0.4 ? 'rgb(var(--pk-gold-rgb))' : progress > 0.2 ? '#e07b39' : '#e05050';
+  // Time Bank in use — solid blue regardless of how much time is left, so it
+  // reads as "extra time", not as "almost out of time" (which the red would imply).
+  const color = active ? '#5b9bd5' : progress > 0.4 ? 'rgb(var(--pk-gold-rgb))' : progress > 0.2 ? '#e07b39' : '#e05050';
 
   return (
     <svg
@@ -92,6 +95,7 @@ export const PlayerSeat = memo(function PlayerSeat({
   actionTimeoutSec = 30,
   revealedCards,
   equity,
+  timeBankActive,
 }: Props) {
   const dimmed =
     player.status === 'folded' ||
@@ -143,7 +147,7 @@ export const PlayerSeat = memo(function PlayerSeat({
         <div style={{ position: 'relative', width: 42, height: 42 }}>
           {/* Timer ring SVG — behind avatar visually but layered via z */}
           {showRing && (
-            <TimerRing deadline={actionDeadline!} timeoutSec={actionTimeoutSec} />
+            <TimerRing deadline={actionDeadline!} timeoutSec={actionTimeoutSec} active={timeBankActive} />
           )}
 
           <div

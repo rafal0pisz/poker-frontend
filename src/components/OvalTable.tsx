@@ -62,12 +62,12 @@ function BetChip({ amount, side = 'bottom' }: BetChipProps) {
 // Oval seat component — mini version for around-the-table display
 function OvalSeat({
   player, isCurrent, isDealer, isSb, isBb, seatIndex, cardCount, onAvatarClick, equity,
-  winningCards, winningCardsSecondary, lastMessage, handName, actionDeadline, actionTimeoutSec, revealedCards,
+  winningCards, winningCardsSecondary, lastMessage, handName, actionDeadline, actionTimeoutSec, revealedCards, timeBankActive,
 }: {
   player: Room['players'][0]; isCurrent: boolean; isDealer: boolean;
   isSb: boolean; isBb: boolean; seatIndex: number; cardCount: number;
   winningCards: Set<CardType>; winningCardsSecondary: Set<CardType>; lastMessage: ChatMessage | null; handName?: string; onAvatarClick?: () => void; equity?: number;
-  actionDeadline?: number | null; actionTimeoutSec?: number; revealedCards?: CardType[];
+  actionDeadline?: number | null; actionTimeoutSec?: number; revealedCards?: CardType[]; timeBankActive?: boolean;
 }) {
   const pos = SEAT_POSITIONS[seatIndex];
   const isFolded = player.status === 'folded';
@@ -103,7 +103,7 @@ function OvalSeat({
       <div style={{ position: 'relative', width: 42, height: 42 }}>
         {/* Timer ring */}
         {isCurrent && actionDeadline && (
-          <TimerRingSmall deadline={actionDeadline} timeoutSec={actionTimeoutSec ?? 30} />
+          <TimerRingSmall deadline={actionDeadline} timeoutSec={actionTimeoutSec ?? 30} active={timeBankActive} />
         )}
         <div onClick={onAvatarClick} style={{ width: 42, height: 42, borderRadius: '50%', background: isCurrent ? 'rgba(var(--pk-gold-rgb),0.2)' : 'var(--pk-surface-2)', border: isCurrent ? '2px solid rgb(var(--pk-gold-rgb))' : '1.5px solid rgba(var(--pk-gold-rgb),0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 11, fontWeight: 600, color: isCurrent ? 'rgb(var(--pk-gold-rgb))' : 'rgba(var(--pk-cream-rgb),0.6)', boxShadow: isCurrent ? '0 0 12px rgba(var(--pk-gold-rgb),0.3)' : 'none', position: 'relative', cursor: onAvatarClick ? 'pointer' : 'default' }}>
           {player.nick.slice(0, 2).toUpperCase()}
@@ -145,13 +145,13 @@ function OvalSeat({
   );
 }
 
-function TimerRingSmall({ deadline, timeoutSec }: { deadline: number; timeoutSec: number }) {
+function TimerRingSmall({ deadline, timeoutSec, active }: { deadline: number; timeoutSec: number; active?: boolean }) {
   const ref = useRef<SVGCircleElement>(null);
   useEffect(() => {
     const R = 23, CIRC = 2 * Math.PI * R;
     const update = () => {
       const progress = Math.max(0, (deadline - Date.now()) / (timeoutSec * 1000));
-      const color = progress > 0.4 ? 'rgb(var(--pk-gold-rgb))' : progress > 0.2 ? '#e07b39' : '#e05050';
+      const color = active ? '#5b9bd5' : progress > 0.4 ? 'rgb(var(--pk-gold-rgb))' : progress > 0.2 ? '#e07b39' : '#e05050';
       if (ref.current) {
         ref.current.style.strokeDasharray = `${progress * CIRC} ${(1 - progress) * CIRC}`;
         ref.current.style.stroke = color;
@@ -160,7 +160,7 @@ function TimerRingSmall({ deadline, timeoutSec }: { deadline: number; timeoutSec
     update();
     const id = setInterval(update, 100);
     return () => clearInterval(id);
-  }, [deadline, timeoutSec]);
+  }, [deadline, timeoutSec, active]);
   const R = 23, CIRC = 2 * Math.PI * R;
   return (
     <svg width="48" height="48" viewBox="0 0 48 48" style={{ position: 'absolute', top: -3, left: -3, pointerEvents: 'none' }}>
@@ -523,6 +523,7 @@ export function OvalTable({
                 revealedCards={revealedHands[player.sessionToken]}
                 onAvatarClick={() => setSelectedStatsToken(player.sessionToken)}
                 equity={showEquity ? equityMap[player.sessionToken] : undefined}
+                timeBankActive={gameState?.timeBankActive}
               />
             ))}
 

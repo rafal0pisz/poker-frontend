@@ -954,6 +954,7 @@ export function PokerTable({ initialRoom, mySessionToken, onLeave }: Props) {
                     actionTimeoutSec={room.settings.actionTimeoutSec}
                     revealedCards={mergedRevealedHands[p.sessionToken]}
                     equity={showEquityMobile ? equityMapMobile[p.sessionToken] : undefined}
+                    timeBankActive={gameState?.timeBankActive}
                   />
                 </div>
               ))}

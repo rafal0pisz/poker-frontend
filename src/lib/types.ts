@@ -45,6 +45,8 @@ export interface Player {
   totalBuyIn: number;
   pendingChipsAdjustment: number;
   pendingAction: 'check-fold' | 'fold' | null;
+  // Time Bank uses left this session (starts at 2). Undefined = full allowance.
+  timeBankUsesLeft?: number;
 }
 
 export type PokerTheme = 'classic' | 'sage' | 'amber';
@@ -57,6 +59,8 @@ export interface RoomSettings {
   actionTimeoutSec: 15 | 30 | 60;
   tableColor?: string;
   theme?: PokerTheme;
+  // Admin-controlled: whether players can call +30s Time Bank (2x per session)
+  timeBankEnabled?: boolean;
 }
 
 // 'draw' = Drawmaha draw phase (after flop, before turn)
@@ -186,6 +190,9 @@ export interface GameState {
   runItTwiceState?: RunItTwiceState;
   runItTwiceOffered?: boolean;
   runItTwiceReveal?: RunItTwiceRevealState;
+  // True when the currently-acting player has called Time Bank on this
+  // decision — drives the blue timer ring shown to everyone else.
+  timeBankActive?: boolean;
 }
 
 // Chat

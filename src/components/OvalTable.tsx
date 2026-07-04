@@ -110,7 +110,6 @@ function OvalSeat({
           {isDealer && <span style={{ position: 'absolute', top: -4, right: -4, width: 14, height: 14, background: '#fff', borderRadius: '50%', fontSize: 7, fontWeight: 800, color: 'var(--pk-ink)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>D</span>}
           {isSb && <span style={{ position: 'absolute', bottom: -4, left: -4, width: 14, height: 14, background: '#3b82f6', borderRadius: '50%', fontSize: 7, fontWeight: 800, color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>S</span>}
           {isBb && !isDealer && <span style={{ position: 'absolute', bottom: -4, right: -4, width: 14, height: 14, background: '#7c3aed', borderRadius: '50%', fontSize: 7, fontWeight: 800, color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>B</span>}
-          {player.straddleNextHand && <span title="Will straddle when UTG" style={{ position: 'absolute', top: -4, left: -4, width: 14, height: 14, background: '#f59e0b', borderRadius: '50%', fontSize: 7, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>🎲</span>}
         </div>
         {player.currentBet > 0 && <BetChip amount={player.currentBet} side={betSide as 'top' | 'bottom' | 'left' | 'right'} />}
         {player.status === 'all-in' && (
@@ -190,9 +189,6 @@ export interface OvalTableProps {
   isAdmin: boolean;
   isSittingOut: boolean;
   canSitOut: boolean;
-  canStraddle: boolean;
-  isStraddling: boolean;
-  onToggleStraddle: () => void;
   muted: boolean;
   codeCopied: boolean;
   currentVariant: GameVariant;
@@ -234,7 +230,6 @@ export function OvalTable({
   room, mySessionToken, gameState, otherPlayers, me, myHoleCards, myFoldedCards,
   winningCardsSet, winningCardsSecondarySet, activeResult, lastResult, resultMessage,
   isShowdown, myHandShown, isSpectator, isAdmin, isSittingOut, canSitOut,
-  canStraddle, isStraddling, onToggleStraddle,
   muted, codeCopied, currentVariant, currentCardCount, isDrawPhase,
   revealedHands, sbSeat, bbSeat, prevCommCardCountRef,
   myBubbleToShow, getBubble, messages, sendChat, sendReaction,
@@ -341,21 +336,6 @@ export function OvalTable({
                 {(me as any)?.pendingSitOut ? '✕ Cancel' : '⏸ Out'}
               </button>
             : null}
-          {canStraddle && (
-            <button
-              onClick={onToggleStraddle}
-              title="Always straddle when I'm UTG"
-              style={{
-                background: isStraddling ? 'rgba(var(--pk-gold-rgb),0.15)' : 'rgba(255,255,255,0.03)',
-                border: `1px solid ${isStraddling ? 'rgba(var(--pk-gold-rgb),0.5)' : 'rgba(255,255,255,0.07)'}`,
-                borderRadius: 7, padding: '4px 8px', fontSize: 10,
-                color: isStraddling ? 'rgb(var(--pk-gold-rgb))' : 'rgba(var(--pk-cream-rgb),0.5)',
-                cursor: 'pointer',
-              }}
-            >
-              🎲 Straddle {isStraddling ? 'ON' : 'OFF'}
-            </button>
-          )}
           <button onClick={onLeave} style={{ background: 'transparent', border: 'none', fontSize: 10, color: 'rgba(var(--pk-cream-rgb),0.35)', cursor: 'pointer', padding: '4px 4px' }}>Leave</button>
         </div>
 
@@ -570,7 +550,6 @@ export function OvalTable({
                   {gameState?.dealerSeat === me.seat && <span style={{ position: 'absolute', top: -4, right: -4, width: 14, height: 14, background: '#fff', borderRadius: '50%', fontSize: 7, fontWeight: 800, color: 'var(--pk-ink)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>D</span>}
                   {me.seat === sbSeat && <span style={{ position: 'absolute', bottom: -4, left: -4, width: 14, height: 14, background: '#3b82f6', borderRadius: '50%', fontSize: 7, fontWeight: 800, color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>S</span>}
                   {me.seat === bbSeat && gameState?.dealerSeat !== me.seat && <span style={{ position: 'absolute', bottom: -4, right: -4, width: 14, height: 14, background: '#7c3aed', borderRadius: '50%', fontSize: 7, fontWeight: 800, color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>B</span>}
-                  {me.straddleNextHand && <span title="Will straddle when UTG" style={{ position: 'absolute', top: -4, left: -4, width: 14, height: 14, background: '#f59e0b', borderRadius: '50%', fontSize: 7, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>🎲</span>}
                 </div>
                 {me.currentBet > 0 && (
                   <div style={{ position: 'absolute', top: -18, left: '50%', transform: 'translateX(-50%)', background: 'rgb(var(--pk-gold-rgb))', color: 'var(--pk-ink)', fontSize: 9, fontWeight: 700, padding: '2px 6px', borderRadius: 8, whiteSpace: 'nowrap', zIndex: 20 }}>{me.currentBet}</div>

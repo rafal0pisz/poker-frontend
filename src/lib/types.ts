@@ -45,9 +45,6 @@ export interface Player {
   totalBuyIn: number;
   pendingChipsAdjustment: number;
   pendingAction: 'check-fold' | 'fold' | null;
-  // Standing "always straddle when I'm UTG" preference — applied
-  // automatically at the start of a hand, not a per-hand live decision.
-  straddleNextHand?: boolean;
 }
 
 export type PokerTheme = 'classic' | 'sage' | 'amber';
@@ -60,8 +57,6 @@ export interface RoomSettings {
   actionTimeoutSec: 15 | 30 | 60;
   tableColor?: string;
   theme?: PokerTheme;
-  // Admin-controlled: whether the UTG straddle option is available at this table
-  straddleEnabled?: boolean;
 }
 
 // 'draw' = Drawmaha draw phase (after flop, before turn)

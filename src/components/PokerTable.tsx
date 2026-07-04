@@ -710,17 +710,6 @@ export function PokerTable({ initialRoom, mySessionToken, onLeave }: Props) {
   }, [me.chipRequest]);
   const isSpectator = me.status === 'spectator';
   const canSitOut = !!gameState && !['sitting-out', 'waiting', 'no-chips', 'spectator'].includes(me.status);
-  // Straddle is a standing "next time I'm UTG" preference, not gated on
-  // being in a hand right now — needs 3+ non-spectator players (heads-up
-  // has no UTG seat) and enough chips to post more than a big blind.
-  const canStraddle = !!room.settings.straddleEnabled
-    && !isSpectator
-    && room.players.filter((p) => p.status !== 'spectator').length >= 3
-    && me.chips > room.settings.bigBlind;
-  const isStraddling = !!me.straddleNextHand;
-  const handleToggleStraddle = () => {
-    getSocket().emit('game:set-straddle', { enabled: !isStraddling });
-  };
 
   const winningCardsSet = new Set<CardType>();
   const winningCardsSecondarySet = new Set<CardType>();
@@ -926,19 +915,6 @@ export function PokerTable({ initialRoom, mySessionToken, onLeave }: Props) {
                 {(me as any).pendingSitOut ? '✕ Cancel sit-out' : '⏸ Sit out'}
               </button>
               : null}
-            {canStraddle && (
-              <button
-                onClick={handleToggleStraddle}
-                title="Always straddle when I'm UTG"
-                className={`border text-xs px-2.5 py-1.5 rounded-lg transition-all active:scale-95 ${
-                  isStraddling
-                    ? 'bg-poker-gold/20 border-poker-gold/50 text-poker-gold'
-                    : 'bg-poker-yellow/5 border-poker-gold/25 text-poker-yellow/70'
-                }`}
-              >
-                🎲 Straddle {isStraddling ? 'ON' : 'OFF'}
-              </button>
-            )}
             {isAdmin && <button onClick={() => setShowAdminPanel(true)} className="bg-poker-gold/15 border border-poker-gold/40 text-poker-gold text-xs px-2.5 py-1.5 rounded-lg">⚙ Admin</button>}
             <button onClick={() => { if (confirm("Leave? You'll lose your seat.")) { getSocket().emit('room:leave'); clearSessionToken(room.id); onLeave(); } }} className="text-poker-yellow/60 text-xs px-2 py-1.5">Leave</button>
           </div>
@@ -1269,9 +1245,6 @@ export function PokerTable({ initialRoom, mySessionToken, onLeave }: Props) {
           isAdmin={isAdmin}
           isSittingOut={isSittingOut}
           canSitOut={canSitOut}
-          canStraddle={canStraddle}
-          isStraddling={isStraddling}
-          onToggleStraddle={handleToggleStraddle}
           muted={muted}
           codeCopied={codeCopied}
           currentVariant={currentVariant}

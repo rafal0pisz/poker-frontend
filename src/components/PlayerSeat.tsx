@@ -139,18 +139,6 @@ export const PlayerSeat = memo(function PlayerSeat({
           </span>
         )}
 
-        {/* Straddle armed — top-left. Shows even before it fires, so the
-            toggle's effect is visible right away instead of a silent no-op
-            until this player happens to land on UTG. */}
-        {player.straddleNextHand && (
-          <span
-            title="Will straddle when UTG"
-            className="absolute -left-1 -top-1 bg-amber-500 text-white text-[9px] w-4 h-4 rounded-full flex items-center justify-center shadow-sm"
-          >
-            🎲
-          </span>
-        )}
-
         {/* Avatar circle wrapper (relative so SVG ring can overlay) */}
         <div style={{ position: 'relative', width: 42, height: 42 }}>
           {/* Timer ring SVG — behind avatar visually but layered via z */}

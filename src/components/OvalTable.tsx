@@ -3,7 +3,8 @@
 import React, { useEffect, useRef, useState } from 'react';
 import type { Room, Card as CardType, HandResult, ChatMessage, GameVariant } from '@/lib/types';
 import type { LogEntry } from '@/hooks/useHandLog';
-import { QUICK_REACTIONS } from '@/lib/types';
+import { QUICK_REACTIONS } from '@/lib/reactions';
+import { ReactionImage } from './ReactionImage';
 import { Card, CardPlaceholder } from './Card';
 import { PlayerSeat } from './PlayerSeat';
 import { ActionPanel } from './ActionPanel';
@@ -109,6 +110,7 @@ function OvalSeat({
           {isDealer && <span style={{ position: 'absolute', top: -4, right: -4, width: 14, height: 14, background: '#fff', borderRadius: '50%', fontSize: 7, fontWeight: 800, color: 'var(--pk-ink)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>D</span>}
           {isSb && <span style={{ position: 'absolute', bottom: -4, left: -4, width: 14, height: 14, background: '#3b82f6', borderRadius: '50%', fontSize: 7, fontWeight: 800, color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>S</span>}
           {isBb && !isDealer && <span style={{ position: 'absolute', bottom: -4, right: -4, width: 14, height: 14, background: '#7c3aed', borderRadius: '50%', fontSize: 7, fontWeight: 800, color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>B</span>}
+          {player.straddleNextHand && <span title="Will straddle when UTG" style={{ position: 'absolute', top: -4, left: -4, width: 14, height: 14, background: '#f59e0b', borderRadius: '50%', fontSize: 7, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>🎲</span>}
         </div>
         {player.currentBet > 0 && <BetChip amount={player.currentBet} side={betSide as 'top' | 'bottom' | 'left' | 'right'} />}
         {player.status === 'all-in' && (
@@ -371,7 +373,7 @@ export function OvalTable({
         <div style={{ display: 'flex', borderBottom: '1px solid rgba(var(--pk-gold-rgb),0.08)' }}>
           {(['chat', 'actions', 'summary', 'history'] as const).map(t => (
             <button key={t} onClick={() => { setTab(t); if (t !== 'history') setSelectedHand(null); }} style={{ flex: 1, padding: '8px 4px', fontSize: 10, fontWeight: 500, color: tab === t ? 'rgb(var(--pk-gold-rgb))' : 'rgba(var(--pk-cream-rgb),0.3)', background: 'transparent', border: 'none', borderBottom: tab === t ? '2px solid rgb(var(--pk-gold-rgb))' : '2px solid transparent', cursor: 'pointer', transition: 'color 0.15s' }}>
-              {t === 'chat' ? `💬 Chat${chatMessages.length > 0 && tab !== 'chat' ? ` (${chatMessages.length})` : ''}` : t === 'actions' ? `📋 Actions${actionMessages.length > 0 && tab !== 'actions' ? ` (${actionMessages.length})` : ''}` : t === 'summary' ? `📊 Summary` : `📜 History`}
+              {t === 'chat' ? `Chat${chatMessages.length > 0 && tab !== 'chat' ? ` (${chatMessages.length})` : ''}` : t === 'actions' ? `Actions${actionMessages.length > 0 && tab !== 'actions' ? ` (${actionMessages.length})` : ''}` : t === 'summary' ? `Summary` : `History`}
             </button>
           ))}
         </div>
@@ -381,10 +383,10 @@ export function OvalTable({
           {tab === 'chat' && (chatMessages.length === 0
             ? <p style={{ fontSize: 11, color: 'rgba(var(--pk-cream-rgb),0.25)', textAlign: 'center', marginTop: 20 }}>No messages yet</p>
             : chatMessages.map(m => (
-              <div key={m.id} style={{ fontSize: 11, lineHeight: 1.4 }}>
+              <div key={m.id} style={{ fontSize: 11, lineHeight: 1.4, display: 'flex', alignItems: 'center', gap: 4 }}>
                 <span style={{ fontWeight: 600, color: m.senderSessionToken === mySessionToken ? 'rgb(var(--pk-gold-rgb))' : 'rgba(var(--pk-gold-rgb),0.6)' }}>{m.senderNick ?? 'You'}: </span>
-                <span style={{ color: 'rgba(var(--pk-cream-rgb),0.7)' }}>{m.content}</span>
-                <span style={{ fontSize: 9, color: 'rgba(var(--pk-cream-rgb),0.2)', marginLeft: 4 }}>{formatTime(m.timestamp)}</span>
+                {m.type === 'reaction' ? <ReactionImage value={m.content} size={22} /> : <span style={{ color: 'rgba(var(--pk-cream-rgb),0.7)' }}>{m.content}</span>}
+                <span style={{ fontSize: 9, color: 'rgba(var(--pk-cream-rgb),0.2)' }}>{formatTime(m.timestamp)}</span>
               </div>
             ))
           )}
@@ -423,7 +425,7 @@ export function OvalTable({
               onClick={() => downloadSessionSummaryImage(allSummary, room.id)}
               style={{ marginTop: 6, padding: '9px 0', borderRadius: 8, border: '1px solid rgba(var(--pk-gold-rgb),0.3)', background: 'rgba(var(--pk-gold-rgb),0.1)', color: 'rgb(var(--pk-gold-rgb))', fontSize: 11, fontWeight: 500, cursor: 'pointer' }}
             >
-              📸 Download results image
+              Download results image
             </button>
           )}
           {tab === 'history' && (
@@ -445,12 +447,12 @@ export function OvalTable({
           <>
             {showEmojiPicker && (
               <div style={{ borderTop: '1px solid rgba(var(--pk-gold-rgb),0.08)', padding: '7px 8px', display: 'flex', gap: 4, justifyContent: 'space-between' }}>
-                {REACTIONS.map(e => (
-                  <button key={e} onClick={() => { sendReaction(e); setShowEmojiPicker(false); }}
-                    style={{ fontSize: 20, background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(var(--pk-gold-rgb),0.12)', borderRadius: 10, width: 36, height: 36, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'background .12s' }}
+                {REACTIONS.map(r => (
+                  <button key={r} onClick={() => { sendReaction(r); setShowEmojiPicker(false); }}
+                    style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(var(--pk-gold-rgb),0.12)', borderRadius: 10, width: 36, height: 36, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'background .12s' }}
                     onMouseEnter={ev => (ev.currentTarget.style.background = 'rgba(var(--pk-gold-rgb),0.14)')}
                     onMouseLeave={ev => (ev.currentTarget.style.background = 'rgba(255,255,255,0.03)')}
-                  >{e}</button>
+                  ><ReactionImage value={r} size={26} /></button>
                 ))}
               </div>
             )}
@@ -568,6 +570,7 @@ export function OvalTable({
                   {gameState?.dealerSeat === me.seat && <span style={{ position: 'absolute', top: -4, right: -4, width: 14, height: 14, background: '#fff', borderRadius: '50%', fontSize: 7, fontWeight: 800, color: 'var(--pk-ink)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>D</span>}
                   {me.seat === sbSeat && <span style={{ position: 'absolute', bottom: -4, left: -4, width: 14, height: 14, background: '#3b82f6', borderRadius: '50%', fontSize: 7, fontWeight: 800, color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>S</span>}
                   {me.seat === bbSeat && gameState?.dealerSeat !== me.seat && <span style={{ position: 'absolute', bottom: -4, right: -4, width: 14, height: 14, background: '#7c3aed', borderRadius: '50%', fontSize: 7, fontWeight: 800, color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>B</span>}
+                  {me.straddleNextHand && <span title="Will straddle when UTG" style={{ position: 'absolute', top: -4, left: -4, width: 14, height: 14, background: '#f59e0b', borderRadius: '50%', fontSize: 7, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>🎲</span>}
                 </div>
                 {me.currentBet > 0 && (
                   <div style={{ position: 'absolute', top: -18, left: '50%', transform: 'translateX(-50%)', background: 'rgb(var(--pk-gold-rgb))', color: 'var(--pk-ink)', fontSize: 9, fontWeight: 700, padding: '2px 6px', borderRadius: 8, whiteSpace: 'nowrap', zIndex: 20 }}>{me.currentBet}</div>

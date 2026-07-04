@@ -247,6 +247,4 @@ export interface Room {
   handHistory: HandResult[];
 }
 
-// Reactions available as quick-tap buttons
-export const QUICK_REACTIONS = ['🤣', '💀', '🤑', '🫣', '🤡', '🤯'] as const;
-export type QuickReaction = typeof QUICK_REACTIONS[number];
+// Quick-tap chat reactions moved to '@/lib/reactions' (now image-based, not raw emoji).

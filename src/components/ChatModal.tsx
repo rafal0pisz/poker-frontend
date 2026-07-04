@@ -2,11 +2,12 @@
 
 import { useEffect, useRef, useState } from 'react';
 import type { ChatMessage, SessionResult, Room, HandResult } from '@/lib/types';
-import { QUICK_REACTIONS } from '@/lib/types';
+import { QUICK_REACTIONS } from '@/lib/reactions';
 import { getSocket } from '@/lib/socket';
 import { HandHistoryList } from './HandHistoryList';
 import { HandHistoryDetail } from './HandHistoryDetail';
 import { downloadSessionSummaryImage } from '@/lib/exportSummaryImage';
+import { ReactionImage } from './ReactionImage';
 
 interface Props {
   messages: ChatMessage[];
@@ -208,9 +209,9 @@ export function ChatModal({ messages, mySessionToken, room, onClose, handLogs }:
                   const isReaction = m.type === 'reaction';
                   return (
                     <div key={m.id} className={`flex ${isMine ? 'justify-end' : 'justify-start'}`}>
-                      <div className={isReaction ? `text-3xl ${isMine ? 'mr-1' : 'ml-1'}` : `max-w-[75%] px-3 py-1.5 rounded-2xl ${isMine ? 'bg-poker-gold text-poker-bg' : 'bg-poker-yellow/10 text-poker-yellow border border-poker-gold/15'}`}>
+                      <div className={isReaction ? `${isMine ? 'mr-1' : 'ml-1'}` : `max-w-[75%] px-3 py-1.5 rounded-2xl ${isMine ? 'bg-poker-gold text-poker-bg' : 'bg-poker-yellow/10 text-poker-yellow border border-poker-gold/15'}`}>
                         {!isMine && !isReaction && <p className="text-[10px] opacity-70 mb-0.5">{m.senderNick}</p>}
-                        <p className={isReaction ? '' : 'text-sm break-words'}>{m.content}</p>
+                        {isReaction ? <ReactionImage value={m.content} size={40} /> : <p className="text-sm break-words">{m.content}</p>}
                         {!isReaction && (
                           <p className={`text-[9px] mt-0.5 text-right ${isMine ? 'text-poker-bg/50' : 'text-poker-yellow/40'}`}>
                             {formatTime(m.timestamp)}
@@ -246,8 +247,10 @@ export function ChatModal({ messages, mySessionToken, room, onClose, handLogs }:
         {tab === 'chat' && (
           <div className="px-4 py-2 border-t border-poker-gold/15 flex-shrink-0">
             <div className="flex gap-1.5 justify-center">
-              {QUICK_REACTIONS.map((emoji) => (
-                <button key={emoji} onClick={() => sendReaction(emoji)} className="bg-poker-yellow/5 hover:bg-poker-yellow/15 px-3 py-1.5 rounded-full text-lg active:scale-90 transition">{emoji}</button>
+              {QUICK_REACTIONS.map((r) => (
+                <button key={r} onClick={() => sendReaction(r)} className="bg-poker-yellow/5 hover:bg-poker-yellow/15 p-1.5 rounded-full active:scale-90 transition">
+                  <ReactionImage value={r} size={32} />
+                </button>
               ))}
             </div>
           </div>

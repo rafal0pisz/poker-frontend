@@ -2,7 +2,8 @@
 
 import { useEffect, useRef, useState } from 'react';
 import type { ChatMessage, Room } from '@/lib/types';
-import { QUICK_REACTIONS } from '@/lib/types';
+import { QUICK_REACTIONS } from '@/lib/reactions';
+import { ReactionImage } from './ReactionImage';
 
 const REACTIONS = QUICK_REACTIONS;
 
@@ -62,7 +63,6 @@ export function QuickChat({ messages, mySessionToken, onSendChat, onSendReaction
         className="w-full flex items-center justify-between px-4 py-2.5 text-xs text-poker-yellow/60 hover:text-poker-yellow/80 transition-colors"
       >
         <span className="flex items-center gap-1.5">
-          <span>💬</span>
           <span className="font-medium">Chat</span>
           {!open && unread > 0 && (
             <span className="bg-poker-gold text-poker-bg text-[9px] font-bold px-1.5 py-0.5 rounded-full">
@@ -87,13 +87,13 @@ export function QuickChat({ messages, mySessionToken, onSendChat, onSendReaction
               chatMessages.map(m => {
                 const isReaction = m.type === 'reaction';
                 return (
-                  <div key={m.id} className={`text-[11px] leading-snug ${isReaction ? 'text-xl' : ''}`}>
+                  <div key={m.id} className="text-[11px] leading-snug flex items-center gap-1">
                     {!isReaction && (
                       <span className="font-semibold" style={{ color: m.senderSessionToken === mySessionToken ? 'rgb(var(--pk-gold-rgb))' : 'rgba(var(--pk-gold-rgb),0.6)' }}>
                         {m.senderNick ?? 'You'}:{' '}
                       </span>
                     )}
-                    <span className={isReaction ? '' : 'text-poker-yellow/70'}>{m.content}</span>
+                    {isReaction ? <ReactionImage value={m.content} size={22} /> : <span className="text-poker-yellow/70">{m.content}</span>}
                     {!isReaction && <span className="text-poker-yellow/25 text-[9px] ml-1">{formatTime(m.timestamp)}</span>}
                   </div>
                 );
@@ -104,13 +104,13 @@ export function QuickChat({ messages, mySessionToken, onSendChat, onSendReaction
           {/* Emoji picker */}
           {showEmojiPicker && (
             <div className="border-t border-poker-gold/10 px-3 py-2 flex gap-1.5 justify-between">
-              {REACTIONS.map(e => (
+              {REACTIONS.map(r => (
                 <button
-                  key={e}
-                  onClick={() => sendReaction(e)}
-                  className="text-xl flex-1 py-1 rounded-lg active:scale-90 transition"
+                  key={r}
+                  onClick={() => sendReaction(r)}
+                  className="flex-1 py-1 rounded-lg active:scale-90 transition flex items-center justify-center"
                   style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(var(--pk-gold-rgb),0.12)' }}
-                >{e}</button>
+                ><ReactionImage value={r} size={22} /></button>
               ))}
             </div>
           )}

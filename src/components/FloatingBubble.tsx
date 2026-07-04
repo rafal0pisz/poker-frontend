@@ -1,6 +1,7 @@
 'use client';
 
 import type { ChatMessage } from '@/lib/types';
+import { ReactionImage } from './ReactionImage';
 
 interface Props {
   message: ChatMessage | null;
@@ -44,11 +45,11 @@ export function FloatingBubble({ message, position = 'above' }: Props) {
       <div
         className={
           isReaction
-            ? 'text-2xl'
+            ? ''
             : 'bg-white text-poker-bg px-3 py-1.5 rounded-2xl text-xs font-medium whitespace-nowrap max-w-[180px] truncate shadow-lg relative'
         }
       >
-        {message.content}
+        {isReaction ? <ReactionImage value={message.content} size={36} /> : message.content}
         {!isReaction && (
           <div
             className="absolute left-1/2 -translate-x-1/2"

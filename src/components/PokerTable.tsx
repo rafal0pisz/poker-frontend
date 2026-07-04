@@ -27,6 +27,7 @@ import { HandLog } from './HandLog';
 import { AchievementToast } from './AchievementToast';
 import { QuickChat } from './QuickChat';
 import { ConnectionBanner } from './ConnectionBanner';
+import { MaintenanceBanner } from './MaintenanceBanner';
 
 interface Props {
   initialRoom: Room;
@@ -866,6 +867,7 @@ export function PokerTable({ initialRoom, mySessionToken, onLeave }: Props) {
 
   return (
     <>
+    <MaintenanceBanner />
     <ConnectionBanner onReconnected={() => {
       const token = mySessionToken;
       const playerNick = room.players.find((p) => p.sessionToken === token)?.nick ?? '';

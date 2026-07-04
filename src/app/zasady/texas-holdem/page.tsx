@@ -112,7 +112,8 @@ export default function TexasHoldemPage() {
               <Link href="/zasady/omaha/">Omaha</Link> ·{' '}
               <Link href="/zasady/omaha-pot-limit/">Omaha Pot Limit</Link> ·{' '}
               <Link href="/zasady/crazy-pineapple/">Crazy Pineapple</Link> ·{' '}
-              <Link href="/zasady/drawmaha/">Drawmaha</Link>
+              <Link href="/zasady/drawmaha/">Drawmaha</Link> ·{' '}
+              <Link href="/zasady/holdem-bomb-pot/">Hold&apos;em Bomb Pot</Link>
             </p>
           </div>
         </div>

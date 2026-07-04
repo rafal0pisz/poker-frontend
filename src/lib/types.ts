@@ -152,6 +152,17 @@ export interface RunItTwiceResult {
   boards: RunItTwiceBoard[];
 }
 
+// Live, in-progress dealing of the two boards — present on GameState between
+// vote acceptance and the final HandResult. boards[i] grows card by card;
+// boardBreakdowns[i] flips from null to that board's result the moment it
+// finishes dealing (so the UI can show a winner tag while the other board
+// is still being dealt).
+export interface RunItTwiceRevealState {
+  boards: [Card[], Card[]];
+  activeBoard: 0 | 1;
+  boardBreakdowns: [PotWinBreakdown[] | null, PotWinBreakdown[] | null];
+}
+
 export interface GameState {
   phase: HandPhase;
   variant: GameVariant;
@@ -170,6 +181,7 @@ export interface GameState {
   pineappleDiscardState?: PineappleDiscardState;
   runItTwiceState?: RunItTwiceState;
   runItTwiceOffered?: boolean;
+  runItTwiceReveal?: RunItTwiceRevealState;
 }
 
 // Chat

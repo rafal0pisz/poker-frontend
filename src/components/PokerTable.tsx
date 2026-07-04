@@ -18,7 +18,7 @@ import { PineappleDiscard } from './PineappleDiscard';
 import { PlayerStatsModal } from './PlayerStatsModal';
 import { DrawmahaReveal } from './DrawmahaReveal';
 import { RunItTwicePrompt } from './RunItTwicePrompt';
-import { RunItTwiceResultBoards } from './RunItTwiceResultBoards';
+import { RunItTwiceBoards } from './RunItTwiceBoards';
 import { useSounds, enableAudio } from '@/hooks/useSounds';
 import { useHandLog } from '@/hooks/useHandLog';
 import { useAchievements } from '@/hooks/useAchievements';
@@ -63,15 +63,9 @@ function ResultPanel({ lastResult, players, resultMessage }: {
 }) {
   if (!lastResult) return null;
 
-  if (lastResult.runItTwiceResult) {
-    return (
-      <RunItTwiceResultBoards
-        runItTwiceResult={lastResult.runItTwiceResult}
-        players={players}
-        handNumber={lastResult.handNumber}
-      />
-    );
-  }
+  // Run It Twice: both boards are shown live, on the table itself (see
+  // RunItTwiceBoards in the community-cards area) — no separate card
+  // summary here, just the generic net-chips message further below.
 
   const dr = lastResult.drawmahaResult;
   const hl = lastResult.omahaHlResult;
@@ -964,17 +958,36 @@ export function PokerTable({ initialRoom, mySessionToken, onLeave }: Props) {
         <div className="rounded-2xl p-4 my-2" style={{ background: `radial-gradient(ellipse at 50% 35%, ${tableColor}ee, ${tableColor}88 70%, ${tableColor}33)`, border: "2px solid rgba(var(--pk-gold-rgb),0.15)" }}>
           <p className="text-center text-[10px] text-poker-gold/70 tracking-widest mb-1">POT</p>
           <p className="text-center text-2xl text-poker-yellow font-medium mb-3">{gameState ? gameState.pot : 0}</p>
-          <div className="flex justify-center gap-1">
-            {[0, 1, 2, 3, 4].map((i) => {
-              const card = gameState?.communityCards[i];
-              // Cards that just appeared get dealIndex for flip animation
-              const commPrevCount = prevCommCardCountRef.current;
-              const isNew = card && i >= commPrevCount;
-              return card
-                ? <Card key={i} card={card} size="md" winning={winningCardsSet.has(card)} dealIndex={isNew ? i - commPrevCount : undefined} slowFlip={isNew} />
-                : <CardPlaceholder key={i} size="md" />;
-            })}
-          </div>
+          {gameState?.runItTwiceReveal ? (
+            <div className="flex justify-center">
+              <RunItTwiceBoards
+                boards={gameState.runItTwiceReveal.boards}
+                breakdowns={gameState.runItTwiceReveal.boardBreakdowns}
+                activeBoard={gameState.runItTwiceReveal.activeBoard}
+                players={room.players}
+              />
+            </div>
+          ) : activeResult?.runItTwiceResult ? (
+            <div className="flex justify-center">
+              <RunItTwiceBoards
+                boards={[activeResult.runItTwiceResult.boards[0].communityCards, activeResult.runItTwiceResult.boards[1].communityCards]}
+                breakdowns={[activeResult.runItTwiceResult.boards[0].potBreakdown, activeResult.runItTwiceResult.boards[1].potBreakdown]}
+                players={room.players}
+              />
+            </div>
+          ) : (
+            <div className="flex justify-center gap-1">
+              {[0, 1, 2, 3, 4].map((i) => {
+                const card = gameState?.communityCards[i];
+                // Cards that just appeared get dealIndex for flip animation
+                const commPrevCount = prevCommCardCountRef.current;
+                const isNew = card && i >= commPrevCount;
+                return card
+                  ? <Card key={i} card={card} size="md" winning={winningCardsSet.has(card)} dealIndex={isNew ? i - commPrevCount : undefined} slowFlip={isNew} />
+                  : <CardPlaceholder key={i} size="md" />;
+              })}
+            </div>
+          )}
           {gameState && <p className="text-center text-[10px] text-poker-gold/60 tracking-widest mt-2 uppercase">{VARIANT_LABELS[currentVariant]} · #{gameState.handNumber}</p>}
           <ResultPanel lastResult={lastResult} players={room.players} resultMessage={resultMessage} />
         </div>

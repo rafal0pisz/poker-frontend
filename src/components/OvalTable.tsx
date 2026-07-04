@@ -10,7 +10,7 @@ import { ActionPanel } from './ActionPanel';
 import { FloatingBubble } from './FloatingBubble';
 import { useEquity } from '@/hooks/useEquity';
 import { PlayerStatsModal } from './PlayerStatsModal';
-import { RunItTwiceResultBoards } from './RunItTwiceResultBoards';
+import { RunItTwiceBoards } from './RunItTwiceBoards';
 
 const VARIANT_LABELS: Record<GameVariant, string> = {
   texas: "Texas Hold'em",
@@ -442,15 +442,7 @@ export function OvalTable({
 
             {/* Community cards + pot — center of oval */}
             <div style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8, zIndex: 5 }}>
-              {lastResult && lastResult.runItTwiceResult ? (
-                <div style={{ maxWidth: 360 }}>
-                  <RunItTwiceResultBoards
-                    runItTwiceResult={lastResult.runItTwiceResult}
-                    players={room.players}
-                    handNumber={lastResult.handNumber}
-                  />
-                </div>
-              ) : lastResult && (
+              {lastResult && !lastResult.runItTwiceResult && (
                 <div style={{ fontSize: 11, color: 'rgb(var(--pk-gold-rgb))', background: 'rgba(var(--pk-gold-rgb),0.1)', border: '1px solid rgba(var(--pk-gold-rgb),0.25)', borderRadius: 8, padding: '4px 12px', textAlign: 'center', maxWidth: 280 }}>
                   {resultMessage}
                 </div>
@@ -458,15 +450,30 @@ export function OvalTable({
               <div style={{ background: 'rgba(0,0,0,0.5)', border: '1px solid rgba(var(--pk-gold-rgb),0.3)', borderRadius: 20, padding: '4px 16px', fontSize: 13, fontWeight: 700, color: 'rgb(var(--pk-gold-rgb))' }}>
                 POT {gameState ? gameState.pot : 0}
               </div>
-              <div style={{ display: 'flex', gap: 6 }}>
-                {[0, 1, 2, 3, 4].map(i => {
-                  const card = gameState?.communityCards[i];
-                  const isNew = card && i >= (prevCommCardCountRef.current ?? 0);
-                  return card
-                    ? <Card key={i} card={card} size="lg" winning={winningCardsSet.has(card)} dealIndex={isNew ? i - (prevCommCardCountRef.current ?? 0) : undefined} slowFlip={isNew} />
-                    : <CardPlaceholder key={i} size="lg" />;
-                })}
-              </div>
+              {gameState?.runItTwiceReveal ? (
+                <RunItTwiceBoards
+                  boards={gameState.runItTwiceReveal.boards}
+                  breakdowns={gameState.runItTwiceReveal.boardBreakdowns}
+                  activeBoard={gameState.runItTwiceReveal.activeBoard}
+                  players={room.players}
+                />
+              ) : activeResult?.runItTwiceResult ? (
+                <RunItTwiceBoards
+                  boards={[activeResult.runItTwiceResult.boards[0].communityCards, activeResult.runItTwiceResult.boards[1].communityCards]}
+                  breakdowns={[activeResult.runItTwiceResult.boards[0].potBreakdown, activeResult.runItTwiceResult.boards[1].potBreakdown]}
+                  players={room.players}
+                />
+              ) : (
+                <div style={{ display: 'flex', gap: 6 }}>
+                  {[0, 1, 2, 3, 4].map(i => {
+                    const card = gameState?.communityCards[i];
+                    const isNew = card && i >= (prevCommCardCountRef.current ?? 0);
+                    return card
+                      ? <Card key={i} card={card} size="lg" winning={winningCardsSet.has(card)} dealIndex={isNew ? i - (prevCommCardCountRef.current ?? 0) : undefined} slowFlip={isNew} />
+                      : <CardPlaceholder key={i} size="lg" />;
+                  })}
+                </div>
+              )}
               {gameState && <p style={{ fontSize: 9, color: 'rgba(var(--pk-gold-rgb),0.4)', letterSpacing: '0.06em', textTransform: 'uppercase' }}>{VARIANT_LABELS[currentVariant]} · #{gameState.handNumber}</p>}
             </div>
 

@@ -47,6 +47,9 @@ export interface Player {
   pendingAction: 'check-fold' | 'fold' | null;
   // Time Bank uses left this session (starts at 2). Undefined = full allowance.
   timeBankUsesLeft?: number;
+  // True once Time Bank has been called during the current hand — button stays
+  // visible but disabled until the next hand resets it.
+  timeBankUsedThisHand?: boolean;
 }
 
 export type PokerTheme = 'classic' | 'sage' | 'amber';
@@ -59,7 +62,8 @@ export interface RoomSettings {
   actionTimeoutSec: 15 | 30 | 60;
   tableColor?: string;
   theme?: PokerTheme;
-  // Admin-controlled: whether players can call +30s Time Bank (2x per session)
+  // Admin-controlled: whether players can call +30s Time Bank (2x per session).
+  // Defaults to ON — undefined/missing means enabled; only explicit `false` disables it.
   timeBankEnabled?: boolean;
 }
 

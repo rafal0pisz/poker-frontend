@@ -44,7 +44,9 @@ export function AdminPanel({ room, mySessionToken, onClose }: Props) {
   };
 
   const tableColor = room.settings.tableColor || '#1a3a1a';
-  const timeBankEnabled = !!room.settings.timeBankEnabled;
+  // Defaults to ON — undefined/missing settings means enabled, only an
+  // explicit `false` (set below) turns it off.
+  const timeBankEnabled = room.settings.timeBankEnabled !== false;
 
   const handleTimeBankEnabled = (enabled: boolean) => {
     getSocket().emit('admin:set-time-bank-enabled', { enabled }, (res: { ok: boolean; error?: string }) => {

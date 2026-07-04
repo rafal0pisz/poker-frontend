@@ -161,9 +161,12 @@ export function ActionPanel({ me, gameState, settings, players }: Props) {
     });
   };
 
-  // Time Bank: 2 uses per session, +30s each — hidden entirely once both are spent.
+  // Time Bank: on by default (only an explicit `false` disables it), 2 uses per
+  // session, +30s each. Hidden entirely once both lifetime uses are spent; while
+  // uses remain, disabled (grayed out) for the rest of the current hand after use.
   const timeBankUsesLeft = me.timeBankUsesLeft ?? 2;
-  const canCallTime = !!settings.timeBankEnabled && timeBankUsesLeft > 0;
+  const timeBankVisible = settings.timeBankEnabled !== false && timeBankUsesLeft > 0;
+  const timeBankDisabled = !!me.timeBankUsedThisHand;
   const callTime = () => {
     getSocket().emit('game:call-time', (response: ActionResponse) => {
       if (response && !response.ok) console.warn('Call time failed:', response.error);
@@ -312,12 +315,18 @@ export function ActionPanel({ me, gameState, settings, players }: Props) {
   // ── MAIN ACTION BUTTONS ───────────────────────────────────────────────
   return (
     <div className="bg-poker-yellow/5 border border-poker-gold/25 rounded-xl p-3 space-y-2">
-      {canCallTime && (
+      {timeBankVisible && (
         <div className="flex justify-end">
           <button
             onClick={callTime}
-            className="text-[11px] font-medium px-3 py-1.5 rounded-lg active:scale-95"
-            style={{ background: 'rgba(91,155,213,0.15)', border: '1px solid rgba(91,155,213,0.5)', color: '#5b9bd5' }}
+            disabled={timeBankDisabled}
+            className={`text-[11px] font-medium px-3 py-1.5 rounded-lg ${timeBankDisabled ? 'opacity-40' : 'active:scale-95'}`}
+            style={{
+              background: 'rgba(91,155,213,0.15)',
+              border: '1px solid rgba(91,155,213,0.5)',
+              color: '#5b9bd5',
+              cursor: timeBankDisabled ? 'not-allowed' : 'pointer',
+            }}
           >
             ⏱ +Time
           </button>
@@ -373,18 +382,24 @@ export function ActionPanel({ me, gameState, settings, players }: Props) {
         )}
       </div>
 
-      {secondsLeft !== null && (
-        <div className="h-1 w-full bg-poker-yellow/10 rounded-full overflow-hidden">
-          <div
-            className="h-1 rounded-full"
-            style={{
-              width: `${Math.min(100, (secondsLeft / settings.actionTimeoutSec) * 100)}%`,
-              background: gameState.timeBankActive ? '#5b9bd5' : secondsLeft > 10 ? 'rgb(var(--pk-gold-rgb))' : secondsLeft > 5 ? '#e07b39' : '#e05050',
-              transition: 'width 0.9s linear, background 0.3s',
-            }}
-          />
-        </div>
-      )}
+      {secondsLeft !== null && (() => {
+        // After a Time Bank extension the window is longer than the base
+        // actionTimeoutSec — use the extended total so the bar doesn't clamp
+        // at 100% (and look frozen) for the first 30s after calling +Time.
+        const totalWindowSec = settings.actionTimeoutSec + (gameState.timeBankActive ? 30 : 0);
+        return (
+          <div className="h-1 w-full bg-poker-yellow/10 rounded-full overflow-hidden">
+            <div
+              className="h-1 rounded-full"
+              style={{
+                width: `${Math.min(100, (secondsLeft / totalWindowSec) * 100)}%`,
+                background: gameState.timeBankActive ? '#5b9bd5' : secondsLeft > 10 ? 'rgb(var(--pk-gold-rgb))' : secondsLeft > 5 ? '#e07b39' : '#e05050',
+                transition: 'width 0.9s linear, background 0.3s',
+              }}
+            />
+          </div>
+        );
+      })()}
     </div>
   );
 }

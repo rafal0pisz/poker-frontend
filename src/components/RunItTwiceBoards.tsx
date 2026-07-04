@@ -54,7 +54,7 @@ function BoardRow({
       </div>
       {winners.length > 0 ? (
         <span style={{ fontSize: 10.5, color: accent, fontWeight: 600, whiteSpace: 'nowrap' }}>
-          {winners.map((w) => nick(players, w.sessionToken)).join(' & ')} +{winners.reduce((s, w) => s + w.amount, 0)}
+          {winners.map((w) => nick(players, w.sessionToken)).join(' & ')}
         </span>
       ) : isActive ? (
         <span style={{ fontSize: 9.5, color: accent, opacity: 0.6, whiteSpace: 'nowrap' }}>dealing…</span>

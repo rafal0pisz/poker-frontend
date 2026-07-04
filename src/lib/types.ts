@@ -93,6 +93,8 @@ export interface HandResult {
   potBreakdown?: PotWinBreakdown[];
   // Players who busted out in this hand (chips → 0)
   eliminatedTokens?: string[];
+  // Present when the table ran the board twice on an all-in
+  runItTwiceResult?: RunItTwiceResult;
 }
 
 export interface PotWinBreakdown {
@@ -133,6 +135,23 @@ export interface PineappleDiscardState {
   discardDeadline: number | null;
 }
 
+// ===== RUN IT TWICE =====
+
+export interface RunItTwiceState {
+  eligiblePlayers: string[];
+  decisions: Record<string, boolean | null>;
+  deadline: number | null;
+}
+
+export interface RunItTwiceBoard {
+  communityCards: Card[];
+  potBreakdown: PotWinBreakdown[];
+}
+
+export interface RunItTwiceResult {
+  boards: RunItTwiceBoard[];
+}
+
 export interface GameState {
   phase: HandPhase;
   variant: GameVariant;
@@ -149,6 +168,8 @@ export interface GameState {
   lastHandResult: HandResult | null;
   drawState?: DrawState;
   pineappleDiscardState?: PineappleDiscardState;
+  runItTwiceState?: RunItTwiceState;
+  runItTwiceOffered?: boolean;
 }
 
 // Chat

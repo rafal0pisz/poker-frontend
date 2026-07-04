@@ -17,6 +17,8 @@ import { DrawmahaDraw } from './DrawmahaDraw';
 import { PineappleDiscard } from './PineappleDiscard';
 import { PlayerStatsModal } from './PlayerStatsModal';
 import { DrawmahaReveal } from './DrawmahaReveal';
+import { RunItTwicePrompt } from './RunItTwicePrompt';
+import { RunItTwiceResultBoards } from './RunItTwiceResultBoards';
 import { useSounds, enableAudio } from '@/hooks/useSounds';
 import { useHandLog } from '@/hooks/useHandLog';
 import { useAchievements } from '@/hooks/useAchievements';
@@ -59,6 +61,17 @@ function ResultPanel({ lastResult, players, resultMessage }: {
   resultMessage: string;
 }) {
   if (!lastResult) return null;
+
+  if (lastResult.runItTwiceResult) {
+    return (
+      <RunItTwiceResultBoards
+        runItTwiceResult={lastResult.runItTwiceResult}
+        players={players}
+        handNumber={lastResult.handNumber}
+      />
+    );
+  }
+
   const dr = lastResult.drawmahaResult;
   const hl = lastResult.omahaHlResult;
   const breakdown = lastResult.potBreakdown;
@@ -642,6 +655,12 @@ export function PokerTable({ initialRoom, mySessionToken, onLeave }: Props) {
     });
   };
 
+  const handleRunItTwiceDecide = (accept: boolean) => {
+    getSocket().emit('game:run-it-twice-decide', { accept }, (res: { ok: boolean; error?: string } | undefined) => {
+      if (res && !res.ok) console.error('[run-it-twice-decide]', res.error);
+    });
+  };
+
   const toggleDiscardIndex = (idx: number) => {
     if (drawSubmitted) return;
     playSelect();
@@ -1086,6 +1105,15 @@ export function PokerTable({ initialRoom, mySessionToken, onLeave }: Props) {
             />
           )}
 
+          {gameState?.runItTwiceState && (
+            <RunItTwicePrompt
+              runItTwiceState={gameState.runItTwiceState}
+              mySessionToken={mySessionToken}
+              players={room.players}
+              onDecide={handleRunItTwiceDecide}
+            />
+          )}
+
           {gameState && !isSpectator && isDrawPhase && !showDiscardUI && !showRevealUI && (
             <div className="bg-poker-yellow/5 border border-poker-gold/25 rounded-xl px-4 py-3 text-center">
               <p className="text-poker-yellow/60 text-sm">
@@ -1239,6 +1267,9 @@ export function PokerTable({ initialRoom, mySessionToken, onLeave }: Props) {
               )}
               {showRevealUI && drawState && (
                 <DrawmahaReveal drawState={drawState} mySessionToken={mySessionToken} myPlayer={me} players={room.players} onDecide={handleDrawDecide} />
+              )}
+              {gameState?.runItTwiceState && (
+                <RunItTwicePrompt runItTwiceState={gameState.runItTwiceState} mySessionToken={mySessionToken} players={room.players} onDecide={handleRunItTwiceDecide} />
               )}
               {gameState && !isSpectator && isDrawPhase && !showDiscardUI && !showRevealUI && (
                 <div className="bg-poker-yellow/5 border border-poker-gold/25 rounded-xl px-4 py-3 text-center">

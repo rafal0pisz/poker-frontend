@@ -10,6 +10,7 @@ import { ActionPanel } from './ActionPanel';
 import { FloatingBubble } from './FloatingBubble';
 import { useEquity } from '@/hooks/useEquity';
 import { PlayerStatsModal } from './PlayerStatsModal';
+import { RunItTwiceResultBoards } from './RunItTwiceResultBoards';
 
 const VARIANT_LABELS: Record<GameVariant, string> = {
   texas: "Texas Hold'em",
@@ -440,7 +441,15 @@ export function OvalTable({
 
             {/* Community cards + pot — center of oval */}
             <div style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8, zIndex: 5 }}>
-              {lastResult && (
+              {lastResult && lastResult.runItTwiceResult ? (
+                <div style={{ maxWidth: 360 }}>
+                  <RunItTwiceResultBoards
+                    runItTwiceResult={lastResult.runItTwiceResult}
+                    players={room.players}
+                    handNumber={lastResult.handNumber}
+                  />
+                </div>
+              ) : lastResult && (
                 <div style={{ fontSize: 11, color: 'rgb(var(--pk-gold-rgb))', background: 'rgba(var(--pk-gold-rgb),0.1)', border: '1px solid rgba(var(--pk-gold-rgb),0.25)', borderRadius: 8, padding: '4px 12px', textAlign: 'center', maxWidth: 280 }}>
                   {resultMessage}
                 </div>

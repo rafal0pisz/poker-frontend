@@ -1,9 +1,8 @@
 'use client';
 
-import { useState, useEffect, useCallback, useRef } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import type { Player, GameState, RoomSettings, ActionType } from '@/lib/types';
 import { getSocket } from '@/lib/socket';
-import { useHaptics } from '@/hooks/useHaptics';
 
 interface Props {
   me: Player;
@@ -102,25 +101,14 @@ export function ActionPanel({ me, gameState, settings, players }: Props) {
     (me.pendingAction as PreAction) ?? null
   );
 
-  const haptics = useHaptics();
-  const warnedRef = useRef(false);
-
   useEffect(() => {
     if (!isMyTurn || !gameState.actionDeadline) { setSecondsLeft(null); return; }
-    warnedRef.current = false;
-    const update = () => {
-      const secs = Math.max(0, Math.ceil((gameState.actionDeadline! - Date.now()) / 1000));
-      setSecondsLeft(secs);
-      // One-shot buzz when 5 seconds remain — helps when the phone is out of sight
-      if (secs > 0 && secs <= 5 && !warnedRef.current) {
-        warnedRef.current = true;
-        haptics.timeoutWarning();
-      }
-    };
+    const update = () =>
+      setSecondsLeft(Math.max(0, Math.ceil((gameState.actionDeadline! - Date.now()) / 1000)));
     update();
     const interval = setInterval(update, 1000);
     return () => clearInterval(interval);
-  }, [isMyTurn, gameState.actionDeadline]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [isMyTurn, gameState.actionDeadline]);
 
   useEffect(() => {
     if (!isMyTurn) return; // only reset when turn changes TO my turn

@@ -18,7 +18,6 @@ import { PineappleDiscard } from './PineappleDiscard';
 import { PlayerStatsModal } from './PlayerStatsModal';
 import { DrawmahaReveal } from './DrawmahaReveal';
 import { useSounds, enableAudio } from '@/hooks/useSounds';
-import { useHaptics } from '@/hooks/useHaptics';
 import { useHandLog } from '@/hooks/useHandLog';
 import { useAchievements } from '@/hooks/useAchievements';
 import { useEquity } from '@/hooks/useEquity';
@@ -430,7 +429,6 @@ export function PokerTable({ initialRoom, mySessionToken, onLeave }: Props) {
   const [dismissedBubbleIds, setDismissedBubbleIds] = useState(new Set<string>());
 
   const { playChip, playDeal, playYourTurn, playWin, playFold, playSelect, muted, toggleMute } = useSounds();
-  const haptics = useHaptics();
   const { logs, processRoomState, processHandResult } = useHandLog();
   const { achievements, processResult: processAchievements, dismiss: dismissAchievement } = useAchievements();
 
@@ -534,7 +532,6 @@ export function PokerTable({ initialRoom, mySessionToken, onLeave }: Props) {
       const mySeat = myUpdated?.seat ?? null;
       if (newSeat !== prevCurrentSeatRef.current && newSeat === mySeat && mySeat !== null && updated.gameState?.phase !== 'showdown') {
         playYourTurn();
-        haptics.yourTurn();
       }
       prevCurrentSeatRef.current = newSeat;
       const lastAction = updated.gameState?.lastAction;
@@ -550,7 +547,7 @@ export function PokerTable({ initialRoom, mySessionToken, onLeave }: Props) {
       setLastResult(result);
       const isDrawmaha = result.variant === 'drawmaha' || result.variant === 'drawmaha-pl';
       setTimeout(() => setLastResult(null), isDrawmaha ? 9000 : 6000);
-      if (result.winnings.some((w) => w.sessionToken === mySessionToken && w.amount > 0)) { playWin(); haptics.win(); }
+      if (result.winnings.some((w) => w.sessionToken === mySessionToken && w.amount > 0)) playWin();
       processHandResult(result, roomRef.current.players);
       processAchievements(result, mySessionToken, roomRef.current.players);
     };
@@ -881,15 +878,6 @@ export function PokerTable({ initialRoom, mySessionToken, onLeave }: Props) {
                 <span className="flex items-center gap-1">🔇 <span className="text-[9px]">tap to enable</span></span>
               ) : '🔊'}
             </button>
-            {haptics.supported && (
-              <button
-                onClick={haptics.toggle}
-                title="Toggle vibration feedback"
-                className="bg-poker-yellow/5 border border-poker-gold/20 text-poker-yellow/70 text-xs px-2.5 py-1.5 rounded-lg"
-              >
-                {haptics.enabled ? '📳' : '📴'}
-              </button>
-            )}
             <button onClick={() => { setShowChat(true); setUnreadCount(0); }} className="md:hidden relative bg-poker-gold/10 border border-poker-gold/30 text-poker-gold text-xs px-2.5 py-1.5 rounded-lg">
               💬
               {unreadCount > 0 && <span className="absolute -top-1.5 -right-1.5 bg-poker-coral text-poker-bg text-[10px] font-bold min-w-[18px] h-[18px] rounded-full flex items-center justify-center px-1">{unreadCount > 99 ? '99+' : unreadCount}</span>}
@@ -1230,9 +1218,6 @@ export function PokerTable({ initialRoom, mySessionToken, onLeave }: Props) {
           onCopyCode={copyCode}
           onToggleMute={toggleMute}
           onEnableAudio={enableAudio}
-          hapticsSupported={haptics.supported}
-          hapticsEnabled={haptics.enabled}
-          onToggleHaptics={haptics.toggle}
           onShowAdmin={() => setShowAdminPanel(true)}
           onShowVariantPicker={() => setShowVariantPicker(true)}
           unreadCount={unreadCount}

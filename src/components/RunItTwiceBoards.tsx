@@ -25,7 +25,15 @@ function BoardRow({
   label: string; cards: CardType[]; breakdown: PotWinBreakdown[] | null;
   isActive: boolean; accent: string; players: Player[];
 }) {
-  const winners = (breakdown ?? []).flatMap((pot) => pot.winners.filter((w) => w.amount > 0));
+  // Only the main pot reflects an actual showdown between everyone still in
+  // the hand — side pots exist purely because of uneven all-in stack sizes,
+  // and their "winner" is often just the bigger stack getting their own
+  // uncontested chips back. Mixing that into this line would make it look
+  // like the big stack won the board even when the other player's hand beat
+  // them for the (contested) main pot. Side-pot money still shows up in the
+  // overall pot breakdown — this line is just "who won this board's hand".
+  const mainPot = (breakdown ?? []).find((pot) => pot.label === 'Main pot') ?? breakdown?.[0] ?? null;
+  const winners = (mainPot?.winners ?? []).filter((w) => w.amount > 0);
 
   return (
     <div style={{ display: 'flex', alignItems: 'center', gap: 8, minHeight: 24 }}>

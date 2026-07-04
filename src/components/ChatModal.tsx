@@ -1,9 +1,12 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
-import type { ChatMessage, SessionResult, Room } from '@/lib/types';
+import type { ChatMessage, SessionResult, Room, HandResult } from '@/lib/types';
 import { QUICK_REACTIONS } from '@/lib/types';
 import { getSocket } from '@/lib/socket';
+import { HandHistoryList } from './HandHistoryList';
+import { HandHistoryDetail } from './HandHistoryDetail';
+import { downloadSessionSummaryImage } from '@/lib/exportSummaryImage';
 
 interface Props {
   messages: ChatMessage[];
@@ -13,13 +16,14 @@ interface Props {
   handLogs?: import('@/hooks/useHandLog').LogEntry[];
 }
 
-type Tab = 'chat' | 'actions' | 'summary';
+type Tab = 'chat' | 'actions' | 'summary' | 'history';
 type ActionResponse = { ok: boolean; error?: string } | undefined;
 
 export function ChatModal({ messages, mySessionToken, room, onClose, handLogs }: Props) {
   const [tab, setTab] = useState<Tab>('chat');
   const [text, setText] = useState('');
   const [sending, setSending] = useState(false);
+  const [selectedHand, setSelectedHand] = useState<HandResult | null>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
 
   const chatMessages = messages.filter((m) => m.type !== 'system');
@@ -93,13 +97,13 @@ export function ChatModal({ messages, mySessionToken, room, onClose, handLogs }:
 
         {/* Tabs */}
         <div className="flex px-4 pb-2 gap-1.5 flex-shrink-0">
-          {(['chat', 'actions', 'summary'] as Tab[]).map((t) => {
-            const labels: Record<Tab, string> = { chat: '💬 Chat', actions: '📋 Actions', summary: '📊 Summary' };
-            const counts: Record<Tab, number> = { chat: chatMessages.length, actions: actionMessages.length, summary: allSummary.length };
+          {(['chat', 'actions', 'summary', 'history'] as Tab[]).map((t) => {
+            const labels: Record<Tab, string> = { chat: '💬 Chat', actions: '📋 Actions', summary: '📊 Summary', history: '📜 History' };
+            const counts: Record<Tab, number> = { chat: chatMessages.length, actions: actionMessages.length, summary: allSummary.length, history: room.handHistory.length };
             return (
               <button
                 key={t}
-                onClick={() => setTab(t)}
+                onClick={() => { setTab(t); if (t !== 'history') setSelectedHand(null); }}
                 className={`flex-1 py-2 rounded-lg text-xs font-medium transition ${
                   tab === t
                     ? 'bg-poker-gold text-poker-bg'
@@ -174,7 +178,26 @@ export function ChatModal({ messages, mySessionToken, room, onClose, handLogs }:
               <p className="text-poker-yellow/25 text-[10px] text-center mt-4 italic">
                 Net = current chips − total buy-in
               </p>
+              {allSummary.length > 0 && (
+                <button
+                  onClick={() => downloadSessionSummaryImage(allSummary, room.id)}
+                  className="w-full mt-2 py-2.5 rounded-lg text-xs font-medium border border-poker-gold/30 bg-poker-gold/10 text-poker-gold active:scale-95 transition-all"
+                >
+                  📸 Download results image
+                </button>
+              )}
             </div>
+          ) : tab === 'history' ? (
+            selectedHand ? (
+              <HandHistoryDetail result={selectedHand} players={room.players} onBack={() => setSelectedHand(null)} />
+            ) : (
+              <HandHistoryList
+                handHistory={room.handHistory}
+                players={room.players}
+                mySessionToken={mySessionToken}
+                onSelect={setSelectedHand}
+              />
+            )
           ) : tab === 'chat' ? (
             <div className="space-y-2 py-1">
               {chatMessages.length === 0 ? (

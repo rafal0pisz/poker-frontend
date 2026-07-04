@@ -11,6 +11,9 @@ import { FloatingBubble } from './FloatingBubble';
 import { useEquity } from '@/hooks/useEquity';
 import { PlayerStatsModal } from './PlayerStatsModal';
 import { RunItTwiceBoards } from './RunItTwiceBoards';
+import { HandHistoryList } from './HandHistoryList';
+import { HandHistoryDetail } from './HandHistoryDetail';
+import { downloadSessionSummaryImage } from '@/lib/exportSummaryImage';
 
 const VARIANT_LABELS: Record<GameVariant, string> = {
   texas: "Texas Hold'em",
@@ -185,6 +188,9 @@ export interface OvalTableProps {
   isAdmin: boolean;
   isSittingOut: boolean;
   canSitOut: boolean;
+  canStraddle: boolean;
+  isStraddling: boolean;
+  onToggleStraddle: () => void;
   muted: boolean;
   codeCopied: boolean;
   currentVariant: GameVariant;
@@ -226,6 +232,7 @@ export function OvalTable({
   room, mySessionToken, gameState, otherPlayers, me, myHoleCards, myFoldedCards,
   winningCardsSet, winningCardsSecondarySet, activeResult, lastResult, resultMessage,
   isShowdown, myHandShown, isSpectator, isAdmin, isSittingOut, canSitOut,
+  canStraddle, isStraddling, onToggleStraddle,
   muted, codeCopied, currentVariant, currentCardCount, isDrawPhase,
   revealedHands, sbSeat, bbSeat, prevCommCardCountRef,
   myBubbleToShow, getBubble, messages, sendChat, sendReaction,
@@ -254,7 +261,8 @@ export function OvalTable({
   const youPos = SEAT_POSITIONS[0];
 
   // Chat tab state
-  const [tab, setTab] = useState<'chat' | 'actions' | 'summary'>('chat');
+  const [tab, setTab] = useState<'chat' | 'actions' | 'summary' | 'history'>('chat');
+  const [selectedHand, setSelectedHand] = useState<HandResult | null>(null);
   const [selectedStatsToken, setSelectedStatsToken] = useState<string | null>(null);
   const tableColor = room.settings.tableColor || '#1a3a1a';
 
@@ -331,6 +339,21 @@ export function OvalTable({
                 {(me as any)?.pendingSitOut ? '✕ Cancel' : '⏸ Out'}
               </button>
             : null}
+          {canStraddle && (
+            <button
+              onClick={onToggleStraddle}
+              title="Always straddle when I'm UTG"
+              style={{
+                background: isStraddling ? 'rgba(var(--pk-gold-rgb),0.15)' : 'rgba(255,255,255,0.03)',
+                border: `1px solid ${isStraddling ? 'rgba(var(--pk-gold-rgb),0.5)' : 'rgba(255,255,255,0.07)'}`,
+                borderRadius: 7, padding: '4px 8px', fontSize: 10,
+                color: isStraddling ? 'rgb(var(--pk-gold-rgb))' : 'rgba(var(--pk-cream-rgb),0.5)',
+                cursor: 'pointer',
+              }}
+            >
+              🎲 Straddle {isStraddling ? 'ON' : 'OFF'}
+            </button>
+          )}
           <button onClick={onLeave} style={{ background: 'transparent', border: 'none', fontSize: 10, color: 'rgba(var(--pk-cream-rgb),0.35)', cursor: 'pointer', padding: '4px 4px' }}>Leave</button>
         </div>
 
@@ -346,9 +369,9 @@ export function OvalTable({
 
         {/* Chat tabs */}
         <div style={{ display: 'flex', borderBottom: '1px solid rgba(var(--pk-gold-rgb),0.08)' }}>
-          {(['chat', 'actions', 'summary'] as const).map(t => (
-            <button key={t} onClick={() => setTab(t)} style={{ flex: 1, padding: '8px 4px', fontSize: 10, fontWeight: 500, color: tab === t ? 'rgb(var(--pk-gold-rgb))' : 'rgba(var(--pk-cream-rgb),0.3)', background: 'transparent', border: 'none', borderBottom: tab === t ? '2px solid rgb(var(--pk-gold-rgb))' : '2px solid transparent', cursor: 'pointer', transition: 'color 0.15s' }}>
-              {t === 'chat' ? `💬 Chat${chatMessages.length > 0 && tab !== 'chat' ? ` (${chatMessages.length})` : ''}` : t === 'actions' ? `📋 Actions${actionMessages.length > 0 && tab !== 'actions' ? ` (${actionMessages.length})` : ''}` : `📊 Summary`}
+          {(['chat', 'actions', 'summary', 'history'] as const).map(t => (
+            <button key={t} onClick={() => { setTab(t); if (t !== 'history') setSelectedHand(null); }} style={{ flex: 1, padding: '8px 4px', fontSize: 10, fontWeight: 500, color: tab === t ? 'rgb(var(--pk-gold-rgb))' : 'rgba(var(--pk-cream-rgb),0.3)', background: 'transparent', border: 'none', borderBottom: tab === t ? '2px solid rgb(var(--pk-gold-rgb))' : '2px solid transparent', cursor: 'pointer', transition: 'color 0.15s' }}>
+              {t === 'chat' ? `💬 Chat${chatMessages.length > 0 && tab !== 'chat' ? ` (${chatMessages.length})` : ''}` : t === 'actions' ? `📋 Actions${actionMessages.length > 0 && tab !== 'actions' ? ` (${actionMessages.length})` : ''}` : t === 'summary' ? `📊 Summary` : `📜 History`}
             </button>
           ))}
         </div>
@@ -394,6 +417,26 @@ export function OvalTable({
                 </div>
               );
             })
+          )}
+          {tab === 'summary' && allSummary.length > 0 && (
+            <button
+              onClick={() => downloadSessionSummaryImage(allSummary, room.id)}
+              style={{ marginTop: 6, padding: '9px 0', borderRadius: 8, border: '1px solid rgba(var(--pk-gold-rgb),0.3)', background: 'rgba(var(--pk-gold-rgb),0.1)', color: 'rgb(var(--pk-gold-rgb))', fontSize: 11, fontWeight: 500, cursor: 'pointer' }}
+            >
+              📸 Download results image
+            </button>
+          )}
+          {tab === 'history' && (
+            selectedHand ? (
+              <HandHistoryDetail result={selectedHand} players={room.players} onBack={() => setSelectedHand(null)} />
+            ) : (
+              <HandHistoryList
+                handHistory={room.handHistory}
+                players={room.players}
+                mySessionToken={mySessionToken}
+                onSelect={setSelectedHand}
+              />
+            )
           )}
         </div>
 

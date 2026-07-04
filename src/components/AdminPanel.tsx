@@ -44,6 +44,13 @@ export function AdminPanel({ room, mySessionToken, onClose }: Props) {
   };
 
   const tableColor = room.settings.tableColor || '#1a3a1a';
+  const straddleEnabled = !!room.settings.straddleEnabled;
+
+  const handleStraddleEnabled = (enabled: boolean) => {
+    getSocket().emit('admin:set-straddle-enabled', { enabled }, (res: { ok: boolean; error?: string }) => {
+      if (!res.ok) alert(res.error || 'Error');
+    });
+  };
 
   const handleTableColor = (color: string) => {
     getSocket().emit('admin:set-table-color', { color }, (res: { ok: boolean; error?: string }) => {
@@ -379,6 +386,38 @@ export function AdminPanel({ room, mySessionToken, onClose }: Props) {
             <p className="text-[10px] text-poker-yellow/25 mt-1.5">
               Use if the game freezes. Current hand is cancelled and chips are not awarded.
             </p>
+          </div>
+
+          {/* Straddle */}
+          <div className="border-t border-poker-gold/10 pt-4">
+            <p className="text-xs text-poker-yellow/50 mb-1">Straddle</p>
+            <p className="text-[10px] text-poker-yellow/35 mb-3">
+              Lets players opt in to always straddle (2x big blind) when they're under the gun — posted blind, before cards are dealt.
+            </p>
+            <div className="grid grid-cols-2 gap-2">
+              <button
+                onClick={() => handleStraddleEnabled(false)}
+                className="text-xs py-2 rounded-lg border transition-all active:scale-95"
+                style={{
+                  borderColor: !straddleEnabled ? 'rgb(var(--pk-gold-rgb))' : 'rgba(var(--pk-gold-rgb),0.15)',
+                  background: !straddleEnabled ? 'rgba(var(--pk-gold-rgb),0.1)' : 'transparent',
+                  color: !straddleEnabled ? 'rgb(var(--pk-gold-rgb))' : 'rgba(var(--pk-cream-rgb),0.5)',
+                }}
+              >
+                Off
+              </button>
+              <button
+                onClick={() => handleStraddleEnabled(true)}
+                className="text-xs py-2 rounded-lg border transition-all active:scale-95"
+                style={{
+                  borderColor: straddleEnabled ? 'rgb(var(--pk-gold-rgb))' : 'rgba(var(--pk-gold-rgb),0.15)',
+                  background: straddleEnabled ? 'rgba(var(--pk-gold-rgb),0.1)' : 'transparent',
+                  color: straddleEnabled ? 'rgb(var(--pk-gold-rgb))' : 'rgba(var(--pk-cream-rgb),0.5)',
+                }}
+              >
+                On
+              </button>
+            </div>
           </div>
 
           {/* Table color */}

@@ -10,6 +10,7 @@ import { ActionPanel } from './ActionPanel';
 import { FloatingBubble } from './FloatingBubble';
 import { useEquity } from '@/hooks/useEquity';
 import { PlayerStatsModal } from './PlayerStatsModal';
+import { ChipFlightLayer } from './ChipFlightLayer';
 
 const VARIANT_LABELS: Record<GameVariant, string> = {
   texas: "Texas Hold'em",
@@ -183,6 +184,9 @@ export interface OvalTableProps {
   isSittingOut: boolean;
   canSitOut: boolean;
   muted: boolean;
+  hapticsSupported: boolean;
+  hapticsEnabled: boolean;
+  onToggleHaptics: () => void;
   codeCopied: boolean;
   currentVariant: GameVariant;
   currentCardCount: number;
@@ -223,7 +227,7 @@ export function OvalTable({
   room, mySessionToken, gameState, otherPlayers, me, myHoleCards, myFoldedCards,
   winningCardsSet, activeResult, lastResult, resultMessage,
   isShowdown, myHandShown, isSpectator, isAdmin, isSittingOut, canSitOut,
-  muted, codeCopied, currentVariant, currentCardCount, isDrawPhase,
+  muted, hapticsSupported, hapticsEnabled, onToggleHaptics, codeCopied, currentVariant, currentCardCount, isDrawPhase,
   revealedHands, sbSeat, bbSeat, prevCommCardCountRef,
   myBubbleToShow, getBubble, messages, sendChat, sendReaction,
   showDiscardUI, nextDealerVariant, onLeave, onShowHand,
@@ -249,6 +253,13 @@ export function OvalTable({
   });
   const seatedOpponents = opponentsByRotation.slice(0, 6).map((p, i) => ({ player: p, seatIndex: i + 1 }));
   const youPos = SEAT_POSITIONS[0];
+
+  // Seat coordinates keyed by sessionToken — feeds the chip-flight animation below.
+  const positionByToken: Record<string, { top: string; left: string }> = { [mySessionToken]: youPos };
+  seatedOpponents.forEach(({ player, seatIndex }) => {
+    positionByToken[player.sessionToken] = SEAT_POSITIONS[seatIndex];
+  });
+  const potPos = { top: '50%', left: '50%' };
 
   // Chat tab state
   const [tab, setTab] = useState<'chat' | 'actions' | 'summary'>('chat');
@@ -311,6 +322,9 @@ export function OvalTable({
             <span style={{ fontSize: 9, color: 'rgba(var(--pk-gold-rgb),0.35)' }}>{codeCopied ? '✓' : '⧉'}</span>
           </button>
           <button onClick={() => { onEnableAudio(); onToggleMute(); }} style={{ background: 'rgba(var(--pk-gold-rgb),0.06)', border: '1px solid rgba(var(--pk-gold-rgb),0.12)', borderRadius: 7, padding: '4px 8px', fontSize: 12, color: 'rgba(var(--pk-cream-rgb),0.6)', cursor: 'pointer' }}>{muted ? '🔇' : '🔊'}</button>
+          {hapticsSupported && (
+            <button onClick={onToggleHaptics} title="Toggle vibration feedback" style={{ background: 'rgba(var(--pk-gold-rgb),0.06)', border: '1px solid rgba(var(--pk-gold-rgb),0.12)', borderRadius: 7, padding: '4px 8px', fontSize: 12, color: 'rgba(var(--pk-cream-rgb),0.6)', cursor: 'pointer' }}>{hapticsEnabled ? '📳' : '📴'}</button>
+          )}
           {isAdmin && <button onClick={onShowAdmin} style={{ background: 'rgba(var(--pk-gold-rgb),0.12)', border: '1px solid rgba(var(--pk-gold-rgb),0.35)', borderRadius: 8, padding: '5px 12px', fontSize: 12, fontWeight: 600, color: 'rgb(var(--pk-gold-rgb))', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4 }}>⚙ Admin</button>}
           {isSittingOut
             ? <button onClick={() => onSitBack()} style={{ background: 'rgba(var(--pk-gold-rgb),0.12)', border: '1px solid rgba(var(--pk-gold-rgb),0.3)', borderRadius: 7, padding: '4px 8px', fontSize: 10, color: 'rgb(var(--pk-gold-rgb))', cursor: 'pointer' }}>▶ Back</button>
@@ -459,6 +473,14 @@ export function OvalTable({
               </div>
               {gameState && <p style={{ fontSize: 9, color: 'rgba(var(--pk-gold-rgb),0.4)', letterSpacing: '0.06em', textTransform: 'uppercase' }}>{VARIANT_LABELS[currentVariant]} · #{gameState.handNumber}</p>}
             </div>
+
+            {/* Chip stacks flying to the pot on bets, and to winners after showdown */}
+            <ChipFlightLayer
+              players={room.players}
+              positionByToken={positionByToken}
+              potPos={potPos}
+              activeResult={activeResult}
+            />
 
             {/* Opponent seats */}
             {seatedOpponents.map(({ player, seatIndex }) => (

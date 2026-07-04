@@ -71,6 +71,10 @@ export interface HandResult {
   winnings: { sessionToken: string; amount: number; netAmount?: number; handDescription?: string }[];
   showdownCards: { sessionToken: string; cards: Card[]; handName: string }[];
   winningCards: Card[];
+  // Split-pot variants only (Omaha Hi-Lo, Drawmaha): the OTHER winning hand's
+  // cards (Low, or Draw) — highlighted in a second color via Card's
+  // `winningSecondary` prop. Shared cards get both props set (split ring).
+  winningCardsSecondary?: Card[];
   boardCards?: Card[];     // community cards at end of hand
   handNumber?: number;    // Hand #N
   totalPot?: number;      // total chips in pot

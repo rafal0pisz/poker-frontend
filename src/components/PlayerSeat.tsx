@@ -15,6 +15,7 @@ interface Props {
   lastMessage?: ChatMessage | null;
   handName?: string;
   winningCards?: Set<CardType>;
+  winningCardsSecondary?: Set<CardType>;
   cardCount?: number;
   actionDeadline?: number | null;
   actionTimeoutSec?: number;
@@ -85,6 +86,7 @@ export const PlayerSeat = memo(function PlayerSeat({
   lastMessage,
   handName,
   winningCards,
+  winningCardsSecondary,
   cardCount = 2,
   actionDeadline,
   actionTimeoutSec = 30,
@@ -115,7 +117,7 @@ export const PlayerSeat = memo(function PlayerSeat({
       {hasRevealedCards ? (
         <div className={`flex mb-1 ${useSmallGap ? '-space-x-1.5' : 'gap-0.5'}`}>
           {shownCards.map((c, i) => (
-            <Card key={`${c}-${i}`} card={c} size="sm" winning={!!winningCards?.has(c)} />
+            <Card key={`${c}-${i}`} card={c} size="sm" winning={!!winningCards?.has(c)} winningSecondary={!!winningCardsSecondary?.has(c)} />
           ))}
         </div>
       ) : player.status === 'playing' || player.status === 'all-in' || player.status === 'folded' ? (

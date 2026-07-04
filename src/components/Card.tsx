@@ -7,7 +7,13 @@ interface Props {
   card?: CardType;
   size?: 'xs' | 'sm' | 'md' | 'lg';
   facedown?: boolean;
+  // Part of the (primary) winning hand — gold ring. In a split pot
+  // (Omaha Hi-Lo, Drawmaha) this marks the High / Omaha hand.
   winning?: boolean;
+  // Part of the OTHER winning hand in a split pot — the Low / Draw hand.
+  // Teal ring. A card that's both `winning` and `winningSecondary` (e.g. a
+  // shared board card used by both hands) gets a ring split in half.
+  winningSecondary?: boolean;
   selectedForDiscard?: boolean;
   onClick?: () => void;
   // Pass dealIndex (0,1,2…) to trigger staggered deal animation
@@ -32,7 +38,7 @@ const SIZE_CLASSES = {
 
 type AnimPhase = 'hidden' | 'sliding' | 'flipping' | 'done';
 
-export const Card = memo(function Card({ card, size = 'md', facedown = false, winning = false, selectedForDiscard = false, onClick, dealIndex, slowFlip = false }: Props) {
+export const Card = memo(function Card({ card, size = 'md', facedown = false, winning = false, winningSecondary = false, selectedForDiscard = false, onClick, dealIndex, slowFlip = false }: Props) {
   const [phase, setPhase] = useState<AnimPhase>(dealIndex !== undefined ? 'hidden' : 'done');
 
   useEffect(() => {
@@ -76,16 +82,37 @@ export const Card = memo(function Card({ card, size = 'md', facedown = false, wi
           : 'transform 220ms cubic-bezier(0.34,1.56,0.64,1)' }
     :                        { transition: 'transform 150ms ease, box-shadow 150ms ease' };
 
-  const winningCls = winning
-    ? '-translate-y-2 ring-2 ring-poker-gold ring-offset-2 ring-offset-poker-bg shadow-[0_0_12px_rgba(var(--pk-gold-rgb),0.6)]'
+  // Split-pot highlight: 'both' when a card is part of BOTH winning hands
+  // (e.g. a shared board card used by the High hand and the Low hand) —
+  // rendered as a ring split diagonally between the two colors, rather than
+  // just picking one color and losing the other half of the information.
+  const highlight: 'none' | 'primary' | 'secondary' | 'both' =
+    winning && winningSecondary ? 'both' : winning ? 'primary' : winningSecondary ? 'secondary' : 'none';
+
+  const winningCls =
+    highlight === 'primary' ? '-translate-y-2 ring-2 ring-poker-gold ring-offset-2 ring-offset-poker-bg shadow-[0_0_12px_rgba(var(--pk-gold-rgb),0.6)]'
+    : highlight === 'secondary' ? '-translate-y-2 ring-2 ring-[#6fb3c9] ring-offset-2 ring-offset-poker-bg shadow-[0_0_12px_rgba(111,179,201,0.55)]'
+    : highlight === 'both' ? '-translate-y-2'
     : '';
+  // Tailwind's `ring` utility can't express a two-color split, so the 'both'
+  // case gets a gradient-border via the background-clip trick instead —
+  // border-box layer paints the gradient, padding-box layer paints white
+  // back over the middle, leaving only a rounded-rect "ring" of gradient.
+  const splitRingStyle: React.CSSProperties | undefined = highlight === 'both' ? {
+    border: '3px solid transparent',
+    backgroundImage:
+      'linear-gradient(#fff, #fff), linear-gradient(135deg, rgb(var(--pk-gold-rgb)) 0%, rgb(var(--pk-gold-rgb)) 49%, #6fb3c9 51%, #6fb3c9 100%)',
+    backgroundOrigin: 'border-box',
+    backgroundClip: 'padding-box, border-box',
+    boxShadow: '0 0 12px rgba(var(--pk-gold-rgb),0.35)',
+  } : undefined;
   const discardCls = selectedForDiscard ? 'translate-y-1.5 opacity-70 ring-2 ring-red-500' : '';
   const clickCls   = onClick ? 'cursor-pointer hover:scale-105 active:scale-95' : '';
 
   return (
     <div
       onClick={onClick}
-      style={{ perspective: '400px', ...phaseStyle }}
+      style={{ perspective: '400px', ...phaseStyle, ...splitRingStyle }}
       className={`${SIZE_CLASSES[size]} rounded-md bg-white flex flex-col items-center justify-center shadow-card relative select-none ${winningCls} ${discardCls} ${clickCls}`}
     >
       {selectedForDiscard && (

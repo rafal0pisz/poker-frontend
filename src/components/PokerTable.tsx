@@ -712,6 +712,7 @@ export function PokerTable({ initialRoom, mySessionToken, onLeave }: Props) {
   const canSitOut = !!gameState && !['sitting-out', 'waiting', 'no-chips', 'spectator'].includes(me.status);
 
   const winningCardsSet = new Set<CardType>();
+  const winningCardsSecondarySet = new Set<CardType>();
   const isShowdown = gameState?.phase === 'showdown';
 
   const handlePineappleDiscard = (discardIndex: number) => {
@@ -729,6 +730,9 @@ export function PokerTable({ initialRoom, mySessionToken, onLeave }: Props) {
   const activeResult = lastResult || gameState?.lastHandResult;
   if (activeResult?.winningCards) {
     for (const c of activeResult.winningCards) winningCardsSet.add(c);
+  }
+  if (activeResult?.winningCardsSecondary) {
+    for (const c of activeResult.winningCardsSecondary) winningCardsSecondarySet.add(c);
   }
 
   const currentVariant: GameVariant = gameState?.variant || 'texas';
@@ -944,6 +948,7 @@ export function PokerTable({ initialRoom, mySessionToken, onLeave }: Props) {
                     lastMessage={getBubble(p.sessionToken)}
                     handName={activeResult?.showdownCards.find((sc) => sc.sessionToken === p.sessionToken)?.handName}
                     winningCards={winningCardsSet}
+                    winningCardsSecondary={winningCardsSecondarySet}
                     cardCount={currentCardCount}
                     actionDeadline={gameState?.actionDeadline}
                     actionTimeoutSec={room.settings.actionTimeoutSec}
@@ -983,7 +988,7 @@ export function PokerTable({ initialRoom, mySessionToken, onLeave }: Props) {
                 const commPrevCount = prevCommCardCountRef.current;
                 const isNew = card && i >= commPrevCount;
                 return card
-                  ? <Card key={i} card={card} size="md" winning={winningCardsSet.has(card)} dealIndex={isNew ? i - commPrevCount : undefined} slowFlip={isNew} />
+                  ? <Card key={i} card={card} size="md" winning={winningCardsSet.has(card)} winningSecondary={winningCardsSecondarySet.has(card)} dealIndex={isNew ? i - commPrevCount : undefined} slowFlip={isNew} />
                   : <CardPlaceholder key={i} size="md" />;
               })}
             </div>
@@ -1061,7 +1066,7 @@ export function PokerTable({ initialRoom, mySessionToken, onLeave }: Props) {
               <div className={myHoleCards.length >= 5 ? 'flex -space-x-2' : myFoldedCards.length >= 5 ? 'flex -space-x-2' : 'flex gap-0.5'}>
                 {myHoleCards.length > 0
                   ? myHoleCards.map((c, i) => (
-                      <Card key={i} card={c} size={myHoleCards.length >= 5 ? 'sm' : myHoleCards.length >= 4 ? 'md' : 'lg'} winning={winningCardsSet.has(c)} dealIndex={i} />
+                      <Card key={i} card={c} size={myHoleCards.length >= 5 ? 'sm' : myHoleCards.length >= 4 ? 'md' : 'lg'} winning={winningCardsSet.has(c)} winningSecondary={winningCardsSecondarySet.has(c)} dealIndex={i} />
                     ))
                   : myFoldedCards.length > 0
                   ? myFoldedCards.map((fc, i) => (
@@ -1230,6 +1235,7 @@ export function PokerTable({ initialRoom, mySessionToken, onLeave }: Props) {
             )
           ) : undefined}
           winningCardsSet={winningCardsSet}
+          winningCardsSecondarySet={winningCardsSecondarySet}
           activeResult={activeResult ?? null}
           lastResult={lastResult}
           resultMessage={resultMessage}

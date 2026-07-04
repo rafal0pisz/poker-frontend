@@ -58,11 +58,11 @@ function BetChip({ amount, side = 'bottom' }: BetChipProps) {
 // Oval seat component — mini version for around-the-table display
 function OvalSeat({
   player, isCurrent, isDealer, isSb, isBb, seatIndex, cardCount, onAvatarClick, equity,
-  winningCards, lastMessage, handName, actionDeadline, actionTimeoutSec, revealedCards,
+  winningCards, winningCardsSecondary, lastMessage, handName, actionDeadline, actionTimeoutSec, revealedCards,
 }: {
   player: Room['players'][0]; isCurrent: boolean; isDealer: boolean;
   isSb: boolean; isBb: boolean; seatIndex: number; cardCount: number;
-  winningCards: Set<CardType>; lastMessage: ChatMessage | null; handName?: string; onAvatarClick?: () => void; equity?: number;
+  winningCards: Set<CardType>; winningCardsSecondary: Set<CardType>; lastMessage: ChatMessage | null; handName?: string; onAvatarClick?: () => void; equity?: number;
   actionDeadline?: number | null; actionTimeoutSec?: number; revealedCards?: CardType[];
 }) {
   const pos = SEAT_POSITIONS[seatIndex];
@@ -88,7 +88,7 @@ function OvalSeat({
       {seatIndex >= 3 && (
         <div style={{ display: 'flex', gap: 2 }}>
           {hasCards
-            ? shownCards.map((c, i) => <Card key={i} card={c} size="md" winning={winningCards.has(c)} />)
+            ? shownCards.map((c, i) => <Card key={i} card={c} size="md" winning={winningCards.has(c)} winningSecondary={winningCardsSecondary.has(c)} />)
             : (player.status === 'playing' || player.status === 'all-in' || isFolded)
               ? Array.from({ length: cardCount }).map((_, i) => <Card key={i} size="md" facedown />)
               : null}
@@ -131,7 +131,7 @@ function OvalSeat({
       {seatIndex < 3 && (
         <div style={{ display: 'flex', gap: 2 }}>
           {hasCards
-            ? shownCards.map((c, i) => <Card key={i} card={c} size="md" winning={winningCards.has(c)} />)
+            ? shownCards.map((c, i) => <Card key={i} card={c} size="md" winning={winningCards.has(c)} winningSecondary={winningCardsSecondary.has(c)} />)
             : (player.status === 'playing' || player.status === 'all-in' || isFolded)
               ? Array.from({ length: cardCount }).map((_, i) => <Card key={i} size="md" facedown />)
               : null}
@@ -175,6 +175,7 @@ export interface OvalTableProps {
   myHoleCards: CardType[];
   myFoldedCards: CardType[];
   winningCardsSet: Set<CardType>;
+  winningCardsSecondarySet: Set<CardType>;
   activeResult: HandResult | null;
   lastResult: HandResult | null;
   resultMessage: string;
@@ -223,7 +224,7 @@ export interface OvalTableProps {
 
 export function OvalTable({
   room, mySessionToken, gameState, otherPlayers, me, myHoleCards, myFoldedCards,
-  winningCardsSet, activeResult, lastResult, resultMessage,
+  winningCardsSet, winningCardsSecondarySet, activeResult, lastResult, resultMessage,
   isShowdown, myHandShown, isSpectator, isAdmin, isSittingOut, canSitOut,
   muted, codeCopied, currentVariant, currentCardCount, isDrawPhase,
   revealedHands, sbSeat, bbSeat, prevCommCardCountRef,
@@ -469,7 +470,7 @@ export function OvalTable({
                     const card = gameState?.communityCards[i];
                     const isNew = card && i >= (prevCommCardCountRef.current ?? 0);
                     return card
-                      ? <Card key={i} card={card} size="lg" winning={winningCardsSet.has(card)} dealIndex={isNew ? i - (prevCommCardCountRef.current ?? 0) : undefined} slowFlip={isNew} />
+                      ? <Card key={i} card={card} size="lg" winning={winningCardsSet.has(card)} winningSecondary={winningCardsSecondarySet.has(card)} dealIndex={isNew ? i - (prevCommCardCountRef.current ?? 0) : undefined} slowFlip={isNew} />
                       : <CardPlaceholder key={i} size="lg" />;
                   })}
                 </div>
@@ -489,6 +490,7 @@ export function OvalTable({
                 seatIndex={seatIndex}
                 cardCount={currentCardCount}
                 winningCards={winningCardsSet}
+                winningCardsSecondary={winningCardsSecondarySet}
                 lastMessage={getBubble(player.sessionToken)}
                 handName={activeResult?.showdownCards.find(sc => sc.sessionToken === player.sessionToken)?.handName}
                 actionDeadline={gameState?.actionDeadline}
@@ -505,7 +507,7 @@ export function OvalTable({
               {!showDiscardUI && (
                 <div style={{ display: 'flex', gap: 2 }}>
                   {myHoleCards.length > 0
-                    ? myHoleCards.map((c, i) => <Card key={i} card={c} size="md" winning={winningCardsSet.has(c)} />)
+                    ? myHoleCards.map((c, i) => <Card key={i} card={c} size="md" winning={winningCardsSet.has(c)} winningSecondary={winningCardsSecondarySet.has(c)} />)
                     : myFoldedCards.length > 0
                     ? myFoldedCards.map((fc, i) => (
                         <div key={i} style={{ opacity: 0.38, filter: 'grayscale(1)' }}>

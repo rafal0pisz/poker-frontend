@@ -494,16 +494,21 @@ export function PokerTable({ initialRoom, mySessionToken, onLeave }: Props) {
       }
       processRoomState(updated, mySessionToken);
       const myUpdated = updated.players.find((p) => p.sessionToken === mySessionToken);
+      // Reset per-hand reveal state whenever a NEW hand starts — independent of
+      // whether I personally get dealt cards this hand. A busted/spectating
+      // player never receives holeCards again, so gating this on "I have cards"
+      // left their revealedHands (e.g. an all-in reveal from the hand they
+      // busted in) stuck forever, making a long-gone opponent's cards look
+      // like they never reset.
+      const newHandNumber = updated.gameState?.handNumber ?? null;
+      if (newHandNumber !== prevHandNumberRef.current) {
+        prevHandNumberRef.current = newHandNumber;
+        setMyHandShown(false);
+        setRevealedHands({});
+        setMyFoldedCards([]); // clear folded cards on new hand
+      }
       if (myUpdated?.holeCards && myUpdated.holeCards.length > 0) {
         setMyHoleCards(myUpdated.holeCards);
-        // Reset revealedHands only when a NEW hand starts (hand number changes)
-        const newHandNumber = updated.gameState?.handNumber ?? null;
-        if (newHandNumber !== prevHandNumberRef.current) {
-          prevHandNumberRef.current = newHandNumber;
-          setMyHandShown(false);
-          setRevealedHands({});
-          setMyFoldedCards([]); // clear folded cards on new hand
-        }
       }
       // During draw phase always sync cards from room state
       // (draw phase may update holeCards mid-hand)

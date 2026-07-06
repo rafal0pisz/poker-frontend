@@ -2,6 +2,7 @@
 
 import { useCallback, useRef, useState } from 'react';
 import type { HandResult, Player } from '@/lib/types';
+import { isDrawmahaVariant } from '@/lib/types';
 
 export interface Achievement {
   id: string;
@@ -86,7 +87,7 @@ export function useAchievements() {
     const found: Achievement[] = [];
     const hand = result.handNumber ?? Date.now();
     const winnerTokens = new Set(result.winnings.map(w => w.sessionToken));
-    const isDrawmaha = result.variant === 'drawmaha' || result.variant === 'drawmaha-pl';
+    const isDrawmaha = isDrawmahaVariant(result.variant);
     const isHiLo = result.variant === 'omaha-hl';
 
     const nick = (token: string) =>

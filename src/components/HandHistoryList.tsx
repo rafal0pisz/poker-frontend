@@ -19,7 +19,7 @@ const VARIANT_SHORT: Record<string, string> = {
   'drawmaha-pl': 'Drawmaha PL',
   pineapple: 'Pineapple',
   'pineapple-classic': 'Pineapple Classic',
-  bombpot: 'Bomb Pot',
+  'drawmaha-bomb': 'Drawmaha Bomb',
 };
 
 function nickFor(result: HandResult, players: Player[], token: string): string {

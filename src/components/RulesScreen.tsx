@@ -27,13 +27,13 @@ const variants = [
     streets: ['Preflop', 'Flop (3)', 'Turn (1)', 'River (1)', 'Showdown'],
   },
   {
-    name: "Hold'em Bomb Pot",
+    name: 'Drawmaha Bomb Pot',
     icon: '💣',
     color: '#e05050',
-    cards: '2 hole cards · no blinds',
-    desc: "A wild, fast twist on Texas Hold'em. There are no blinds and no preflop betting round — every player at the table antes one big blind straight into the pot, then the flop is dealt immediately. From there it plays out exactly like a normal Hold'em hand (flop, turn, river, showdown).",
-    streets: ['Ante (everyone)', 'Flop (3)', 'Turn (1)', 'River (1)', 'Showdown'],
-    special: 'No preflop betting — everyone antes 1 BB, action starts on the flop',
+    cards: '5 hole cards + draw · no blinds',
+    desc: "A wild, fast twist on Drawmaha. There are no blinds and no preflop betting round — every player at the table antes two big blinds straight into the pot, then the flop is dealt immediately. From there it plays out exactly like a normal Drawmaha hand: a draw phase after the flop, then turn, river, and a 50/50 split pot at showdown between the Omaha winner and the Draw winner.",
+    streets: ['Ante (everyone, 2 BB)', 'Flop (3)', 'Draw phase', 'Turn (1)', 'River (1)', 'Showdown'],
+    special: 'No preflop betting — everyone antes 2 BB, action starts on the flop · split pot',
   },
   {
     name: 'Omaha',

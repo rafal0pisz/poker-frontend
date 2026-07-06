@@ -2,6 +2,7 @@
 
 import React, { useEffect, useRef, useState } from 'react';
 import type { Room, Card as CardType, HandResult, ChatMessage, GameVariant } from '@/lib/types';
+import { isDrawmahaVariant } from '@/lib/types';
 import { getSocket } from '@/lib/socket';
 import { getSessionToken, clearSessionToken } from '@/lib/session';
 import { Card, CardPlaceholder } from './Card';
@@ -519,7 +520,7 @@ export function PokerTable({ initialRoom, mySessionToken, onLeave }: Props) {
       // Exception: Drawmaha — folded cards go to muck which can be reshuffled into deck
       // showing them would give unfair information about cards in play
       if (myUpdated?.status === 'folded') {
-        const isDrawmaha = updated.gameState?.variant === 'drawmaha' || updated.gameState?.variant === 'drawmaha-pl';
+        const isDrawmaha = isDrawmahaVariant(updated.gameState?.variant);
         // Use myUpdated.holeCards directly — backend always sends own cards back.
         // Avoid stale closure issue with myHoleCards React state.
         const cardsToSave = myUpdated?.holeCards;
@@ -558,7 +559,7 @@ export function PokerTable({ initialRoom, mySessionToken, onLeave }: Props) {
 
     const handleHandResult = (result: HandResult) => {
       setLastResult(result);
-      const isDrawmaha = result.variant === 'drawmaha' || result.variant === 'drawmaha-pl';
+      const isDrawmaha = isDrawmahaVariant(result.variant);
       setTimeout(() => setLastResult(null), isDrawmaha ? 9000 : 6000);
       if (result.winnings.some((w) => w.sessionToken === mySessionToken && w.amount > 0)) playWin();
       processHandResult(result, roomRef.current.players);
@@ -741,7 +742,7 @@ export function PokerTable({ initialRoom, mySessionToken, onLeave }: Props) {
   }
 
   const currentVariant: GameVariant = gameState?.variant || 'texas';
-  const currentCardCount = (currentVariant === 'omaha' || currentVariant === 'omaha-pl' || currentVariant === 'omaha-hl') ? 4 : (currentVariant === 'omaha5' || currentVariant === 'drawmaha' || currentVariant === 'drawmaha-pl') ? 5 : (currentVariant === 'pineapple' || currentVariant === 'pineapple-classic') ? 3 : 2;
+  const currentCardCount = (currentVariant === 'omaha' || currentVariant === 'omaha-pl' || currentVariant === 'omaha-hl') ? 4 : (currentVariant === 'omaha5' || isDrawmahaVariant(currentVariant)) ? 5 : (currentVariant === 'pineapple' || currentVariant === 'pineapple-classic') ? 3 : 2;
 
   const isDrawPhase = gameState?.phase === 'draw';
   const isPineappleDiscardPhase = gameState?.phase === 'pineapple-discard';

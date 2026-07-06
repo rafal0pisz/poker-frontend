@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import type { Card as CardType } from '@/lib/types';
+import { isDrawmahaVariant } from '@/lib/types';
 
 const RANKS = ['2','3','4','5','6','7','8','9','T','J','Q','K','A'];
 const SUITS = ['s','h','d','c'];
@@ -126,7 +127,7 @@ export function useEquity(
 
   // Drawmaha has split pot (Omaha half + Draw half) — equity is meaningless
   // as a single number. Skip entirely to avoid confusion.
-  const isDrawmaha = variant === 'drawmaha' || variant === 'drawmaha-pl';
+  const isDrawmaha = isDrawmahaVariant(variant);
 
   const playerKey = players?.map(p => `${p.sessionToken}:${p.cards.join(',')}`).join('|') ?? '';
   const boardKey = communityCards.join(',');

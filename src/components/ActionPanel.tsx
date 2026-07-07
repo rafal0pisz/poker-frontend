@@ -331,7 +331,7 @@ export function ActionPanel({ me, gameState, settings, players }: Props) {
               cursor: timeBankDisabled ? 'not-allowed' : 'pointer',
             }}
           >
-            ⏱ +Time
+            ⏱ {timeBankUsesLeft}x +Time
           </button>
         </div>
       )}

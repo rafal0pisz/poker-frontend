@@ -72,6 +72,10 @@ export interface RoomSettings {
   // Admin-controlled: whether players can call +30s Time Bank (2x per session).
   // Defaults to ON — undefined/missing means enabled; only explicit `false` disables it.
   timeBankEnabled?: boolean;
+  // This room is linked to a Pasjonaci league — session results can be
+  // submitted from the admin panel. Set via admin:link-league.
+  leagueId?: string;
+  leagueName?: string;
 }
 
 // 'draw' = Drawmaha draw phase (after flop, before turn)

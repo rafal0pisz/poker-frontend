@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import type { Room, Player } from '@/lib/types';
 import { getSocket } from '@/lib/socket';
+import { getLeague, submitLeagueSession } from '@/lib/leagueApi';
 
 interface Props {
   room: Room;
@@ -52,6 +53,59 @@ export function AdminPanel({ room, mySessionToken, onClose }: Props) {
     getSocket().emit('admin:set-time-bank-enabled', { enabled }, (res: { ok: boolean; error?: string }) => {
       if (!res.ok) alert(res.error || 'Error');
     });
+  };
+
+  // ── Pasjonaci league linking ──────────────────────────────────────────
+  const [leagueCodeInput, setLeagueCodeInput] = useState('');
+  const [leagueLinking, setLeagueLinking] = useState(false);
+  const [leagueError, setLeagueError] = useState<string | null>(null);
+  const [sessionSaved, setSessionSaved] = useState(false);
+  const [savingSession, setSavingSession] = useState(false);
+
+  const handleLinkLeague = async () => {
+    const code = leagueCodeInput.toUpperCase().trim();
+    if (!code) return;
+    setLeagueLinking(true);
+    setLeagueError(null);
+    // Verify the code actually resolves to a league before asking the
+    // backend to link it — gives a clearer error than a generic "not found".
+    const check = await getLeague(code);
+    if (!check.ok) {
+      setLeagueLinking(false);
+      setLeagueError('Nie znaleziono stołu o tym kodzie');
+      return;
+    }
+    getSocket().emit('admin:link-league', { leagueId: code }, (res: { ok: boolean; error?: string }) => {
+      setLeagueLinking(false);
+      if (!res.ok) { setLeagueError(res.error || 'Błąd'); return; }
+      setLeagueCodeInput('');
+    });
+  };
+
+  const handleUnlinkLeague = () => {
+    getSocket().emit('admin:link-league', { leagueId: null }, (res: { ok: boolean; error?: string }) => {
+      if (!res.ok) alert(res.error || 'Error');
+    });
+  };
+
+  const handleSaveSessionToLeague = async () => {
+    if (!room.settings.leagueId) return;
+    const activeSummary = room.players
+      .filter((p) => p.status !== 'spectator')
+      .map((p) => ({ nick: p.nick, totalBuyIn: p.totalBuyIn, finalChips: p.chips, netResult: p.chips - p.totalBuyIn }));
+    const leftSummary = (room.sessionSummary ?? []).map((s) => ({
+      nick: s.nick, totalBuyIn: s.totalBuyIn, finalChips: s.finalChips, netResult: s.netResult,
+    }));
+    const activeNicks = new Set(activeSummary.map((s) => s.nick));
+    const results = [...activeSummary, ...leftSummary.filter((s) => !activeNicks.has(s.nick))];
+    if (results.length === 0) return;
+
+    setSavingSession(true);
+    const res = await submitLeagueSession(room.settings.leagueId, results);
+    setSavingSession(false);
+    if (!res.ok) { alert(res.error); return; }
+    setSessionSaved(true);
+    setTimeout(() => setSessionSaved(false), 4000);
   };
 
   const handleTableColor = (color: string) => {
@@ -420,6 +474,55 @@ export function AdminPanel({ room, mySessionToken, onClose }: Props) {
                 On
               </button>
             </div>
+          </div>
+
+          {/* Pasjonaci league */}
+          <div className="border-t border-poker-gold/10 pt-4">
+            <p className="text-xs text-poker-yellow/50 mb-1">🏆 Liga Pasjonaci</p>
+            {room.settings.leagueId ? (
+              <>
+                <p className="text-[10px] text-poker-yellow/35 mb-3">
+                  Podłączony do: <span className="text-poker-gold">{room.settings.leagueName}</span> ({room.settings.leagueId})
+                </p>
+                <button
+                  onClick={handleSaveSessionToLeague}
+                  disabled={savingSession}
+                  className="w-full py-2.5 rounded-lg text-sm font-medium border border-poker-gold/40 bg-poker-gold/10 text-poker-gold active:scale-95 transition-all disabled:opacity-40 mb-2"
+                >
+                  {savingSession ? 'Zapisywanie...' : sessionSaved ? '✓ Zapisano wynik' : '📤 Zapisz wynik sesji do ligi'}
+                </button>
+                <button
+                  onClick={handleUnlinkLeague}
+                  className="w-full py-2 rounded-lg text-xs text-poker-yellow/50 border border-poker-gold/15"
+                >
+                  Odłącz stół
+                </button>
+              </>
+            ) : (
+              <>
+                <p className="text-[10px] text-poker-yellow/35 mb-3">
+                  Podłącz kodem stołu z pokero.pl/pasjonaci, żeby wyniki tej sesji dało się zapisać do wspólnej ligi.
+                </p>
+                <div className="flex gap-2">
+                  <input
+                    type="text"
+                    value={leagueCodeInput}
+                    onChange={(e) => setLeagueCodeInput(e.target.value.toUpperCase())}
+                    maxLength={8}
+                    placeholder="np. 7K4M2X"
+                    className="flex-1 bg-poker-bg px-3 py-2 rounded-lg text-poker-yellow outline-none border border-poker-gold/20 text-sm font-mono tracking-widest text-center"
+                  />
+                  <button
+                    onClick={handleLinkLeague}
+                    disabled={leagueLinking || !leagueCodeInput.trim()}
+                    className="px-4 py-2 rounded-lg font-medium text-sm bg-poker-gold/15 border border-poker-gold/40 text-poker-gold active:scale-95 disabled:opacity-40"
+                  >
+                    {leagueLinking ? '...' : 'Podłącz'}
+                  </button>
+                </div>
+                {leagueError && <p className="text-poker-coral text-[11px] mt-2">{leagueError}</p>}
+              </>
+            )}
           </div>
 
           {/* Table color */}

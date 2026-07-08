@@ -3,11 +3,16 @@
 import { useEffect, useState, useCallback } from 'react';
 import {
   getPasjonaciResults,
-  closePasjonaciPeriod,
-  resetPasjonaci,
+  confirmSettlement,
+  verifyPasjonaciAdmin,
+  deletePasjonaciSession,
+  editPasjonaciSession,
+  removePasjonaciPlayer,
   type PasjonaciView,
   type PlayerBalance,
   type Settlement,
+  type LeagueSession,
+  type LeagueSessionResult,
 } from '@/lib/leagueApi';
 
 function formatDate(ts: number): string {
@@ -32,19 +37,95 @@ function BalanceRow({ b }: { b: PlayerBalance }) {
   );
 }
 
-function SettlementList({ settlements }: { settlements: Settlement[] }) {
+function SettlementList({
+  settlements,
+  periodId,
+  onToggle,
+}: {
+  settlements: Settlement[];
+  periodId: number | 'all-time';
+  onToggle: (periodId: number | 'all-time', s: Settlement) => void;
+}) {
   if (settlements.length === 0) {
     return <p className="text-poker-yellow/40 text-xs text-center py-3">Wszyscy rozliczeni ✓</p>;
   }
   return (
     <div className="space-y-1.5">
       {settlements.map((s, i) => (
-        <div key={i} className="flex items-center justify-between px-3 py-2 bg-poker-gold/10 border border-poker-gold/20 rounded-lg text-sm">
-          <span className="text-poker-yellow">
-            <span className="font-medium">{s.from}</span> jest winny <span className="font-medium text-poker-gold">{s.amount}</span> żetonów <span className="font-medium">{s.to}</span>
+        <label
+          key={i}
+          className={`flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm cursor-pointer transition ${
+            s.confirmed
+              ? 'bg-green-500/5 border border-green-500/20'
+              : 'bg-poker-gold/10 border border-poker-gold/20'
+          }`}
+        >
+          <input
+            type="checkbox"
+            checked={s.confirmed}
+            onChange={(e) => onToggle(periodId, { ...s, confirmed: e.target.checked })}
+            className="accent-poker-gold w-4 h-4 shrink-0"
+          />
+          <span className={s.confirmed ? 'text-poker-yellow/40 line-through' : 'text-poker-yellow'}>
+            <span className="font-medium">{s.from}</span> jest winny{' '}
+            <span className="font-medium text-poker-gold">{s.amount}</span> żetonów <span className="font-medium">{s.to}</span>
           </span>
+        </label>
+      ))}
+    </div>
+  );
+}
+
+function SessionEditForm({
+  session,
+  onSave,
+  onCancel,
+}: {
+  session: LeagueSession;
+  onSave: (results: LeagueSessionResult[]) => void;
+  onCancel: () => void;
+}) {
+  const [rows, setRows] = useState<LeagueSessionResult[]>(session.results.map((r) => ({ ...r })));
+
+  const updateRow = (i: number, patch: Partial<LeagueSessionResult>) => {
+    setRows((prev) => prev.map((r, idx) => (idx === i ? { ...r, ...patch } : r)));
+  };
+  const removeRow = (i: number) => {
+    setRows((prev) => prev.filter((_, idx) => idx !== i));
+  };
+
+  return (
+    <div className="space-y-2">
+      {rows.map((r, i) => (
+        <div key={i} className="flex items-center gap-1.5">
+          <input
+            value={r.nick}
+            onChange={(e) => updateRow(i, { nick: e.target.value })}
+            className="min-w-0 flex-1 bg-poker-bg border border-poker-gold/25 text-poker-yellow text-xs px-2 py-1.5 rounded-md focus:outline-none focus:border-poker-gold/60"
+          />
+          <input
+            type="number"
+            value={r.netResult}
+            onChange={(e) => updateRow(i, { netResult: Number(e.target.value) })}
+            className="w-20 bg-poker-bg border border-poker-gold/25 text-poker-yellow text-xs px-2 py-1.5 rounded-md focus:outline-none focus:border-poker-gold/60"
+          />
+          <button onClick={() => removeRow(i)} className="text-poker-coral text-xs px-1.5 shrink-0">✕</button>
         </div>
       ))}
+      <div className="flex gap-2 pt-1">
+        <button
+          onClick={() => onSave(rows)}
+          className="flex-1 bg-poker-gold/15 border border-poker-gold/30 text-poker-yellow text-xs font-medium py-1.5 rounded-md active:scale-95 transition"
+        >
+          Zapisz
+        </button>
+        <button
+          onClick={onCancel}
+          className="flex-1 bg-poker-yellow/5 border border-poker-gold/15 text-poker-yellow/60 text-xs font-medium py-1.5 rounded-md active:scale-95 transition"
+        >
+          Anuluj
+        </button>
+      </div>
     </div>
   );
 }
@@ -54,10 +135,14 @@ export default function PasjonaciResultsPage() {
   const [error, setError] = useState<string | null>(null);
   const [showAllTime, setShowAllTime] = useState(false);
   const [showHistory, setShowHistory] = useState(false);
-  const [showSettle, setShowSettle] = useState(false);
-  const [password, setPassword] = useState('');
-  const [closing, setClosing] = useState(false);
-  const [resetting, setResetting] = useState(false);
+
+  const [showAdminPrompt, setShowAdminPrompt] = useState(false);
+  const [adminPasswordInput, setAdminPasswordInput] = useState('');
+  const [adminPassword, setAdminPassword] = useState<string | null>(null);
+  const [adminError, setAdminError] = useState<string | null>(null);
+  const [verifying, setVerifying] = useState(false);
+  const [editingSessionId, setEditingSessionId] = useState<string | null>(null);
+  const [removeNick, setRemoveNick] = useState('');
 
   const load = useCallback(async () => {
     const res = await getPasjonaciResults();
@@ -71,25 +156,57 @@ export default function PasjonaciResultsPage() {
 
   useEffect(() => { load(); }, [load]);
 
-  const handleClosePeriod = async () => {
-    if (!password) { alert('Podaj hasło'); return; }
-    if (!confirm('Zamknąć bieżący tydzień teraz i zacząć rozliczenie od nowa?')) return;
-    setClosing(true);
-    const res = await closePasjonaciPeriod(password);
-    setClosing(false);
-    if (!res.ok) { alert(res.error); return; }
-    setPassword('');
+  const handleToggleSettlement = async (periodId: number | 'all-time', s: Settlement) => {
+    // Optimistic update — avoids a flash back to unconfirmed while the
+    // request round-trips and the ledger reloads.
+    setLeague((prev) => {
+      if (!prev) return prev;
+      const patch = (list: Settlement[]) =>
+        list.map((x) => (x.from === s.from && x.to === s.to && x.amount === s.amount ? { ...x, confirmed: s.confirmed } : x));
+      return {
+        ...prev,
+        currentPeriod: { ...prev.currentPeriod, settlements: patch(prev.currentPeriod.settlements) },
+        pastPeriods: prev.pastPeriods.map((p) => ({ ...p, settlements: patch(p.settlements) })),
+        allTime: { ...prev.allTime, settlements: patch(prev.allTime.settlements) },
+      };
+    });
+    const res = await confirmSettlement(periodId, s.from, s.to, s.amount, s.confirmed);
+    if (!res.ok) { alert(res.error); load(); return; }
     load();
   };
 
-  const handleReset = async () => {
-    if (!password) { alert('Podaj hasło'); return; }
-    if (!confirm('Usunąć WSZYSTKIE wyniki i całą historię? Tej operacji nie można cofnąć.')) return;
-    setResetting(true);
-    const res = await resetPasjonaci(password);
-    setResetting(false);
+  const handleVerifyAdmin = async () => {
+    if (!adminPasswordInput) return;
+    setVerifying(true);
+    const res = await verifyPasjonaciAdmin(adminPasswordInput);
+    setVerifying(false);
+    if (!res.ok) { setAdminError(res.error); return; }
+    setAdminPassword(adminPasswordInput);
+    setAdminError(null);
+  };
+
+  const handleDeleteSession = async (id: string) => {
+    if (!adminPassword) return;
+    if (!confirm('Usunąć tę sesję z historii i rankingu?')) return;
+    const res = await deletePasjonaciSession(id, adminPassword);
     if (!res.ok) { alert(res.error); return; }
-    setPassword('');
+    load();
+  };
+
+  const handleSaveSession = async (id: string, results: LeagueSessionResult[]) => {
+    if (!adminPassword) return;
+    const res = await editPasjonaciSession(id, adminPassword, results);
+    if (!res.ok) { alert(res.error); return; }
+    setEditingSessionId(null);
+    load();
+  };
+
+  const handleRemovePlayer = async () => {
+    if (!adminPassword || !removeNick.trim()) return;
+    if (!confirm(`Usunąć gracza "${removeNick.trim()}" ze wszystkich wyników i rankingu?`)) return;
+    const res = await removePasjonaciPlayer(removeNick.trim(), adminPassword);
+    if (!res.ok) { alert(res.error); return; }
+    setRemoveNick('');
     load();
   };
 
@@ -113,6 +230,7 @@ export default function PasjonaciResultsPage() {
   }
 
   const activePeriod = showAllTime ? league.allTime : league.currentPeriod;
+  const activePeriodId: number | 'all-time' = showAllTime ? 'all-time' : league.currentPeriod.startedAt;
 
   return (
     <main className="min-h-screen p-4 pb-12">
@@ -164,44 +282,10 @@ export default function PasjonaciResultsPage() {
         </div>
 
         {/* Settlement */}
-        <div className="mb-5">
-          <p className="text-poker-yellow/60 text-xs uppercase tracking-wide mb-2">Rozliczenie</p>
-          <SettlementList settlements={activePeriod.settlements} />
-        </div>
-
-        {/* Password-gated settlement actions */}
         <div className="mb-6">
-          <button
-            onClick={() => setShowSettle((v) => !v)}
-            className="text-poker-yellow/50 text-xs flex items-center gap-1 mx-auto"
-          >
-            🔒 Rozliczenia {showSettle ? '▲' : '▼'}
-          </button>
-          {showSettle && (
-            <div className="mt-3 bg-poker-yellow/5 border border-poker-gold/20 rounded-lg p-3 space-y-2">
-              <input
-                type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                placeholder="Hasło"
-                className="w-full bg-poker-bg border border-poker-gold/25 text-poker-yellow text-sm px-3 py-2 rounded-lg placeholder:text-poker-yellow/30 focus:outline-none focus:border-poker-gold/60"
-              />
-              <button
-                onClick={handleClosePeriod}
-                disabled={closing || resetting || activePeriod.balances.length === 0}
-                className="w-full bg-poker-gold/10 border border-poker-gold/25 text-poker-yellow text-xs font-medium py-2.5 rounded-lg active:scale-95 transition disabled:opacity-40"
-              >
-                {closing ? 'Zamykanie...' : '⏭ Zamknij tydzień teraz'}
-              </button>
-              <button
-                onClick={handleReset}
-                disabled={closing || resetting}
-                className="w-full bg-poker-coral/10 border border-poker-coral/30 text-poker-coral text-xs font-medium py-2.5 rounded-lg active:scale-95 transition disabled:opacity-40"
-              >
-                {resetting ? 'Usuwanie...' : '🗑 Usuń wszystkie wyniki'}
-              </button>
-            </div>
-          )}
+          <p className="text-poker-yellow/60 text-xs uppercase tracking-wide mb-2">Rozliczenie</p>
+          <p className="text-poker-yellow/35 text-[11px] mb-2">Zaznacz, gdy oddasz swój dług — każdy rozlicza się sam.</p>
+          <SettlementList settlements={activePeriod.settlements} periodId={activePeriodId} onToggle={handleToggleSettlement} />
         </div>
 
         {/* Past periods */}
@@ -218,7 +302,7 @@ export default function PasjonaciResultsPage() {
                     {p.balances.map((b) => <BalanceRow key={b.nick} b={b} />)}
                   </div>
                   <div className="mt-2">
-                    <SettlementList settlements={p.settlements} />
+                    <SettlementList settlements={p.settlements} periodId={p.startedAt} onToggle={handleToggleSettlement} />
                   </div>
                 </details>
               ))}
@@ -228,7 +312,7 @@ export default function PasjonaciResultsPage() {
 
         {/* Session history */}
         {league.sessions.length > 0 && (
-          <div>
+          <div className="mb-8">
             <button
               onClick={() => setShowHistory((v) => !v)}
               className="text-poker-yellow/60 text-xs uppercase tracking-wide mb-2 flex items-center gap-1"
@@ -239,23 +323,96 @@ export default function PasjonaciResultsPage() {
               <div className="space-y-2">
                 {league.sessions.map((s) => (
                   <div key={s.id} className="bg-poker-yellow/5 border border-poker-gold/15 rounded-lg px-3 py-2">
-                    <p className="text-poker-yellow/50 text-[10px] mb-1.5">{formatDate(s.playedAt)}</p>
-                    <div className="space-y-1">
-                      {s.results.map((r) => (
-                        <div key={r.nick} className="flex items-center justify-between text-xs">
-                          <span className="text-poker-yellow">{r.nick}</span>
-                          <span className={r.netResult >= 0 ? 'text-green-400' : 'text-poker-coral'}>
-                            {formatNet(r.netResult)}
-                          </span>
+                    <div className="flex items-center justify-between mb-1.5">
+                      <p className="text-poker-yellow/50 text-[10px]">{formatDate(s.playedAt)}</p>
+                      {adminPassword && editingSessionId !== s.id && (
+                        <div className="flex items-center gap-2.5">
+                          <button onClick={() => setEditingSessionId(s.id)} className="text-poker-yellow/50 text-[10px] hover:text-poker-yellow transition">
+                            ✏️ Edytuj
+                          </button>
+                          <button onClick={() => handleDeleteSession(s.id)} className="text-poker-coral text-[10px] hover:text-poker-coral/70 transition">
+                            🗑 Usuń
+                          </button>
                         </div>
-                      ))}
+                      )}
                     </div>
+                    {editingSessionId === s.id ? (
+                      <SessionEditForm
+                        session={s}
+                        onSave={(results) => handleSaveSession(s.id, results)}
+                        onCancel={() => setEditingSessionId(null)}
+                      />
+                    ) : (
+                      <div className="space-y-1">
+                        {s.results.map((r) => (
+                          <div key={r.nick} className="flex items-center justify-between text-xs">
+                            <span className="text-poker-yellow">{r.nick}</span>
+                            <span className={r.netResult >= 0 ? 'text-green-400' : 'text-poker-coral'}>
+                              {formatNet(r.netResult)}
+                            </span>
+                          </div>
+                        ))}
+                      </div>
+                    )}
                   </div>
                 ))}
               </div>
             )}
           </div>
         )}
+
+        {/* Admin */}
+        <div className="pt-4 border-t border-poker-gold/10">
+          <button
+            onClick={() => setShowAdminPrompt((v) => !v)}
+            className="text-poker-yellow/30 text-[11px] flex items-center gap-1 mx-auto hover:text-poker-yellow/50 transition"
+          >
+            Jesteś adminem?
+          </button>
+          {showAdminPrompt && !adminPassword && (
+            <div className="mt-3 space-y-2">
+              <div className="flex gap-2">
+                <input
+                  type="password"
+                  value={adminPasswordInput}
+                  onChange={(e) => { setAdminPasswordInput(e.target.value); setAdminError(null); }}
+                  onKeyDown={(e) => e.key === 'Enter' && handleVerifyAdmin()}
+                  placeholder="Hasło administratora"
+                  className="flex-1 bg-poker-yellow/5 border border-poker-gold/20 text-poker-yellow text-xs px-3 py-2 rounded-lg placeholder:text-poker-yellow/30 focus:outline-none focus:border-poker-gold/50"
+                />
+                <button
+                  onClick={handleVerifyAdmin}
+                  disabled={verifying}
+                  className="bg-poker-gold/15 border border-poker-gold/30 text-poker-yellow text-xs font-medium px-4 rounded-lg active:scale-95 transition disabled:opacity-40"
+                >
+                  {verifying ? '...' : 'Zatwierdź'}
+                </button>
+              </div>
+              {adminError && <p className="text-poker-coral text-[11px] text-center">{adminError}</p>}
+            </div>
+          )}
+          {adminPassword && (
+            <div className="mt-3 bg-poker-yellow/5 border border-poker-gold/20 rounded-lg p-3 space-y-2">
+              <p className="text-poker-yellow/60 text-[11px]">
+                ✓ Tryb administratora. Edytuj/usuń sesje w historii powyżej albo usuń gracza z rankingu:
+              </p>
+              <div className="flex gap-2">
+                <input
+                  value={removeNick}
+                  onChange={(e) => setRemoveNick(e.target.value)}
+                  placeholder="Nick gracza"
+                  className="flex-1 bg-poker-bg border border-poker-gold/25 text-poker-yellow text-xs px-3 py-2 rounded-lg placeholder:text-poker-yellow/30 focus:outline-none focus:border-poker-gold/60"
+                />
+                <button
+                  onClick={handleRemovePlayer}
+                  className="bg-poker-coral/10 border border-poker-coral/30 text-poker-coral text-xs font-medium px-3 rounded-lg active:scale-95 transition"
+                >
+                  Usuń z rankingu
+                </button>
+              </div>
+            </div>
+          )}
+        </div>
       </div>
     </main>
   );

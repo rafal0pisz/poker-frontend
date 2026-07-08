@@ -1,8 +1,9 @@
 // "Pasjonaci" results API client — plain REST calls to the backend's
 // /api/pasjonaci endpoints (see poker-backend/src/league-store.ts). There is
 // exactly one shared ledger; results are written server-side, silently,
-// after every hand on a table created via /pasjonaci — nothing here submits
-// data, this module only reads and closes the current period.
+// after every hand on a table created via /pasjonaci. This module reads the
+// ledger, lets anyone confirm their own settlement, and (password-gated)
+// lets an admin edit/delete a session or remove a player from the ranking.
 const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:4000';
 
 export interface LeagueSessionResult {
@@ -28,6 +29,7 @@ export interface Settlement {
   from: string;
   to: string;
   amount: number;
+  confirmed: boolean;
 }
 
 export interface LeaguePeriodView {
@@ -52,6 +54,14 @@ async function parseJson(res: Response) {
   }
 }
 
+function postJson(path: string, body: unknown) {
+  return fetch(`${BACKEND_URL}${path}`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(body),
+  });
+}
+
 export async function getPasjonaciResults(): Promise<
   { ok: true; league: PasjonaciView } | { ok: false; error: string }
 > {
@@ -59,20 +69,43 @@ export async function getPasjonaciResults(): Promise<
   return parseJson(res);
 }
 
-export async function closePasjonaciPeriod(password: string): Promise<{ ok: true } | { ok: false; error: string }> {
-  const res = await fetch(`${BACKEND_URL}/api/pasjonaci/close-period`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ password }),
-  });
+export async function confirmSettlement(
+  periodId: number | 'all-time',
+  from: string,
+  to: string,
+  amount: number,
+  confirmed: boolean,
+): Promise<{ ok: true } | { ok: false; error: string }> {
+  const res = await postJson('/api/pasjonaci/settlement/confirm', { periodId, from, to, amount, confirmed });
   return parseJson(res);
 }
 
-export async function resetPasjonaci(password: string): Promise<{ ok: true } | { ok: false; error: string }> {
-  const res = await fetch(`${BACKEND_URL}/api/pasjonaci/reset`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ password }),
-  });
+export async function verifyPasjonaciAdmin(password: string): Promise<{ ok: true } | { ok: false; error: string }> {
+  const res = await postJson('/api/pasjonaci/admin/verify', { password });
+  return parseJson(res);
+}
+
+export async function deletePasjonaciSession(
+  id: string,
+  password: string,
+): Promise<{ ok: true } | { ok: false; error: string }> {
+  const res = await postJson(`/api/pasjonaci/admin/session/${encodeURIComponent(id)}/delete`, { password });
+  return parseJson(res);
+}
+
+export async function editPasjonaciSession(
+  id: string,
+  password: string,
+  results: LeagueSessionResult[],
+): Promise<{ ok: true } | { ok: false; error: string }> {
+  const res = await postJson(`/api/pasjonaci/admin/session/${encodeURIComponent(id)}/edit`, { password, results });
+  return parseJson(res);
+}
+
+export async function removePasjonaciPlayer(
+  nick: string,
+  password: string,
+): Promise<{ ok: true } | { ok: false; error: string }> {
+  const res = await postJson('/api/pasjonaci/admin/remove-player', { password, nick });
   return parseJson(res);
 }

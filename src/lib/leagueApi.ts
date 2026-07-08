@@ -59,7 +59,20 @@ export async function getPasjonaciResults(): Promise<
   return parseJson(res);
 }
 
-export async function closePasjonaciPeriod(): Promise<{ ok: true } | { ok: false; error: string }> {
-  const res = await fetch(`${BACKEND_URL}/api/pasjonaci/close-period`, { method: 'POST' });
+export async function closePasjonaciPeriod(password: string): Promise<{ ok: true } | { ok: false; error: string }> {
+  const res = await fetch(`${BACKEND_URL}/api/pasjonaci/close-period`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ password }),
+  });
+  return parseJson(res);
+}
+
+export async function resetPasjonaci(password: string): Promise<{ ok: true } | { ok: false; error: string }> {
+  const res = await fetch(`${BACKEND_URL}/api/pasjonaci/reset`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ password }),
+  });
   return parseJson(res);
 }

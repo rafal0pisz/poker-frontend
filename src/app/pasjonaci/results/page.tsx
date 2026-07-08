@@ -4,6 +4,7 @@ import { useEffect, useState, useCallback } from 'react';
 import {
   getPasjonaciResults,
   closePasjonaciPeriod,
+  resetPasjonaci,
   type PasjonaciView,
   type PlayerBalance,
   type Settlement,
@@ -53,7 +54,10 @@ export default function PasjonaciResultsPage() {
   const [error, setError] = useState<string | null>(null);
   const [showAllTime, setShowAllTime] = useState(false);
   const [showHistory, setShowHistory] = useState(false);
+  const [showSettle, setShowSettle] = useState(false);
+  const [password, setPassword] = useState('');
   const [closing, setClosing] = useState(false);
+  const [resetting, setResetting] = useState(false);
 
   const load = useCallback(async () => {
     const res = await getPasjonaciResults();
@@ -68,11 +72,24 @@ export default function PasjonaciResultsPage() {
   useEffect(() => { load(); }, [load]);
 
   const handleClosePeriod = async () => {
+    if (!password) { alert('Podaj hasło'); return; }
     if (!confirm('Zamknąć bieżący tydzień teraz i zacząć rozliczenie od nowa?')) return;
     setClosing(true);
-    const res = await closePasjonaciPeriod();
+    const res = await closePasjonaciPeriod(password);
     setClosing(false);
     if (!res.ok) { alert(res.error); return; }
+    setPassword('');
+    load();
+  };
+
+  const handleReset = async () => {
+    if (!password) { alert('Podaj hasło'); return; }
+    if (!confirm('Usunąć WSZYSTKIE wyniki i całą historię? Tej operacji nie można cofnąć.')) return;
+    setResetting(true);
+    const res = await resetPasjonaci(password);
+    setResetting(false);
+    if (!res.ok) { alert(res.error); return; }
+    setPassword('');
     load();
   };
 
@@ -152,15 +169,40 @@ export default function PasjonaciResultsPage() {
           <SettlementList settlements={activePeriod.settlements} />
         </div>
 
-        {!showAllTime && activePeriod.balances.length > 0 && (
+        {/* Password-gated settlement actions */}
+        <div className="mb-6">
           <button
-            onClick={handleClosePeriod}
-            disabled={closing}
-            className="w-full bg-poker-yellow/5 border border-poker-gold/25 text-poker-yellow/70 text-xs font-medium py-2.5 rounded-lg active:scale-95 transition mb-6 disabled:opacity-40"
+            onClick={() => setShowSettle((v) => !v)}
+            className="text-poker-yellow/50 text-xs flex items-center gap-1 mx-auto"
           >
-            {closing ? 'Zamykanie...' : '⏭ Zamknij tydzień teraz'}
+            🔒 Rozliczenia {showSettle ? '▲' : '▼'}
           </button>
-        )}
+          {showSettle && (
+            <div className="mt-3 bg-poker-yellow/5 border border-poker-gold/20 rounded-lg p-3 space-y-2">
+              <input
+                type="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                placeholder="Hasło"
+                className="w-full bg-poker-bg border border-poker-gold/25 text-poker-yellow text-sm px-3 py-2 rounded-lg placeholder:text-poker-yellow/30 focus:outline-none focus:border-poker-gold/60"
+              />
+              <button
+                onClick={handleClosePeriod}
+                disabled={closing || resetting || activePeriod.balances.length === 0}
+                className="w-full bg-poker-gold/10 border border-poker-gold/25 text-poker-yellow text-xs font-medium py-2.5 rounded-lg active:scale-95 transition disabled:opacity-40"
+              >
+                {closing ? 'Zamykanie...' : '⏭ Zamknij tydzień teraz'}
+              </button>
+              <button
+                onClick={handleReset}
+                disabled={closing || resetting}
+                className="w-full bg-poker-coral/10 border border-poker-coral/30 text-poker-coral text-xs font-medium py-2.5 rounded-lg active:scale-95 transition disabled:opacity-40"
+              >
+                {resetting ? 'Usuwanie...' : '🗑 Usuń wszystkie wyniki'}
+              </button>
+            </div>
+          )}
+        </div>
 
         {/* Past periods */}
         {league.pastPeriods.length > 0 && (

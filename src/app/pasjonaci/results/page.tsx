@@ -2,10 +2,9 @@
 
 import { useEffect, useState, useCallback } from 'react';
 import {
-  getLeague,
-  closeLeaguePeriod,
-  getLeagueAdminToken,
-  type LeagueView,
+  getPasjonaciResults,
+  closePasjonaciPeriod,
+  type PasjonaciView,
   type PlayerBalance,
   type Settlement,
 } from '@/lib/leagueApi';
@@ -49,48 +48,32 @@ function SettlementList({ settlements }: { settlements: Settlement[] }) {
   );
 }
 
-export default function PasjonaciLeaguePage({ params }: { params: { code: string } }) {
-  const leagueId = params.code.toUpperCase();
-  const [league, setLeague] = useState<LeagueView | null>(null);
+export default function PasjonaciResultsPage() {
+  const [league, setLeague] = useState<PasjonaciView | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const [isAdmin, setIsAdmin] = useState(false);
-  const [codeCopied, setCodeCopied] = useState(false);
   const [showAllTime, setShowAllTime] = useState(false);
   const [showHistory, setShowHistory] = useState(false);
   const [closing, setClosing] = useState(false);
 
   const load = useCallback(async () => {
-    const res = await getLeague(leagueId);
+    const res = await getPasjonaciResults();
     if (!res.ok) {
       setError(res.error);
       return;
     }
     setLeague(res.league);
     setError(null);
-  }, [leagueId]);
+  }, []);
 
-  useEffect(() => {
-    load();
-    // Admin status is purely local (adminToken stored in this browser) —
-    // no server round-trip needed to gate the "close period" button.
-    setIsAdmin(!!getLeagueAdminToken(leagueId));
-  }, [leagueId, load]);
+  useEffect(() => { load(); }, [load]);
 
   const handleClosePeriod = async () => {
-    const token = getLeagueAdminToken(leagueId);
-    if (!token) return;
     if (!confirm('Zamknąć bieżący tydzień teraz i zacząć rozliczenie od nowa?')) return;
     setClosing(true);
-    const res = await closeLeaguePeriod(leagueId, token);
+    const res = await closePasjonaciPeriod();
     setClosing(false);
     if (!res.ok) { alert(res.error); return; }
     load();
-  };
-
-  const copyCode = async () => {
-    await navigator.clipboard.writeText(leagueId);
-    setCodeCopied(true);
-    setTimeout(() => setCodeCopied(false), 2000);
   };
 
   if (error) {
@@ -118,19 +101,12 @@ export default function PasjonaciLeaguePage({ params }: { params: { code: string
     <main className="min-h-screen p-4 pb-12">
       <div className="max-w-md mx-auto">
         {/* Header */}
-        <div className="flex items-center justify-between mb-1 pt-4">
+        <div className="pt-4 mb-1">
           <a href="/pasjonaci" className="text-poker-yellow/50 text-xs hover:text-poker-yellow transition">← Pasjonaci</a>
-          <button
-            onClick={copyCode}
-            className="flex items-center gap-1.5 bg-poker-yellow/10 border border-poker-gold/20 px-2.5 py-1 rounded-lg"
-          >
-            <span className="font-mono text-poker-gold text-xs tracking-wider">{league.id}</span>
-            <span className="text-poker-gold/50 text-[10px]">{codeCopied ? '✓' : '⧉'}</span>
-          </button>
         </div>
-        <h1 className="font-serif italic text-2xl text-poker-gold text-center mt-2 mb-1">{league.name}</h1>
+        <h1 className="font-serif italic text-2xl text-poker-gold text-center mt-2 mb-1">🏆 Pasjonaci</h1>
         <p className="text-poker-yellow/40 text-xs text-center mb-6">
-          Stół Pasjonaci · od {formatDate(league.createdAt)}
+          Wspólne wyniki wszystkich stołów utworzonych z pokero.pl/pasjonaci
         </p>
 
         {/* Period toggle */}
@@ -159,7 +135,10 @@ export default function PasjonaciLeaguePage({ params }: { params: { code: string
         <div className="mb-5">
           <p className="text-poker-yellow/60 text-xs uppercase tracking-wide mb-2">Ranking</p>
           {activePeriod.balances.length === 0 ? (
-            <p className="text-poker-yellow/40 text-xs text-center py-4">Brak jeszcze żadnych sesji w tym okresie.</p>
+            <p className="text-poker-yellow/40 text-xs text-center py-4">
+              Brak jeszcze żadnych sesji w tym okresie. Stwórz stół na{' '}
+              <a href="/pasjonaci" className="text-poker-gold underline">pokero.pl/pasjonaci</a>, żeby zaczęły się liczyć.
+            </p>
           ) : (
             <div className="space-y-1.5">
               {activePeriod.balances.map((b) => <BalanceRow key={b.nick} b={b} />)}
@@ -173,8 +152,7 @@ export default function PasjonaciLeaguePage({ params }: { params: { code: string
           <SettlementList settlements={activePeriod.settlements} />
         </div>
 
-        {/* Admin: close period */}
-        {isAdmin && !showAllTime && (
+        {!showAllTime && activePeriod.balances.length > 0 && (
           <button
             onClick={handleClosePeriod}
             disabled={closing}
@@ -207,38 +185,35 @@ export default function PasjonaciLeaguePage({ params }: { params: { code: string
         )}
 
         {/* Session history */}
-        <div>
-          <button
-            onClick={() => setShowHistory((v) => !v)}
-            className="text-poker-yellow/60 text-xs uppercase tracking-wide mb-2 flex items-center gap-1"
-          >
-            Historia sesji ({league.sessions.length}) {showHistory ? '▲' : '▼'}
-          </button>
-          {showHistory && (
-            <div className="space-y-2">
-              {league.sessions.map((s) => (
-                <div key={s.id} className="bg-poker-yellow/5 border border-poker-gold/15 rounded-lg px-3 py-2">
-                  <p className="text-poker-yellow/50 text-[10px] mb-1.5">{formatDate(s.playedAt)}</p>
-                  <div className="space-y-1">
-                    {s.results.map((r) => (
-                      <div key={r.nick} className="flex items-center justify-between text-xs">
-                        <span className="text-poker-yellow">{r.nick}</span>
-                        <span className={r.netResult >= 0 ? 'text-green-400' : 'text-poker-coral'}>
-                          {formatNet(r.netResult)}
-                        </span>
-                      </div>
-                    ))}
+        {league.sessions.length > 0 && (
+          <div>
+            <button
+              onClick={() => setShowHistory((v) => !v)}
+              className="text-poker-yellow/60 text-xs uppercase tracking-wide mb-2 flex items-center gap-1"
+            >
+              Historia sesji ({league.sessions.length}) {showHistory ? '▲' : '▼'}
+            </button>
+            {showHistory && (
+              <div className="space-y-2">
+                {league.sessions.map((s) => (
+                  <div key={s.id} className="bg-poker-yellow/5 border border-poker-gold/15 rounded-lg px-3 py-2">
+                    <p className="text-poker-yellow/50 text-[10px] mb-1.5">{formatDate(s.playedAt)}</p>
+                    <div className="space-y-1">
+                      {s.results.map((r) => (
+                        <div key={r.nick} className="flex items-center justify-between text-xs">
+                          <span className="text-poker-yellow">{r.nick}</span>
+                          <span className={r.netResult >= 0 ? 'text-green-400' : 'text-poker-coral'}>
+                            {formatNet(r.netResult)}
+                          </span>
+                        </div>
+                      ))}
+                    </div>
                   </div>
-                </div>
-              ))}
-            </div>
-          )}
-        </div>
-
-        <p className="text-poker-yellow/30 text-[11px] text-center mt-8">
-          Podepnij ten stół w panelu admina swojego pokoju (kod: <span className="font-mono text-poker-gold/50">{league.id}</span>),
-          żeby wyniki zapisywały się tu automatycznie.
-        </p>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
       </div>
     </main>
   );

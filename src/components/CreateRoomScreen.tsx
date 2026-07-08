@@ -7,6 +7,9 @@ import type { Room, RoomSettings } from '@/lib/types';
 
 interface Props {
   defaultNick: string;
+  // Tags the created room so results silently sync to the shared Pasjonaci
+  // ledger — only ever passed by the /pasjonaci page.
+  source?: 'pasjonaci';
   onCancel: () => void;
   onRoomCreated: (room: Room, sessionToken: string) => void;
 }
@@ -15,7 +18,7 @@ type CreateRoomResponse =
   | { ok: true; room: Room; sessionToken: string }
   | { ok: false; error: string };
 
-export function CreateRoomScreen({ defaultNick, onCancel, onRoomCreated }: Props) {
+export function CreateRoomScreen({ defaultNick, source, onCancel, onRoomCreated }: Props) {
   const [nick, setNick] = useState(defaultNick);
   const [smallBlind, setSmallBlind] = useState(10);
   const [bigBlind, setBigBlind] = useState(20);
@@ -59,7 +62,7 @@ export function CreateRoomScreen({ defaultNick, onCancel, onRoomCreated }: Props
     };
 
     const socket = getSocket();
-    socket.emit('room:create', { nick, settings }, (response: CreateRoomResponse) => {
+    socket.emit('room:create', { nick, settings, source }, (response: CreateRoomResponse) => {
       setCreating(false);
       if (response.ok) {
         setSessionToken(response.room.id, response.sessionToken);

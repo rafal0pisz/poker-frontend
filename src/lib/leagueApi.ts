@@ -1,7 +1,8 @@
-// "Pasjonaci" league API client — plain REST calls to the backend's
-// /api/leagues endpoints (see poker-backend/src/league-store.ts). Separate
-// from socket.ts since leagues are read/written from standalone pages, not
-// just from inside a live room.
+// "Pasjonaci" results API client — plain REST calls to the backend's
+// /api/pasjonaci endpoints (see poker-backend/src/league-store.ts). There is
+// exactly one shared ledger; results are written server-side, silently,
+// after every hand on a table created via /pasjonaci — nothing here submits
+// data, this module only reads and closes the current period.
 const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:4000';
 
 export interface LeagueSessionResult {
@@ -36,10 +37,7 @@ export interface LeaguePeriodView {
   settlements: Settlement[];
 }
 
-export interface LeagueView {
-  id: string;
-  name: string;
-  createdAt: number;
+export interface PasjonaciView {
   currentPeriod: LeaguePeriodView;
   pastPeriods: LeaguePeriodView[];
   allTime: LeaguePeriodView;
@@ -54,74 +52,14 @@ async function parseJson(res: Response) {
   }
 }
 
-export async function createLeague(name: string): Promise<
-  { ok: true; id: string; name: string; adminToken: string } | { ok: false; error: string }
+export async function getPasjonaciResults(): Promise<
+  { ok: true; league: PasjonaciView } | { ok: false; error: string }
 > {
-  const res = await fetch(`${BACKEND_URL}/api/leagues`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ name }),
-  });
+  const res = await fetch(`${BACKEND_URL}/api/pasjonaci`);
   return parseJson(res);
 }
 
-export async function getLeague(id: string): Promise<
-  { ok: true; league: LeagueView } | { ok: false; error: string }
-> {
-  const res = await fetch(`${BACKEND_URL}/api/leagues/${encodeURIComponent(id)}`);
+export async function closePasjonaciPeriod(): Promise<{ ok: true } | { ok: false; error: string }> {
+  const res = await fetch(`${BACKEND_URL}/api/pasjonaci/close-period`, { method: 'POST' });
   return parseJson(res);
-}
-
-export async function submitLeagueSession(
-  id: string,
-  results: LeagueSessionResult[],
-): Promise<{ ok: true; session: LeagueSession } | { ok: false; error: string }> {
-  const res = await fetch(`${BACKEND_URL}/api/leagues/${encodeURIComponent(id)}/sessions`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ results }),
-  });
-  return parseJson(res);
-}
-
-export async function closeLeaguePeriod(
-  id: string,
-  adminToken: string,
-): Promise<{ ok: true } | { ok: false; error: string }> {
-  const res = await fetch(`${BACKEND_URL}/api/leagues/${encodeURIComponent(id)}/close-period`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ adminToken }),
-  });
-  return parseJson(res);
-}
-
-export async function verifyLeagueAdmin(id: string, adminToken: string): Promise<boolean> {
-  try {
-    const res = await fetch(`${BACKEND_URL}/api/leagues/${encodeURIComponent(id)}/verify-admin`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ adminToken }),
-    });
-    const data = await parseJson(res);
-    return !!data.isAdmin;
-  } catch {
-    return false;
-  }
-}
-
-// ── Local admin-token storage ────────────────────────────────────────────
-// Whoever creates a league gets an adminToken back once — remembered in this
-// browser (localStorage) so they can come back later and close periods
-// without needing a real account system.
-const STORAGE_PREFIX = 'pasjonaci-admin-';
-
-export function saveLeagueAdminToken(leagueId: string, adminToken: string) {
-  if (typeof window === 'undefined') return;
-  window.localStorage.setItem(STORAGE_PREFIX + leagueId, adminToken);
-}
-
-export function getLeagueAdminToken(leagueId: string): string | null {
-  if (typeof window === 'undefined') return null;
-  return window.localStorage.getItem(STORAGE_PREFIX + leagueId);
 }

@@ -3,7 +3,8 @@
 import { useEffect, useState, useCallback } from 'react';
 import {
   getPasjonaciResults,
-  confirmSettlement,
+  payLeagueSettlement,
+  undoLeaguePayment,
   verifyPasjonaciAdmin,
   deletePasjonaciSession,
   editPasjonaciSession,
@@ -11,6 +12,7 @@ import {
   type PasjonaciView,
   type PlayerBalance,
   type Settlement,
+  type Payment,
   type LeagueSession,
   type LeagueSessionResult,
 } from '@/lib/leagueApi';
@@ -40,11 +42,11 @@ function BalanceRow({ b }: { b: PlayerBalance }) {
 function SettlementList({
   settlements,
   periodId,
-  onToggle,
+  onPay,
 }: {
   settlements: Settlement[];
   periodId: number | 'all-time';
-  onToggle: (periodId: number | 'all-time', s: Settlement) => void;
+  onPay: (periodId: number | 'all-time', s: Settlement) => void;
 }) {
   if (settlements.length === 0) {
     return <p className="text-poker-yellow/40 text-xs text-center py-3">Wszyscy rozliczeni ✓</p>;
@@ -52,25 +54,50 @@ function SettlementList({
   return (
     <div className="space-y-1.5">
       {settlements.map((s, i) => (
-        <label
-          key={i}
-          className={`flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm cursor-pointer transition ${
-            s.confirmed
-              ? 'bg-green-500/5 border border-green-500/20'
-              : 'bg-poker-gold/10 border border-poker-gold/20'
-          }`}
-        >
-          <input
-            type="checkbox"
-            checked={s.confirmed}
-            onChange={(e) => onToggle(periodId, { ...s, confirmed: e.target.checked })}
-            className="accent-poker-gold w-4 h-4 shrink-0"
-          />
-          <span className={s.confirmed ? 'text-poker-yellow/40 line-through' : 'text-poker-yellow'}>
+        <div key={i} className="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm bg-poker-gold/10 border border-poker-gold/20">
+          <span className="flex-1 text-poker-yellow">
             <span className="font-medium">{s.from}</span> jest winny{' '}
             <span className="font-medium text-poker-gold">{s.amount}</span> żetonów <span className="font-medium">{s.to}</span>
           </span>
-        </label>
+          <button
+            onClick={() => onPay(periodId, s)}
+            className="shrink-0 text-[11px] text-green-400 border border-green-500/30 bg-green-500/5 px-2 py-1 rounded-md active:scale-95 transition hover:bg-green-500/10"
+          >
+            ✓ Opłacone
+          </button>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+function PaymentHistoryList({
+  payments,
+  periodId,
+  onUndo,
+}: {
+  payments: Payment[];
+  periodId: number | 'all-time';
+  onUndo: (periodId: number | 'all-time', paymentId: string) => void;
+}) {
+  if (payments.length === 0) {
+    return <p className="text-poker-yellow/40 text-xs text-center py-3">Brak jeszcze żadnych wpłat</p>;
+  }
+  return (
+    <div className="space-y-1.5">
+      {payments.map((p) => (
+        <div key={p.id} className="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm bg-poker-yellow/5 border border-poker-gold/15">
+          <span className="flex-1 text-poker-yellow/50 line-through">
+            <span className="font-medium">{p.from}</span> → <span className="font-medium">{p.to}</span>:{' '}
+            <span className="font-medium">{p.amount}</span>
+          </span>
+          <button
+            onClick={() => onUndo(periodId, p.id)}
+            className="shrink-0 text-[11px] text-poker-yellow/50 border border-poker-gold/20 px-2 py-1 rounded-md active:scale-95 transition hover:text-poker-yellow/80"
+          >
+            ↩ Cofnij
+          </button>
+        </div>
       ))}
     </div>
   );
@@ -146,6 +173,7 @@ export default function PasjonaciResultsPage() {
   const [showAllTime, setShowAllTime] = useState(false);
   const [showHistory, setShowHistory] = useState(false);
 
+  const [showPaymentHistory, setShowPaymentHistory] = useState(false);
   const [showAdminPrompt, setShowAdminPrompt] = useState(false);
   const [adminPasswordInput, setAdminPasswordInput] = useState('');
   const [adminPassword, setAdminPassword] = useState<string | null>(null);
@@ -166,22 +194,17 @@ export default function PasjonaciResultsPage() {
 
   useEffect(() => { load(); }, [load]);
 
-  const handleToggleSettlement = async (periodId: number | 'all-time', s: Settlement) => {
-    // Optimistic update — avoids a flash back to unconfirmed while the
-    // request round-trips and the ledger reloads.
-    setLeague((prev) => {
-      if (!prev) return prev;
-      const patch = (list: Settlement[]) =>
-        list.map((x) => (x.from === s.from && x.to === s.to && x.amount === s.amount ? { ...x, confirmed: s.confirmed } : x));
-      return {
-        ...prev,
-        currentPeriod: { ...prev.currentPeriod, settlements: patch(prev.currentPeriod.settlements) },
-        pastPeriods: prev.pastPeriods.map((p) => ({ ...p, settlements: patch(p.settlements) })),
-        allTime: { ...prev.allTime, settlements: patch(prev.allTime.settlements) },
-      };
-    });
-    const res = await confirmSettlement(periodId, s.from, s.to, s.amount, s.confirmed);
-    if (!res.ok) { alert(res.error); load(); return; }
+  const handlePaySettlement = async (periodId: number | 'all-time', s: Settlement) => {
+    if (!confirm(`Oznaczyć jako opłacone: ${s.from} → ${s.to}, ${s.amount} żetonów?\n\nTo trwale zmniejszy dług — kolejne sesje nie przywrócą tej kwoty.`)) return;
+    const res = await payLeagueSettlement(periodId, s.from, s.to, s.amount);
+    if (!res.ok) { alert(res.error); return; }
+    load();
+  };
+
+  const handleUndoPayment = async (periodId: number | 'all-time', paymentId: string) => {
+    if (!confirm('Cofnąć tę wpłatę? Dług wróci do rozliczenia.')) return;
+    const res = await undoLeaguePayment(periodId, paymentId);
+    if (!res.ok) { alert(res.error); return; }
     load();
   };
 
@@ -292,11 +315,28 @@ export default function PasjonaciResultsPage() {
         </div>
 
         {/* Settlement */}
-        <div className="mb-6">
+        <div className="mb-5">
           <p className="text-poker-yellow/60 text-xs uppercase tracking-wide mb-2">Rozliczenie</p>
-          <p className="text-poker-yellow/35 text-[11px] mb-2">Zaznacz, gdy oddasz swój dług — każdy rozlicza się sam.</p>
-          <SettlementList settlements={activePeriod.settlements} periodId={activePeriodId} onToggle={handleToggleSettlement} />
+          <p className="text-poker-yellow/35 text-[11px] mb-2">
+            Kliknij &quot;Opłacone&quot;, gdy oddasz swój dług — trwale zmniejsza go, kolejne sesje nie przywrócą tej kwoty.
+          </p>
+          <SettlementList settlements={activePeriod.settlements} periodId={activePeriodId} onPay={handlePaySettlement} />
         </div>
+
+        {/* Payment history */}
+        {activePeriod.payments.length > 0 && (
+          <div className="mb-6">
+            <button
+              onClick={() => setShowPaymentHistory((v) => !v)}
+              className="text-poker-yellow/60 text-xs uppercase tracking-wide mb-2 flex items-center gap-1"
+            >
+              Historia wpłat ({activePeriod.payments.length}) {showPaymentHistory ? '▲' : '▼'}
+            </button>
+            {showPaymentHistory && (
+              <PaymentHistoryList payments={activePeriod.payments} periodId={activePeriodId} onUndo={handleUndoPayment} />
+            )}
+          </div>
+        )}
 
         {/* Past periods */}
         {league.pastPeriods.length > 0 && (
@@ -312,8 +352,14 @@ export default function PasjonaciResultsPage() {
                     {p.balances.map((b) => <BalanceRow key={b.nick} b={b} />)}
                   </div>
                   <div className="mt-2">
-                    <SettlementList settlements={p.settlements} periodId={p.startedAt} onToggle={handleToggleSettlement} />
+                    <SettlementList settlements={p.settlements} periodId={p.startedAt} onPay={handlePaySettlement} />
                   </div>
+                  {p.payments.length > 0 && (
+                    <div className="mt-2">
+                      <p className="text-poker-yellow/40 text-[10px] uppercase tracking-wide mb-1.5">Historia wpłat</p>
+                      <PaymentHistoryList payments={p.payments} periodId={p.startedAt} onUndo={handleUndoPayment} />
+                    </div>
+                  )}
                 </details>
               ))}
             </div>

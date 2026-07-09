@@ -29,7 +29,14 @@ export interface Settlement {
   from: string;
   to: string;
   amount: number;
-  confirmed: boolean;
+}
+
+export interface Payment {
+  id: string;
+  from: string;
+  to: string;
+  amount: number;
+  paidAt: number;
 }
 
 export interface LeaguePeriodView {
@@ -37,6 +44,7 @@ export interface LeaguePeriodView {
   endedAt: number | null;
   balances: PlayerBalance[];
   settlements: Settlement[];
+  payments: Payment[];
 }
 
 export interface PasjonaciView {
@@ -69,14 +77,21 @@ export async function getPasjonaciResults(): Promise<
   return parseJson(res);
 }
 
-export async function confirmSettlement(
+export async function payLeagueSettlement(
   periodId: number | 'all-time',
   from: string,
   to: string,
   amount: number,
-  confirmed: boolean,
 ): Promise<{ ok: true } | { ok: false; error: string }> {
-  const res = await postJson('/api/pasjonaci/settlement/confirm', { periodId, from, to, amount, confirmed });
+  const res = await postJson('/api/pasjonaci/settlement/pay', { periodId, from, to, amount });
+  return parseJson(res);
+}
+
+export async function undoLeaguePayment(
+  periodId: number | 'all-time',
+  paymentId: string,
+): Promise<{ ok: true } | { ok: false; error: string }> {
+  const res = await postJson('/api/pasjonaci/settlement/undo-payment', { periodId, paymentId });
   return parseJson(res);
 }
 

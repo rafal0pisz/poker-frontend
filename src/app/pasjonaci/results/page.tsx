@@ -93,6 +93,9 @@ function SessionEditForm({
   const removeRow = (i: number) => {
     setRows((prev) => prev.filter((_, idx) => idx !== i));
   };
+  const addRow = () => {
+    setRows((prev) => [...prev, { nick: '', totalBuyIn: 0, finalChips: 0, netResult: 0 }]);
+  };
 
   return (
     <div className="space-y-2">
@@ -101,7 +104,8 @@ function SessionEditForm({
           <input
             value={r.nick}
             onChange={(e) => updateRow(i, { nick: e.target.value })}
-            className="min-w-0 flex-1 bg-poker-bg border border-poker-gold/25 text-poker-yellow text-xs px-2 py-1.5 rounded-md focus:outline-none focus:border-poker-gold/60"
+            placeholder="Nick"
+            className="min-w-0 flex-1 bg-poker-bg border border-poker-gold/25 text-poker-yellow text-xs px-2 py-1.5 rounded-md placeholder:text-poker-yellow/30 focus:outline-none focus:border-poker-gold/60"
           />
           <input
             type="number"
@@ -112,9 +116,15 @@ function SessionEditForm({
           <button onClick={() => removeRow(i)} className="text-poker-coral text-xs px-1.5 shrink-0">✕</button>
         </div>
       ))}
+      <button
+        onClick={addRow}
+        className="w-full border border-dashed border-poker-gold/25 text-poker-yellow/50 text-xs py-1.5 rounded-md hover:text-poker-yellow/80 hover:border-poker-gold/40 transition"
+      >
+        + Dodaj gracza
+      </button>
       <div className="flex gap-2 pt-1">
         <button
-          onClick={() => onSave(rows)}
+          onClick={() => onSave(rows.filter((r) => r.nick.trim()))}
           className="flex-1 bg-poker-gold/15 border border-poker-gold/30 text-poker-yellow text-xs font-medium py-1.5 rounded-md active:scale-95 transition"
         >
           Zapisz

@@ -21,7 +21,7 @@ const VARIANT_NAMES: Record<GameVariant, string> = {
   'pineapple-classic': 'Pineapple Classic',
   'omaha-pl': 'Omaha Pot Limit',
   'drawmaha-pl': 'Drawmaha Pot Limit',
-  'drawmaha-bomb': 'Drawmaha Bomb Pot',
+  'texas-bomb': "Texas Hold'em Bomb Pot",
 };
 
 let _entryId = 0;

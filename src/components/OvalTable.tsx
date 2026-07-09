@@ -26,7 +26,7 @@ const VARIANT_LABELS: Record<GameVariant, string> = {
   'omaha-hl': 'Omaha Hi-Lo',
   'drawmaha-pl': 'Drawmaha Pot Limit',
   drawmaha: 'Drawmaha',
-  'drawmaha-bomb': 'Drawmaha Bomb Pot',
+  'texas-bomb': "Texas Hold'em Bomb Pot",
 };
 
 // 7 seat positions around the oval (as % of oval width/height)

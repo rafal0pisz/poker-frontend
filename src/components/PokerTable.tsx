@@ -701,21 +701,28 @@ export function PokerTable({ initialRoom, mySessionToken, onLeave }: Props) {
     });
   };
 
-  if (!me) return null;
-
+  // NOTE: everything from here down to the `if (!me) return null;` guard
+  // must run unconditionally on every render — React hooks (useState,
+  // useEffect, useEquity below) can't follow an early return, or a render
+  // where `me` disappears (e.g. right after being kicked, or removed from
+  // `room.players` between hands) calls fewer hooks than the previous
+  // render and React throws, crashing the whole app. Everything here uses
+  // `me?.` so it degrades to a harmless default instead of throwing when
+  // `me` is briefly undefined; the actual early return happens further
+  // down, after all hooks have run.
   const gameState = room.gameState;
-  const isAdmin = me.role === 'admin' || me.role === 'vice-admin';
-  const isSittingOut = me.status === 'sitting-out';
+  const isAdmin = me?.role === 'admin' || me?.role === 'vice-admin';
+  const isSittingOut = me?.status === 'sitting-out';
   const [chipRequestAmount, setChipRequestAmount] = useState(500);
   const [chipRequestSent, setChipRequestSent] = useState(false);
 
   // Sync chipRequestSent with room state
   useEffect(() => {
-    if (me.chipRequest) setChipRequestSent(true);
+    if (me?.chipRequest) setChipRequestSent(true);
     else setChipRequestSent(false);
-  }, [me.chipRequest]);
-  const isSpectator = me.status === 'spectator';
-  const canSitOut = !!gameState && !['sitting-out', 'waiting', 'no-chips', 'spectator'].includes(me.status);
+  }, [me?.chipRequest]);
+  const isSpectator = me?.status === 'spectator';
+  const canSitOut = !!gameState && !!me && !['sitting-out', 'waiting', 'no-chips', 'spectator'].includes(me.status);
 
   const winningCardsSet = new Set<CardType>();
   const winningCardsSecondarySet = new Set<CardType>();
@@ -751,7 +758,7 @@ export function PokerTable({ initialRoom, mySessionToken, onLeave }: Props) {
   const pineappleDiscardState = gameState?.pineappleDiscardState;
   const myPineappleState = pineappleDiscardState?.playerStates[mySessionToken];
   const showPineappleDiscardUI = isPineappleDiscardPhase && !!myPineappleState && !myPineappleState.hasDiscarded && !isSpectator;
-  const showDrawUI = isDrawPhase && drawState != null && (me.status === 'playing' || me.status === 'all-in');
+  const showDrawUI = isDrawPhase && drawState != null && (me?.status === 'playing' || me?.status === 'all-in');
   const showDiscardUI = showDrawUI && !(myDrawPlayerState?.hasDrawn ?? false);
   const showRevealUI = showDrawUI && (myDrawPlayerState?.hasDrawn ?? false) && (drawState?.currentDecidingSeat != null);
 
@@ -829,13 +836,6 @@ export function PokerTable({ initialRoom, mySessionToken, onLeave }: Props) {
   };
   const { sbSeat, bbSeat } = getSbBbSeats();
 
-  // Sort other players by seat in clockwise order relative to my seat.
-  // Uses maxSeats as the rotation base to handle non-consecutive seat numbers.
-  // Example with maxSeats=9, mySeat=3, others at 1,5,7:
-  //   seat 5 → (5-3+9)%9 = 2  (first clockwise from me)
-  //   seat 7 → (7-3+9)%9 = 4  (second)
-  //   seat 1 → (1-3+9)%9 = 7  (third, wraps around)
-  const mySeat = me.seat;
   const maxSeats = room.settings.maxSeats;
   // Build all-in revealed hands from room state
   // Backend reveals holeCards in room:state when all players are all-in
@@ -860,6 +860,18 @@ export function PokerTable({ initialRoom, mySessionToken, onLeave }: Props) {
     : null;
   const equityResultsMobile = useEquity(equityInputMobile, gameState?.communityCards ?? [], currentVariant);
   const equityMapMobile = Object.fromEntries(equityResultsMobile.map(e => [e.sessionToken, e.equity]));
+
+  // All hooks above this point have now run unconditionally on every
+  // render — safe to bail out below.
+  if (!me) return null;
+
+  // Sort other players by seat in clockwise order relative to my seat.
+  // Uses maxSeats as the rotation base to handle non-consecutive seat numbers.
+  // Example with maxSeats=9, mySeat=3, others at 1,5,7:
+  //   seat 5 → (5-3+9)%9 = 2  (first clockwise from me)
+  //   seat 7 → (7-3+9)%9 = 4  (second)
+  //   seat 1 → (1-3+9)%9 = 7  (third, wraps around)
+  const mySeat = me.seat;
 
   const otherPlayers = room.players
     .filter((p) => p.sessionToken !== mySessionToken)
@@ -952,7 +964,7 @@ export function PokerTable({ initialRoom, mySessionToken, onLeave }: Props) {
                     isBb={p.seat === bbSeat}
                     isYou={false}
                     lastMessage={getBubble(p.sessionToken)}
-                    handName={activeResult?.showdownCards.find((sc) => sc.sessionToken === p.sessionToken)?.handName}
+                    handName={activeResult?.showdownCards?.find((sc) => sc.sessionToken === p.sessionToken)?.handName}
                     winningCards={winningCardsSet}
                     winningCardsSecondary={winningCardsSecondarySet}
                     cardCount={currentCardCount}
@@ -979,7 +991,7 @@ export function PokerTable({ initialRoom, mySessionToken, onLeave }: Props) {
                 players={room.players}
               />
             </div>
-          ) : activeResult?.runItTwiceResult ? (
+          ) : activeResult?.runItTwiceResult && activeResult.runItTwiceResult.boards.length >= 2 ? (
             <div className="flex justify-center">
               <RunItTwiceBoards
                 boards={[activeResult.runItTwiceResult.boards[0].communityCards, activeResult.runItTwiceResult.boards[1].communityCards]}

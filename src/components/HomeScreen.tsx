@@ -5,6 +5,7 @@ import { useNick } from '@/lib/useNick';
 import { CreateRoomScreen } from './CreateRoomScreen';
 import { JoinRoomScreen } from './JoinRoomScreen';
 import { PokerTable } from './PokerTable';
+import { TableErrorBoundary } from './TableErrorBoundary';
 import { RulesScreen } from './RulesScreen';
 import { ContactScreen } from './ContactScreen';
 import type { Room } from '@/lib/types';
@@ -103,11 +104,13 @@ export function HomeScreen({ isPasjonaci = false }: Props) {
 
   if (view === 'table' && room) {
     return (
-      <PokerTable
-        initialRoom={room}
-        mySessionToken={mySessionToken}
-        onLeave={goHome}
-      />
+      <TableErrorBoundary>
+        <PokerTable
+          initialRoom={room}
+          mySessionToken={mySessionToken}
+          onLeave={goHome}
+        />
+      </TableErrorBoundary>
     );
   }
 

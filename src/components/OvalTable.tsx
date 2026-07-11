@@ -483,7 +483,7 @@ export function OvalTable({
                   activeBoard={gameState.runItTwiceReveal.activeBoard}
                   players={room.players}
                 />
-              ) : activeResult?.runItTwiceResult ? (
+              ) : activeResult?.runItTwiceResult && activeResult.runItTwiceResult.boards.length >= 2 ? (
                 <RunItTwiceBoards
                   boards={[activeResult.runItTwiceResult.boards[0].communityCards, activeResult.runItTwiceResult.boards[1].communityCards]}
                   breakdowns={[activeResult.runItTwiceResult.boards[0].potBreakdown, activeResult.runItTwiceResult.boards[1].potBreakdown]}
@@ -517,7 +517,7 @@ export function OvalTable({
                 winningCards={winningCardsSet}
                 winningCardsSecondary={winningCardsSecondarySet}
                 lastMessage={getBubble(player.sessionToken)}
-                handName={activeResult?.showdownCards.find(sc => sc.sessionToken === player.sessionToken)?.handName}
+                handName={activeResult?.showdownCards?.find(sc => sc.sessionToken === player.sessionToken)?.handName}
                 actionDeadline={gameState?.actionDeadline}
                 actionTimeoutSec={room.settings.actionTimeoutSec}
                 revealedCards={revealedHands[player.sessionToken]}

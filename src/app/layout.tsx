@@ -34,6 +34,23 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="en">
       <head>
+        {/* Site-wide entity identity for search engines and AI answer
+            engines — was missing entirely; every other schema on the site
+            is per-page (Article/FAQPage), nothing declared what the site
+            itself is. */}
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              '@context': 'https://schema.org',
+              '@type': 'WebSite',
+              name: 'Pokero',
+              url: 'https://pokero.pl',
+              description: 'Darmowy poker online z przyjaciółmi — bez rejestracji, bez pieniędzy. Texas Hold\'em, Omaha, Crazy Pineapple, Drawmaha i więcej.',
+              publisher: { '@type': 'Organization', name: 'Pokero', url: 'https://pokero.pl' },
+            }),
+          }}
+        />
         {/* GTM — loaded on all pages except active game room (?room=...) */}
         <script
           dangerouslySetInnerHTML={{

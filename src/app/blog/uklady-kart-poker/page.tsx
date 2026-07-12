@@ -117,6 +117,42 @@ export default function Post3() {
             }),
           }}
         />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              '@context': 'https://schema.org',
+              '@type': 'FAQPage',
+              mainEntity: [
+                {
+                  '@type': 'Question',
+                  name: 'Co wygrywa — kolor czy strit?',
+                  acceptedAnswer: { '@type': 'Answer', text: 'Kolor (Flush) jest silniejszy niż strit (Straight). Kolejność: Straight Flush > Kareta > Full House > Kolor > Strit > Trójka.' },
+                },
+                {
+                  '@type': 'Question',
+                  name: 'Co wygrywa — dwie pary czy trójka?',
+                  acceptedAnswer: { '@type': 'Answer', text: 'Trójka jest silniejsza. Dwie pary plasują się poniżej trójki w każdym przypadku — nawet dwie pary Asów przegrywa z trójką 2-2-2.' },
+                },
+                {
+                  '@type': 'Question',
+                  name: 'Co jeśli obaj mają tę samą rękę?',
+                  acceptedAnswer: { '@type': 'Answer', text: 'Wygrywa karta decydująca — kicker. Np. przy parze Asów: A-A-K-9-5 vs A-A-Q-9-5 — wygrywa pierwsza ręka bo ma K (wyższy kicker). Jeśli 5 kart jest identycznych — pula dzielona między graczy po równo.' },
+                },
+                {
+                  '@type': 'Question',
+                  name: 'Czy As może być kartą numer 1?',
+                  acceptedAnswer: { '@type': 'Answer', text: 'Tak. As może być używany jako 1 w stricie A-2-3-4-5 (tzw. "koło" albo "wheel") albo jako 14 w 10-J-Q-K-A. Nie może jednak "zawijać" — K-A-2-3-4 nie jest stritem.' },
+                },
+                {
+                  '@type': 'Question',
+                  name: 'Czy kolory (kier, karo itd.) mają znaczenie?',
+                  acceptedAnswer: { '@type': 'Answer', text: 'W standardowym pokerze nie. Flush w kierach i flush w pikach są równoważne — wygrywa ta ręka, której najwyższa karta jest wyższa.' },
+                },
+              ],
+            }),
+          }}
+        />
       </div>
     </div>
   );

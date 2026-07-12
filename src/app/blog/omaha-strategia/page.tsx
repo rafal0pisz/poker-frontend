@@ -58,6 +58,24 @@ export default function Post10() {
         <p style={{ color: 'rgba(var(--pk-cream-rgb),0.35)', fontSize: '0.85rem' }}>
           Powiązane: <Link href="/zasady/omaha/">Zasady Omaha</Link> · <Link href="/blog/jak-blefowac-w-pokerze/">Jak blefować w pokerze</Link>
         </p>
+
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              "@context": "https://schema.org",
+              "@type": "Article",
+              "headline": "Strategia Omaha Poker — jak grać lepiej niż w Texas",
+              "datePublished": "2026-05-29",
+              "publisher": {
+                "@type": "Organization",
+                "name": "Pokero",
+                "url": "https://pokero.pl"
+              },
+              "mainEntityOfPage": "https://pokero.pl/blog/omaha-strategia/"
+            }),
+          }}
+        />
       </div>
     </div>
   );

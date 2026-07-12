@@ -189,6 +189,24 @@ export default function PostCzytaniePrzeciwnika() {
         <p style={{ color: 'rgba(var(--pk-cream-rgb),0.35)', fontSize: '0.85rem' }}>
           Powiązane: <Link href="/blog/jak-blefowac-w-pokerze/">Jak blefować w pokerze</Link> · <Link href="/blog/pozycja-w-pokerze/">Pozycja w pokerze</Link> · <Link href="/blog/psychologia-pokera-tilt/">Psychologia pokera i tilt</Link>
         </p>
+
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              "@context": "https://schema.org",
+              "@type": "Article",
+              "headline": "Jak czytać przeciwnika w pokerze — telle, betting patterns i range",
+              "datePublished": "2026-06-16",
+              "publisher": {
+                "@type": "Organization",
+                "name": "Pokero",
+                "url": "https://pokero.pl"
+              },
+              "mainEntityOfPage": "https://pokero.pl/blog/czytanie-przeciwnika-telle/"
+            }),
+          }}
+        />
       </div>
     </div>
   );

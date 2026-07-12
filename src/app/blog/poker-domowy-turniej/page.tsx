@@ -78,6 +78,24 @@ export default function Post7() {
         <p style={{ color: 'rgba(var(--pk-cream-rgb),0.35)', fontSize: '0.85rem' }}>
           Powiązane: <Link href="/blog/poker-ze-znajomymi-online/">Poker ze znajomymi online</Link> · <Link href="/zasady/texas-holdem/">Zasady Texas Hold'em</Link>
         </p>
+
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              "@context": "https://schema.org",
+              "@type": "Article",
+              "headline": "Domowy turniej pokerowy — jak zorganizować krok po kroku",
+              "datePublished": "2026-05-26",
+              "publisher": {
+                "@type": "Organization",
+                "name": "Pokero",
+                "url": "https://pokero.pl"
+              },
+              "mainEntityOfPage": "https://pokero.pl/blog/poker-domowy-turniej/"
+            }),
+          }}
+        />
       </div>
     </div>
   );

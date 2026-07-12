@@ -95,6 +95,24 @@ export default function Post23() {
         <p style={{ color: 'rgba(var(--pk-cream-rgb),0.35)', fontSize: '0.85rem' }}>
           Powiązane: <Link href="/blog/poker-domowy-turniej/">Domowy turniej</Link> · <Link href="/blog/poker-zasady-blind/">Blind w pokerze</Link>
         </p>
+
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              "@context": "https://schema.org",
+              "@type": "Article",
+              "headline": "Turniej pokerowy — zasady i format gry turniejowej",
+              "datePublished": "2026-06-10",
+              "publisher": {
+                "@type": "Organization",
+                "name": "Pokero",
+                "url": "https://pokero.pl"
+              },
+              "mainEntityOfPage": "https://pokero.pl/blog/poker-turniej-zasady/"
+            }),
+          }}
+        />
       </div>
     </div>
   );

@@ -113,6 +113,24 @@ export default function Post14() {
         <p style={{ color: 'rgba(var(--pk-cream-rgb),0.35)', fontSize: '0.85rem' }}>
           Powiązane: <Link href="/blog/zasady-pokera-texas-holdem/">Zasady Texas Hold'em</Link> · <Link href="/blog/uklady-kart-poker/">Układy kart</Link> · <Link href="/blog/jak-blefowac-w-pokerze/">Jak blefować</Link>
         </p>
+
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              "@context": "https://schema.org",
+              "@type": "Article",
+              "headline": "Poker dla początkujących — nauka pokera od zera w 7 krokach",
+              "datePublished": "2026-06-01",
+              "publisher": {
+                "@type": "Organization",
+                "name": "Pokero",
+                "url": "https://pokero.pl"
+              },
+              "mainEntityOfPage": "https://pokero.pl/blog/poker-dla-poczatkujacych/"
+            }),
+          }}
+        />
       </div>
     </div>
   );

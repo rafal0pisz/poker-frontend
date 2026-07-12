@@ -84,6 +84,24 @@ export default function Post18() {
         <p style={{ color: 'rgba(var(--pk-cream-rgb),0.35)', fontSize: '0.85rem' }}>
           Powiązane: <Link href="/zasady/texas-holdem/">Zasady Texas</Link> · <Link href="/zasady/omaha/">Zasady Omaha</Link> · <Link href="/kalkulatory/">Kalkulatory</Link>
         </p>
+
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              "@context": "https://schema.org",
+              "@type": "Article",
+              "headline": "Texas Hold'em vs Omaha — porównanie wariantów pokera",
+              "datePublished": "2026-06-05",
+              "publisher": {
+                "@type": "Organization",
+                "name": "Pokero",
+                "url": "https://pokero.pl"
+              },
+              "mainEntityOfPage": "https://pokero.pl/blog/poker-vs-omaha/"
+            }),
+          }}
+        />
       </div>
     </div>
   );

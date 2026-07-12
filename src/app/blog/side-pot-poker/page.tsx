@@ -61,6 +61,24 @@ export default function Post8() {
         <p style={{ color: 'rgba(var(--pk-cream-rgb),0.35)', fontSize: '0.85rem' }}>
           Powiązane: <Link href="/blog/uklady-kart-poker/">Układy kart w pokerze</Link> · <Link href="/zasady/drawmaha/">Zasady Drawmaha</Link>
         </p>
+
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              "@context": "https://schema.org",
+              "@type": "Article",
+              "headline": "Side pot w pokerze — co to jest i jak działa",
+              "datePublished": "2026-05-27",
+              "publisher": {
+                "@type": "Organization",
+                "name": "Pokero",
+                "url": "https://pokero.pl"
+              },
+              "mainEntityOfPage": "https://pokero.pl/blog/side-pot-poker/"
+            }),
+          }}
+        />
       </div>
     </div>
   );

@@ -145,6 +145,24 @@ export default function PostHistoriaPokera() {
         <p style={{ color: 'rgba(var(--pk-cream-rgb),0.35)', fontSize: '0.85rem' }}>
           Powiązane: <Link href="/blog/zasady-pokera-texas-holdem/">Zasady Texas Hold'em</Link> · <Link href="/blog/poker-terminy-slownik/">Słownik pokerowy</Link> · <Link href="/blog/dealer-choice-poker/">Dealer's Choice Poker</Link>
         </p>
+
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              "@context": "https://schema.org",
+              "@type": "Article",
+              "headline": "Historia pokera — od Dzikiego Zachodu do pokera online",
+              "datePublished": "2026-06-20",
+              "publisher": {
+                "@type": "Organization",
+                "name": "Pokero",
+                "url": "https://pokero.pl"
+              },
+              "mainEntityOfPage": "https://pokero.pl/blog/historia-pokera/"
+            }),
+          }}
+        />
       </div>
     </div>
   );

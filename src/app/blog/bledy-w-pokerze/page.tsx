@@ -114,6 +114,24 @@ export default function PostBledyWPokerze() {
         <p style={{ color: 'rgba(var(--pk-cream-rgb),0.35)', fontSize: '0.85rem' }}>
           Powiązane: <Link href="/blog/poker-strategia-poczatkujacy/">Strategia dla początkujących</Link> · <Link href="/blog/jak-blefowac-w-pokerze/">Jak blefować</Link> · <Link href="/blog/pozycja-w-pokerze/">Pozycja w pokerze</Link>
         </p>
+
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              "@context": "https://schema.org",
+              "@type": "Article",
+              "headline": "15 najczęstszych błędów w pokerze — i jak je wyeliminować",
+              "datePublished": "2026-06-18",
+              "publisher": {
+                "@type": "Organization",
+                "name": "Pokero",
+                "url": "https://pokero.pl"
+              },
+              "mainEntityOfPage": "https://pokero.pl/blog/bledy-w-pokerze/"
+            }),
+          }}
+        />
       </div>
     </div>
   );

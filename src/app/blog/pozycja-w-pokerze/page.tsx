@@ -75,6 +75,24 @@ export default function Post6() {
         <p style={{ color: 'rgba(var(--pk-cream-rgb),0.35)', fontSize: '0.85rem' }}>
           Powiązane: <Link href="/blog/jak-blefowac-w-pokerze/">Jak blefować w pokerze</Link> · <Link href="/zasady/texas-holdem/">Zasady Texas Hold'em</Link>
         </p>
+
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              "@context": "https://schema.org",
+              "@type": "Article",
+              "headline": "Pozycja w pokerze — dlaczego dealer ma przewagę",
+              "datePublished": "2026-05-24",
+              "publisher": {
+                "@type": "Organization",
+                "name": "Pokero",
+                "url": "https://pokero.pl"
+              },
+              "mainEntityOfPage": "https://pokero.pl/blog/pozycja-w-pokerze/"
+            }),
+          }}
+        />
       </div>
     </div>
   );

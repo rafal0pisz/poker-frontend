@@ -96,6 +96,24 @@ export default function Post22() {
         <p style={{ color: 'rgba(var(--pk-cream-rgb),0.35)', fontSize: '0.85rem' }}>
           Powiązane: <Link href="/blog/pot-odds-poker/">Pot odds</Link> · <Link href="/blog/poker-outs-kalkulator/">Outs</Link> · <Link href="/kalkulatory/">Kalkulatory</Link>
         </p>
+
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              "@context": "https://schema.org",
+              "@type": "Article",
+              "headline": "Matematyka pokera — EV, pot odds, equity w jednym miejscu",
+              "datePublished": "2026-06-09",
+              "publisher": {
+                "@type": "Organization",
+                "name": "Pokero",
+                "url": "https://pokero.pl"
+              },
+              "mainEntityOfPage": "https://pokero.pl/blog/poker-matematyka/"
+            }),
+          }}
+        />
       </div>
     </div>
   );

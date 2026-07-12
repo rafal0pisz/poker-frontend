@@ -59,6 +59,24 @@ export default function Post11() {
         <p style={{ color: 'rgba(var(--pk-cream-rgb),0.35)', fontSize: '0.85rem' }}>
           Powiązane: <Link href="/blog/poker-ze-znajomymi-online/">Poker ze znajomymi online</Link> · <Link href="/blog/poker-na-telefonie/">Poker na telefonie</Link>
         </p>
+
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              "@context": "https://schema.org",
+              "@type": "Article",
+              "headline": "Gry online ze znajomymi przez internet — top 5 pomysłów",
+              "datePublished": "2026-05-30",
+              "publisher": {
+                "@type": "Organization",
+                "name": "Pokero",
+                "url": "https://pokero.pl"
+              },
+              "mainEntityOfPage": "https://pokero.pl/blog/gry-online-ze-znajomymi/"
+            }),
+          }}
+        />
       </div>
     </div>
   );

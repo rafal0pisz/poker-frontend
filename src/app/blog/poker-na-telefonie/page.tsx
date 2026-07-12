@@ -61,6 +61,24 @@ export default function Post9() {
         <p style={{ color: 'rgba(var(--pk-cream-rgb),0.35)', fontSize: '0.85rem' }}>
           Powiązane: <Link href="/blog/poker-ze-znajomymi-online/">Jak grać ze znajomymi online</Link> · <Link href="/blog/gry-online-ze-znajomymi/">Gry online ze znajomymi</Link>
         </p>
+
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              "@context": "https://schema.org",
+              "@type": "Article",
+              "headline": "Poker na telefonie ze znajomymi — jak grać na iOS i Android",
+              "datePublished": "2026-05-28",
+              "publisher": {
+                "@type": "Organization",
+                "name": "Pokero",
+                "url": "https://pokero.pl"
+              },
+              "mainEntityOfPage": "https://pokero.pl/blog/poker-na-telefonie/"
+            }),
+          }}
+        />
       </div>
     </div>
   );

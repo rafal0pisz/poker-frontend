@@ -95,6 +95,24 @@ export default function Post17() {
         <p style={{ color: 'rgba(var(--pk-cream-rgb),0.35)', fontSize: '0.85rem' }}>
           Powiązane: <Link href="/blog/pot-odds-poker/">Pot odds w pokerze</Link> · <Link href="/blog/poker-matematyka/">Matematyka pokera</Link>
         </p>
+
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              "@context": "https://schema.org",
+              "@type": "Article",
+              "headline": "Outs w pokerze — co to jest i jak liczyć",
+              "datePublished": "2026-06-04",
+              "publisher": {
+                "@type": "Organization",
+                "name": "Pokero",
+                "url": "https://pokero.pl"
+              },
+              "mainEntityOfPage": "https://pokero.pl/blog/poker-outs-kalkulator/"
+            }),
+          }}
+        />
       </div>
     </div>
   );

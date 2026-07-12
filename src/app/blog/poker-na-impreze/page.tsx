@@ -89,6 +89,24 @@ export default function Post19() {
         <p style={{ color: 'rgba(var(--pk-cream-rgb),0.35)', fontSize: '0.85rem' }}>
           Powiązane: <Link href="/blog/poker-domowy-turniej/">Domowy turniej</Link> · <Link href="/blog/poker-wieczor-kawalerski/">Wieczór kawalerski</Link>
         </p>
+
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              "@context": "https://schema.org",
+              "@type": "Article",
+              "headline": "Poker na imprezę — jak zorganizować turniej dla grupy",
+              "datePublished": "2026-06-06",
+              "publisher": {
+                "@type": "Organization",
+                "name": "Pokero",
+                "url": "https://pokero.pl"
+              },
+              "mainEntityOfPage": "https://pokero.pl/blog/poker-na-impreze/"
+            }),
+          }}
+        />
       </div>
     </div>
   );

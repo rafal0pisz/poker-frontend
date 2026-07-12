@@ -6,7 +6,7 @@ import { Footer } from '@/components/seo/Footer';
 export const metadata: Metadata = {
   title: 'Pokero — Poker ze znajomymi online | Bez rejestracji',
   description: 'Zagraj w pokera ze znajomymi przez internet. Stwórz prywatny stół w 30 sekund — bez rejestracji, bez pieniędzy. Texas Hold\'em, Omaha, Crazy Pineapple i Drawmaha.',
-  alternates: { canonical: 'https://pokero.pl' },
+  alternates: { canonical: 'https://pokero.pl/pl/' },
 };
 
 const features = [

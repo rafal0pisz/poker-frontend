@@ -64,6 +64,20 @@ export default function Post13() {
         <p style={{ color: 'rgba(var(--pk-cream-rgb),0.35)', fontSize: '0.85rem' }}>
           Powiązane: <Link href="/zasady/">Wszystkie zasady gry</Link> · <Link href="/blog/poker-ze-znajomymi-online/">Poker ze znajomymi online</Link>
         </p>
+
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              '@context': 'https://schema.org',
+              '@type': 'Article',
+              headline: "Dealer's Choice Poker — co to jest i jak grać",
+              datePublished: '2026-05-31',
+              publisher: { '@type': 'Organization', name: 'Pokero', url: 'https://pokero.pl' },
+              mainEntityOfPage: 'https://pokero.pl/blog/dealer-choice-poker/',
+            }),
+          }}
+        />
       </div>
     </div>
   );

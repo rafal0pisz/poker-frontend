@@ -72,6 +72,24 @@ export default function Post4() {
         <p style={{ color: 'rgba(var(--pk-cream-rgb),0.35)', fontSize: '0.85rem' }}>
           Powiązane: <Link href="/blog/zasady-pokera-texas-holdem/">Zasady Texas Hold'em</Link> · <Link href="/blog/poker-domowy-turniej/">Domowy turniej pokerowy</Link>
         </p>
+
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              "@context": "https://schema.org",
+              "@type": "Article",
+              "headline": "Poker na wieczór kawalerski i panieński — jak zorganizować turniej",
+              "datePublished": "2026-05-20",
+              "publisher": {
+                "@type": "Organization",
+                "name": "Pokero",
+                "url": "https://pokero.pl"
+              },
+              "mainEntityOfPage": "https://pokero.pl/blog/poker-wieczor-kawalerski/"
+            }),
+          }}
+        />
       </div>
     </div>
   );

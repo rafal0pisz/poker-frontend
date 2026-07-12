@@ -180,6 +180,24 @@ export default function PostAgresjaWPokerze() {
         <p style={{ color: 'rgba(var(--pk-cream-rgb),0.35)', fontSize: '0.85rem' }}>
           Powiązane: <Link href="/blog/jak-blefowac-w-pokerze/">Jak blefować w pokerze</Link> · <Link href="/blog/pozycja-w-pokerze/">Pozycja w pokerze</Link> · <Link href="/blog/pot-odds-poker/">Pot Odds</Link>
         </p>
+
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              "@context": "https://schema.org",
+              "@type": "Article",
+              "headline": "Agresja w pokerze — c-bet, 3-bet i budowanie puli krok po kroku",
+              "datePublished": "2026-06-19",
+              "publisher": {
+                "@type": "Organization",
+                "name": "Pokero",
+                "url": "https://pokero.pl"
+              },
+              "mainEntityOfPage": "https://pokero.pl/blog/agresja-w-pokerze-cbet-3bet/"
+            }),
+          }}
+        />
       </div>
     </div>
   );

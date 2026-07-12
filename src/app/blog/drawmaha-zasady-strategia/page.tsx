@@ -213,6 +213,24 @@ export default function PostDrawmaha() {
         <p style={{ color: 'rgba(var(--pk-cream-rgb),0.35)', fontSize: '0.85rem' }}>
           Powiązane: <Link href="/zasady/drawmaha/">Zasady Drawmaha</Link> · <Link href="/blog/omaha-strategia/">Strategia Omaha</Link> · <Link href="/blog/dealer-choice-poker/">Dealer's Choice Poker</Link>
         </p>
+
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              "@context": "https://schema.org",
+              "@type": "Article",
+              "headline": "Drawmaha — zasady i strategia wariantu split-pot z wymianą kart",
+              "datePublished": "2026-06-17",
+              "publisher": {
+                "@type": "Organization",
+                "name": "Pokero",
+                "url": "https://pokero.pl"
+              },
+              "mainEntityOfPage": "https://pokero.pl/blog/drawmaha-zasady-strategia/"
+            }),
+          }}
+        />
       </div>
     </div>
   );

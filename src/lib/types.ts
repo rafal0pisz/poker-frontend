@@ -5,12 +5,9 @@ export type Card = `${Rank}${Suit}`;
 
 export type PlayerRole = 'player' | 'vice-admin' | 'admin';
 
-export type GameVariant = 'texas' | 'omaha' | 'omaha-pl' | 'omaha5' | 'omaha-hl' | 'drawmaha' | 'drawmaha-pl' | 'pineapple' | 'pineapple-classic' | 'texas-bomb';
+export type GameVariant = 'texas' | 'omaha' | 'omaha-pl' | 'omaha5' | 'omaha-hl' | 'drawmaha' | 'drawmaha-pl' | 'pineapple' | 'pineapple-classic';
 
 // Any variant using Drawmaha's 5-card-hole / draw-phase / split-pot rules.
-// 'texas-bomb' deliberately does NOT use this — it's standard Texas Hold'em,
-// just entered via a no-blinds bomb-pot ante instead of normal blinds/preflop
-// betting.
 export function isDrawmahaVariant(variant: GameVariant | string | undefined): boolean {
   return variant === 'drawmaha' || variant === 'drawmaha-pl';
 }

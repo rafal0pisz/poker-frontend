@@ -19,7 +19,6 @@ const variants = [
   { href: '/zasady/omaha-pot-limit/', icon: '♦', name: 'Omaha Pot Limit', sub: 'PLO · limit puli', desc: 'Omaha z ograniczeniem raise do rozmiaru puli. Bardziej strategiczna niż No Limit — pozycja i głęboka gra mają kluczowe znaczenie.' },
   { href: '/zasady/drawmaha-pot-limit/', icon: '🃏', name: 'Drawmaha Pot Limit', sub: 'Split pot · limit puli', desc: 'Drawmaha z Pot Limit. Wymiana kart, dwie połowy puli i ograniczony raise — najbardziej wymagający wariant w Pokero.' },
   { href: '/zasady/pineapple-klasyczny/', icon: '🍍', name: 'Pineapple Classic', sub: '3 karty → wyrzut', desc: '3 karty na rękę, po licytacji na flopie wyrzucasz jedną. Od turn grasz jak w Texas z 2 kartami.' },
-  { href: '/zasady/holdem-bomb-pot/', icon: '💣', name: "Hold'em Bomb Pot", sub: 'Bez blindów · ante od wszystkich', desc: 'Texas Hold\'em bez blindów i bez licytacji preflop — każdy wpłaca ante, flop od razu na stole. Szybka, chaotyczna odmiana na domowe granie.' },
   { href: '/zasady/uklady-kart/', icon: '🏆', name: 'Układy kart', sub: 'Od Royal Flush do Wysokiej karty', desc: 'Kompletna tabela układów pokerowych od najsilniejszego do najsłabszego. Z przykładami dla każdego.' },
 ];
 

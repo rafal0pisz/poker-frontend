@@ -27,15 +27,6 @@ const variants = [
     streets: ['Preflop', 'Flop (3)', 'Turn (1)', 'River (1)', 'Showdown'],
   },
   {
-    name: "Texas Hold'em Bomb Pot",
-    icon: '💣',
-    color: '#e05050',
-    cards: '2 hole cards · no blinds',
-    desc: "A wild, fast twist on Texas Hold'em. There are no blinds and no preflop betting round — every player at the table antes two big blinds straight into the pot, then the flop is dealt immediately. From there it plays out exactly like a normal Hold'em hand: betting on the flop, turn, and river, then a single winner at showdown.",
-    streets: ['Ante (everyone, 2 BB)', 'Flop (3)', 'Turn (1)', 'River (1)', 'Showdown'],
-    special: 'No preflop betting — everyone antes 2 BB, action starts on the flop',
-  },
-  {
     name: 'Omaha',
     icon: '♦',
     color: '#e07b39',

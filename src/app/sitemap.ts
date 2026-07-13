@@ -18,7 +18,6 @@ export default function sitemap(): MetadataRoute.Sitemap {
     { url: `${base}/zasady/drawmaha-pot-limit/`, lastModified: now, changeFrequency: 'monthly', priority: 0.8 },
     { url: `${base}/zasady/pineapple-klasyczny/`, lastModified: now, changeFrequency: 'monthly', priority: 0.8 },
     { url: `${base}/zasady/drawmaha/`, lastModified: now, changeFrequency: 'monthly', priority: 0.8 },
-    { url: `${base}/zasady/holdem-bomb-pot/`, lastModified: now, changeFrequency: 'monthly', priority: 0.8 },
     { url: `${base}/zasady/uklady-kart/`, lastModified: now, changeFrequency: 'monthly', priority: 0.85 },
     { url: `${base}/blog/`, lastModified: now, changeFrequency: 'weekly', priority: 0.8 },
     // Nowe artykuły (czerwiec 2026)

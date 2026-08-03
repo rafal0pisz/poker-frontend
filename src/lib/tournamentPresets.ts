@@ -31,3 +31,17 @@ export const BLIND_LEVEL_PRESETS: Record<'turbo' | 'standard' | 'deep', { label:
     ]),
   },
 };
+
+// Rescales a preset's whole schedule so level 1 starts at the chosen small
+// blind, keeping each level's relative progression (2x/2.5x/etc.) intact.
+// Big blind is always recomputed as 2x the scaled small blind rather than
+// scaled independently, so every level stays valid (backend requires
+// bigBlind >= smallBlind * 2) regardless of rounding.
+export function scaleBlindLevels(levels: BlindLevel[], startingSmallBlind: number): BlindLevel[] {
+  const baseSmallBlind = levels[0]?.smallBlind || 1;
+  const scale = startingSmallBlind / baseSmallBlind;
+  return levels.map((l) => {
+    const smallBlind = Math.max(1, Math.round(l.smallBlind * scale));
+    return { ...l, smallBlind, bigBlind: smallBlind * 2 };
+  });
+}

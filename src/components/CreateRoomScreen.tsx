@@ -5,7 +5,7 @@ import { getSocket } from '@/lib/socket';
 import { setSessionToken } from '@/lib/session';
 import type { GameVariant, Room, RoomSettings } from '@/lib/types';
 import { VARIANT_LABELS } from './VariantPicker';
-import { BLIND_LEVEL_PRESETS } from '@/lib/tournamentPresets';
+import { BLIND_LEVEL_PRESETS, scaleBlindLevels } from '@/lib/tournamentPresets';
 
 const TOURNAMENT_VARIANTS: GameVariant[] = ['texas', 'omaha', 'omaha-pl', 'omaha5', 'omaha-hl', 'drawmaha', 'drawmaha-pl', 'pineapple'];
 
@@ -38,6 +38,8 @@ export function CreateRoomScreen({ defaultNick, source, onCancel, onRoomCreated 
   const [tStartingStack, setTStartingStack] = useState(1000);
   const [tPreset, setTPreset] = useState<'turbo' | 'standard' | 'deep'>('standard');
   const [tLateRegUntilLevel, setTLateRegUntilLevel] = useState(4);
+  const [tStartingSmallBlind, setTStartingSmallBlind] = useState(2);
+  const tScaledLevels = scaleBlindLevels(BLIND_LEVEL_PRESETS[tPreset].levels, tStartingSmallBlind);
 
   const handleCreateWithBot = () => {
     setCreating(true);
@@ -68,11 +70,10 @@ export function CreateRoomScreen({ defaultNick, source, onCancel, onRoomCreated 
     setCreating(true);
     setError(null);
 
-    const preset = BLIND_LEVEL_PRESETS[tPreset];
     const settings: RoomSettings = mode === 'tournament'
       ? {
-          smallBlind: preset.levels[0].smallBlind,
-          bigBlind: preset.levels[0].bigBlind,
+          smallBlind: tScaledLevels[0].smallBlind,
+          bigBlind: tScaledLevels[0].bigBlind,
           startingBuyIn: tStartingStack,
           maxSeats,
           actionTimeoutSec,
@@ -80,7 +81,7 @@ export function CreateRoomScreen({ defaultNick, source, onCancel, onRoomCreated 
           tournamentSettings: {
             variant: tVariant,
             startingStack: tStartingStack,
-            blindLevels: preset.levels,
+            blindLevels: tScaledLevels,
             lateRegistrationUntilLevel: tLateRegUntilLevel,
           },
         }
@@ -117,26 +118,24 @@ export function CreateRoomScreen({ defaultNick, source, onCancel, onRoomCreated 
           />
         </div>
 
-        {!source && (
-          <div>
-            <label className="text-poker-yellow/60 text-xs uppercase tracking-wide block mb-2">Table type</label>
-            <div className="grid grid-cols-2 gap-2">
-              {(['cash', 'tournament'] as const).map((m) => (
-                <button
-                  key={m}
-                  onClick={() => setMode(m)}
-                  className={`py-3 rounded-lg font-medium transition border ${
-                    mode === m
-                      ? 'bg-poker-gold text-poker-bg border-poker-gold'
-                      : 'bg-poker-yellow/10 text-poker-yellow border-poker-gold/20'
-                  }`}
-                >
-                  {m === 'cash' ? '💰 Cash game' : '🏆 Tournament'}
-                </button>
-              ))}
-            </div>
+        <div>
+          <label className="text-poker-yellow/60 text-xs uppercase tracking-wide block mb-2">Table type</label>
+          <div className="grid grid-cols-2 gap-2">
+            {(['cash', 'tournament'] as const).map((m) => (
+              <button
+                key={m}
+                onClick={() => setMode(m)}
+                className={`py-3 rounded-lg font-medium transition border ${
+                  mode === m
+                    ? 'bg-poker-gold text-poker-bg border-poker-gold'
+                    : 'bg-poker-yellow/10 text-poker-yellow border-poker-gold/20'
+                }`}
+              >
+                {m === 'cash' ? '💰 Cash game' : '🏆 Tournament'}
+              </button>
+            ))}
           </div>
-        )}
+        </div>
 
         {mode === 'cash' ? (
           <>
@@ -219,6 +218,28 @@ export function CreateRoomScreen({ defaultNick, source, onCancel, onRoomCreated 
             </div>
 
             <div>
+              <label className="text-poker-yellow/60 text-xs uppercase tracking-wide block mb-2">Starting blinds</label>
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <input
+                    type="number"
+                    value={tStartingSmallBlind}
+                    onChange={(e) => setTStartingSmallBlind(Math.max(1, Number(e.target.value)))}
+                    min={1}
+                    className="w-full bg-poker-yellow/10 border border-poker-gold/20 px-4 py-3 rounded-lg outline-none focus:bg-poker-yellow/15"
+                  />
+                  <p className="text-poker-yellow/40 text-[11px] mt-1">Small blind</p>
+                </div>
+                <div>
+                  <div className="w-full bg-poker-yellow/5 border border-poker-gold/10 px-4 py-3 rounded-lg text-poker-yellow/60">
+                    {tStartingSmallBlind * 2}
+                  </div>
+                  <p className="text-poker-yellow/40 text-[11px] mt-1">Big blind (auto = 2×)</p>
+                </div>
+              </div>
+            </div>
+
+            <div>
               <label className="text-poker-yellow/60 text-xs uppercase tracking-wide block mb-2">Blind schedule</label>
               <div className="grid grid-cols-3 gap-2">
                 {(['turbo', 'standard', 'deep'] as const).map((p) => (
@@ -236,7 +257,7 @@ export function CreateRoomScreen({ defaultNick, source, onCancel, onRoomCreated 
                 ))}
               </div>
               <p className="text-poker-yellow/40 text-[11px] mt-1">
-                {BLIND_LEVEL_PRESETS[tPreset].label} — starts at {BLIND_LEVEL_PRESETS[tPreset].levels[0].smallBlind}/{BLIND_LEVEL_PRESETS[tPreset].levels[0].bigBlind}
+                {BLIND_LEVEL_PRESETS[tPreset].label} — starts at {tScaledLevels[0].smallBlind}/{tScaledLevels[0].bigBlind}
               </p>
             </div>
 

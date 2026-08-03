@@ -3,6 +3,7 @@
 import { useEffect, useState, useCallback } from 'react';
 import {
   getPasjonaciResults,
+  getPasjonaciTournaments,
   payLeagueSettlement,
   undoLeaguePayment,
   verifyPasjonaciAdmin,
@@ -15,7 +16,32 @@ import {
   type Payment,
   type LeagueSession,
   type LeagueSessionResult,
+  type TournamentRecord,
 } from '@/lib/leagueApi';
+
+const MEDALS: Record<number, string> = { 1: '🥇', 2: '🥈', 3: '🥉' };
+
+function TournamentCard({ t }: { t: TournamentRecord }) {
+  return (
+    <div className="bg-poker-yellow/5 border border-poker-gold/15 rounded-lg px-3 py-2.5">
+      <div className="flex items-center justify-between mb-2">
+        <p className="text-poker-gold text-sm font-medium">Turniej {t.number}</p>
+        <p className="text-poker-yellow/40 text-[10px]">{formatDate(t.finishedAt)} · {t.totalPlayers} graczy</p>
+      </div>
+      <div className="space-y-1">
+        {t.results.map((r) => (
+          <div key={r.nick} className="flex items-center justify-between text-xs">
+            <span className="text-poker-yellow flex items-center gap-1.5">
+              <span>{MEDALS[r.place] ?? `${r.place}.`}</span>
+              {r.nick}
+            </span>
+            <span className="text-poker-gold font-medium">+{r.amount}</span>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
 
 function formatDate(ts: number): string {
   return new Intl.DateTimeFormat('pl-PL', { day: 'numeric', month: 'short', year: 'numeric' }).format(new Date(ts));
@@ -167,10 +193,13 @@ function SessionEditForm({
   );
 }
 
+type Tab = 'week' | 'alltime' | 'tournaments';
+
 export default function PasjonaciResultsPage() {
   const [league, setLeague] = useState<PasjonaciView | null>(null);
+  const [tournaments, setTournaments] = useState<TournamentRecord[]>([]);
   const [error, setError] = useState<string | null>(null);
-  const [showAllTime, setShowAllTime] = useState(false);
+  const [activeTab, setActiveTab] = useState<Tab>('week');
   const [showHistory, setShowHistory] = useState(false);
 
   const [showPaymentHistory, setShowPaymentHistory] = useState(false);
@@ -190,6 +219,8 @@ export default function PasjonaciResultsPage() {
     }
     setLeague(res.league);
     setError(null);
+    const tRes = await getPasjonaciTournaments();
+    if (tRes.ok) setTournaments(tRes.tournaments);
   }, []);
 
   useEffect(() => { load(); }, [load]);
@@ -262,8 +293,8 @@ export default function PasjonaciResultsPage() {
     );
   }
 
-  const activePeriod = showAllTime ? league.allTime : league.currentPeriod;
-  const activePeriodId: number | 'all-time' = showAllTime ? 'all-time' : league.currentPeriod.startedAt;
+  const activePeriod = activeTab === 'alltime' ? league.allTime : league.currentPeriod;
+  const activePeriodId: number | 'all-time' = activeTab === 'alltime' ? 'all-time' : league.currentPeriod.startedAt;
 
   return (
     <main className="min-h-screen p-4 pb-12">
@@ -277,23 +308,44 @@ export default function PasjonaciResultsPage() {
           Wspólne wyniki wszystkich stołów utworzonych z pokero.pl/pasjonaci
         </p>
 
-        {/* Period toggle */}
+        {/* Tab toggle */}
         <div className="flex bg-poker-yellow/5 border border-poker-gold/20 rounded-lg p-1 mb-4">
           <button
-            onClick={() => setShowAllTime(false)}
-            className={`flex-1 py-2 rounded-md text-xs font-medium transition ${!showAllTime ? 'bg-poker-gold text-poker-bg' : 'text-poker-yellow/60'}`}
+            onClick={() => setActiveTab('week')}
+            className={`flex-1 py-2 rounded-md text-xs font-medium transition ${activeTab === 'week' ? 'bg-poker-gold text-poker-bg' : 'text-poker-yellow/60'}`}
           >
             Ten tydzień
           </button>
           <button
-            onClick={() => setShowAllTime(true)}
-            className={`flex-1 py-2 rounded-md text-xs font-medium transition ${showAllTime ? 'bg-poker-gold text-poker-bg' : 'text-poker-yellow/60'}`}
+            onClick={() => setActiveTab('alltime')}
+            className={`flex-1 py-2 rounded-md text-xs font-medium transition ${activeTab === 'alltime' ? 'bg-poker-gold text-poker-bg' : 'text-poker-yellow/60'}`}
           >
             Cały czas
           </button>
+          <button
+            onClick={() => setActiveTab('tournaments')}
+            className={`flex-1 py-2 rounded-md text-xs font-medium transition ${activeTab === 'tournaments' ? 'bg-poker-gold text-poker-bg' : 'text-poker-yellow/60'}`}
+          >
+            Turnieje
+          </button>
         </div>
 
-        {!showAllTime && (
+        {activeTab === 'tournaments' ? (
+          <div className="mb-8">
+            {tournaments.length === 0 ? (
+              <p className="text-poker-yellow/40 text-xs text-center py-4">
+                Brak jeszcze żadnych turniejów. Stwórz stół turniejowy na{' '}
+                <a href="/pasjonaci" className="text-poker-gold underline">pokero.pl/pasjonaci</a>, żeby zaczęły się liczyć.
+              </p>
+            ) : (
+              <div className="space-y-2">
+                {tournaments.map((t) => <TournamentCard key={t.id} t={t} />)}
+              </div>
+            )}
+          </div>
+        ) : (
+          <>
+        {activeTab === 'week' && (
           <p className="text-poker-yellow/40 text-[11px] text-center mb-3">
             Trwa od {formatDate(activePeriod.startedAt)} · automatyczny reset po 7 dniach
           </p>
@@ -415,6 +467,8 @@ export default function PasjonaciResultsPage() {
               </div>
             )}
           </div>
+        )}
+          </>
         )}
 
         {/* Admin */}

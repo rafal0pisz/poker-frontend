@@ -113,6 +113,7 @@ export interface TournamentState {
   registeredTokens: string[];
   eliminationOrder: TournamentPlacement[];
   finalResults: TournamentPlacement[] | null;
+  pasjonaciRecorded?: boolean;
 }
 
 // 'draw' = Drawmaha draw phase (after flop, before turn)

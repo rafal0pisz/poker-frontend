@@ -54,6 +54,24 @@ export interface PasjonaciView {
   sessions: LeagueSession[];
 }
 
+// Finished tournaments — a completely separate record from the cash-game
+// ledger above. Tournament chips aren't real money and never touch the
+// weekly Ranking/Rozliczenie.
+export interface TournamentRecordEntry {
+  nick: string;
+  place: number;
+  amount: number;
+}
+
+export interface TournamentRecord {
+  id: string;
+  number: number;
+  finishedAt: number;
+  totalPlayers: number;
+  poolTotal: number;
+  results: TournamentRecordEntry[];
+}
+
 async function parseJson(res: Response) {
   try {
     return await res.json();
@@ -74,6 +92,13 @@ export async function getPasjonaciResults(): Promise<
   { ok: true; league: PasjonaciView } | { ok: false; error: string }
 > {
   const res = await fetch(`${BACKEND_URL}/api/pasjonaci`);
+  return parseJson(res);
+}
+
+export async function getPasjonaciTournaments(): Promise<
+  { ok: true; tournaments: TournamentRecord[] } | { ok: false; error: string }
+> {
+  const res = await fetch(`${BACKEND_URL}/api/pasjonaci/tournaments`);
   return parseJson(res);
 }
 

@@ -3,7 +3,11 @@
 import { useState } from 'react';
 import { getSocket } from '@/lib/socket';
 import { setSessionToken } from '@/lib/session';
-import type { Room, RoomSettings } from '@/lib/types';
+import type { GameVariant, Room, RoomSettings } from '@/lib/types';
+import { VARIANT_LABELS } from './VariantPicker';
+import { BLIND_LEVEL_PRESETS } from '@/lib/tournamentPresets';
+
+const TOURNAMENT_VARIANTS: GameVariant[] = ['texas', 'omaha', 'omaha-pl', 'omaha5', 'omaha-hl', 'drawmaha', 'drawmaha-pl', 'pineapple'];
 
 interface Props {
   defaultNick: string;
@@ -20,6 +24,7 @@ type CreateRoomResponse =
 
 export function CreateRoomScreen({ defaultNick, source, onCancel, onRoomCreated }: Props) {
   const [nick, setNick] = useState(defaultNick);
+  const [mode, setMode] = useState<'cash' | 'tournament'>('cash');
   const [smallBlind, setSmallBlind] = useState(10);
   const [bigBlind, setBigBlind] = useState(20);
   const [startingBuyIn, setStartingBuyIn] = useState(1000);
@@ -27,6 +32,12 @@ export function CreateRoomScreen({ defaultNick, source, onCancel, onRoomCreated 
   const [actionTimeoutSec, setActionTimeoutSec] = useState<15 | 30 | 60>(30);
   const [creating, setCreating] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  // Tournament-only settings
+  const [tVariant, setTVariant] = useState<GameVariant>('texas');
+  const [tStartingStack, setTStartingStack] = useState(1000);
+  const [tPreset, setTPreset] = useState<'turbo' | 'standard' | 'deep'>('standard');
+  const [tLateRegUntilLevel, setTLateRegUntilLevel] = useState(4);
 
   const handleCreateWithBot = () => {
     setCreating(true);
@@ -57,9 +68,23 @@ export function CreateRoomScreen({ defaultNick, source, onCancel, onRoomCreated 
     setCreating(true);
     setError(null);
 
-    const settings: RoomSettings = {
-      smallBlind, bigBlind, startingBuyIn, maxSeats, actionTimeoutSec,
-    };
+    const preset = BLIND_LEVEL_PRESETS[tPreset];
+    const settings: RoomSettings = mode === 'tournament'
+      ? {
+          smallBlind: preset.levels[0].smallBlind,
+          bigBlind: preset.levels[0].bigBlind,
+          startingBuyIn: tStartingStack,
+          maxSeats,
+          actionTimeoutSec,
+          mode: 'tournament',
+          tournamentSettings: {
+            variant: tVariant,
+            startingStack: tStartingStack,
+            blindLevels: preset.levels,
+            lateRegistrationUntilLevel: tLateRegUntilLevel,
+          },
+        }
+      : { smallBlind, bigBlind, startingBuyIn, maxSeats, actionTimeoutSec };
 
     const socket = getSocket();
     socket.emit('room:create', { nick, settings, source }, (response: CreateRoomResponse) => {
@@ -92,50 +117,156 @@ export function CreateRoomScreen({ defaultNick, source, onCancel, onRoomCreated 
           />
         </div>
 
-        <div className="grid grid-cols-2 gap-3">
+        {!source && (
           <div>
-            <label className="text-poker-yellow/60 text-xs uppercase tracking-wide block mb-2">Small blind</label>
-            <input
-              type="number"
-              value={smallBlind}
-              onChange={(e) => {
-                const sb = Math.max(1, Number(e.target.value));
-                setSmallBlind(sb);
-                if (bigBlind < sb * 2) setBigBlind(sb * 2);
-              }}
-              min={1}
-              className="w-full bg-poker-yellow/10 border border-poker-gold/20 px-4 py-3 rounded-lg outline-none focus:bg-poker-yellow/15"
-            />
+            <label className="text-poker-yellow/60 text-xs uppercase tracking-wide block mb-2">Table type</label>
+            <div className="grid grid-cols-2 gap-2">
+              {(['cash', 'tournament'] as const).map((m) => (
+                <button
+                  key={m}
+                  onClick={() => setMode(m)}
+                  className={`py-3 rounded-lg font-medium transition border ${
+                    mode === m
+                      ? 'bg-poker-gold text-poker-bg border-poker-gold'
+                      : 'bg-poker-yellow/10 text-poker-yellow border-poker-gold/20'
+                  }`}
+                >
+                  {m === 'cash' ? '💰 Cash game' : '🏆 Tournament'}
+                </button>
+              ))}
+            </div>
           </div>
-          <div>
-            <label className="text-poker-yellow/60 text-xs uppercase tracking-wide block mb-2">Big blind</label>
-            <input
-              type="number"
-              value={bigBlind}
-              onChange={(e) => setBigBlind(Math.max(smallBlind * 2, Number(e.target.value)))}
-              min={smallBlind * 2}
-              className="w-full bg-poker-yellow/10 border border-poker-gold/20 px-4 py-3 rounded-lg outline-none focus:bg-poker-yellow/15"
-            />
-          </div>
-        </div>
+        )}
 
-        <div>
-          <label className="text-poker-yellow/60 text-xs uppercase tracking-wide block mb-2">
-            Your starting chips
-          </label>
-          {/* No minimum tied to blinds — enter any value you want */}
-          <input
-            type="number"
-            value={startingBuyIn}
-            onChange={(e) => setStartingBuyIn(Math.max(1, Number(e.target.value)))}
-            min={1}
-            step={1}
-            className="w-full bg-poker-yellow/10 border border-poker-gold/20 px-4 py-3 rounded-lg outline-none focus:bg-poker-yellow/15"
-          />
-          <p className="text-poker-yellow/40 text-[11px] mt-1">
-            Other players join with 0 chips — assign chips from the admin panel.
-          </p>
-        </div>
+        {mode === 'cash' ? (
+          <>
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <label className="text-poker-yellow/60 text-xs uppercase tracking-wide block mb-2">Small blind</label>
+                <input
+                  type="number"
+                  value={smallBlind}
+                  onChange={(e) => {
+                    const sb = Math.max(1, Number(e.target.value));
+                    setSmallBlind(sb);
+                    if (bigBlind < sb * 2) setBigBlind(sb * 2);
+                  }}
+                  min={1}
+                  className="w-full bg-poker-yellow/10 border border-poker-gold/20 px-4 py-3 rounded-lg outline-none focus:bg-poker-yellow/15"
+                />
+              </div>
+              <div>
+                <label className="text-poker-yellow/60 text-xs uppercase tracking-wide block mb-2">Big blind</label>
+                <input
+                  type="number"
+                  value={bigBlind}
+                  onChange={(e) => setBigBlind(Math.max(smallBlind * 2, Number(e.target.value)))}
+                  min={smallBlind * 2}
+                  className="w-full bg-poker-yellow/10 border border-poker-gold/20 px-4 py-3 rounded-lg outline-none focus:bg-poker-yellow/15"
+                />
+              </div>
+            </div>
+
+            <div>
+              <label className="text-poker-yellow/60 text-xs uppercase tracking-wide block mb-2">
+                Your starting chips
+              </label>
+              {/* No minimum tied to blinds — enter any value you want */}
+              <input
+                type="number"
+                value={startingBuyIn}
+                onChange={(e) => setStartingBuyIn(Math.max(1, Number(e.target.value)))}
+                min={1}
+                step={1}
+                className="w-full bg-poker-yellow/10 border border-poker-gold/20 px-4 py-3 rounded-lg outline-none focus:bg-poker-yellow/15"
+              />
+              <p className="text-poker-yellow/40 text-[11px] mt-1">
+                Other players join with 0 chips — assign chips from the admin panel.
+              </p>
+            </div>
+          </>
+        ) : (
+          <>
+            <div>
+              <label className="text-poker-yellow/60 text-xs uppercase tracking-wide block mb-2">Game variant</label>
+              <select
+                value={tVariant}
+                onChange={(e) => setTVariant(e.target.value as GameVariant)}
+                className="w-full bg-poker-yellow/10 border border-poker-gold/20 px-4 py-3 rounded-lg outline-none focus:bg-poker-yellow/15"
+              >
+                {TOURNAMENT_VARIANTS.map((v) => (
+                  <option key={v} value={v} className="bg-poker-bg text-poker-yellow">{VARIANT_LABELS[v]}</option>
+                ))}
+              </select>
+              <p className="text-poker-yellow/40 text-[11px] mt-1">
+                Tournaments play one fixed variant — no Dealer&apos;s Choice.
+              </p>
+            </div>
+
+            <div>
+              <label className="text-poker-yellow/60 text-xs uppercase tracking-wide block mb-2">Starting stack (everyone)</label>
+              <input
+                type="number"
+                value={tStartingStack}
+                onChange={(e) => setTStartingStack(Math.max(1, Number(e.target.value)))}
+                min={1}
+                step={1}
+                className="w-full bg-poker-yellow/10 border border-poker-gold/20 px-4 py-3 rounded-lg outline-none focus:bg-poker-yellow/15"
+              />
+              <p className="text-poker-yellow/40 text-[11px] mt-1">
+                Every player who registers gets this many chips. Prize pool = starting stack × players.
+              </p>
+            </div>
+
+            <div>
+              <label className="text-poker-yellow/60 text-xs uppercase tracking-wide block mb-2">Blind schedule</label>
+              <div className="grid grid-cols-3 gap-2">
+                {(['turbo', 'standard', 'deep'] as const).map((p) => (
+                  <button
+                    key={p}
+                    onClick={() => setTPreset(p)}
+                    className={`py-3 rounded-lg font-medium capitalize transition border ${
+                      tPreset === p
+                        ? 'bg-poker-gold text-poker-bg border-poker-gold'
+                        : 'bg-poker-yellow/10 text-poker-yellow border-poker-gold/20'
+                    }`}
+                  >
+                    {p}
+                  </button>
+                ))}
+              </div>
+              <p className="text-poker-yellow/40 text-[11px] mt-1">
+                {BLIND_LEVEL_PRESETS[tPreset].label} — starts at {BLIND_LEVEL_PRESETS[tPreset].levels[0].smallBlind}/{BLIND_LEVEL_PRESETS[tPreset].levels[0].bigBlind}
+              </p>
+            </div>
+
+            <div>
+              <label className="text-poker-yellow/60 text-xs uppercase tracking-wide block mb-2">
+                Late registration allowed until level: <span className="text-poker-gold font-medium">{tLateRegUntilLevel}</span>
+              </label>
+              <input
+                type="range"
+                min={0}
+                max={BLIND_LEVEL_PRESETS[tPreset].levels.length}
+                value={Math.min(tLateRegUntilLevel, BLIND_LEVEL_PRESETS[tPreset].levels.length)}
+                onChange={(e) => setTLateRegUntilLevel(Number(e.target.value))}
+                className="w-full accent-poker-gold"
+              />
+              <p className="text-poker-yellow/40 text-[11px] mt-1">
+                {tLateRegUntilLevel === 0
+                  ? 'No late registration — closes once the tournament starts.'
+                  : `New players can join through level ${tLateRegUntilLevel}, then registration closes.`}
+              </p>
+            </div>
+
+            <div className="bg-poker-gold/10 border border-poker-gold/25 rounded-lg p-3">
+              <p className="text-poker-yellow/70 text-xs leading-relaxed">
+                🏆 Payouts: <span className="text-poker-gold">1st 50%</span> · <span className="text-poker-gold">2nd 30%</span> · <span className="text-poker-gold">3rd 20%</span> of the prize pool.
+                Minimum 3 players to start.
+              </p>
+            </div>
+          </>
+        )}
 
         <div>
           <label className="text-poker-yellow/60 text-xs uppercase tracking-wide block mb-2">
@@ -143,7 +274,7 @@ export function CreateRoomScreen({ defaultNick, source, onCancel, onRoomCreated 
           </label>
           <input
             type="range"
-            min={2}
+            min={mode === 'tournament' ? 3 : 2}
             max={9}
             value={maxSeats}
             onChange={(e) => setMaxSeats(Number(e.target.value))}
@@ -185,15 +316,19 @@ export function CreateRoomScreen({ defaultNick, source, onCancel, onRoomCreated 
         >
           {creating ? 'Creating...' : 'Create room'}
         </button>
-        <button
-          onClick={handleCreateWithBot}
-          disabled={creating || !nick.trim()}
-          className="w-full bg-poker-yellow/10 border border-poker-gold/30 text-poker-yellow font-medium py-4 rounded-xl active:scale-95 transition disabled:opacity-40 flex items-center justify-center gap-2"
-        >
-          <span>🤖</span>
-          <span>{creating ? 'Creating...' : 'Test with Bots (2 players)'}</span>
-        </button>
-        <p className="text-center text-[11px] text-poker-yellow/35">Bot room uses blinds 5/10, 1000 chips each</p>
+        {mode === 'cash' && (
+          <>
+            <button
+              onClick={handleCreateWithBot}
+              disabled={creating || !nick.trim()}
+              className="w-full bg-poker-yellow/10 border border-poker-gold/30 text-poker-yellow font-medium py-4 rounded-xl active:scale-95 transition disabled:opacity-40 flex items-center justify-center gap-2"
+            >
+              <span>🤖</span>
+              <span>{creating ? 'Creating...' : 'Test with Bots (2 players)'}</span>
+            </button>
+            <p className="text-center text-[11px] text-poker-yellow/35">Bot room uses blinds 5/10, 1000 chips each</p>
+          </>
+        )}
       </div>
     </main>
   );

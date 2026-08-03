@@ -33,6 +33,7 @@ const STATUS_LABEL: Record<PlayerStatus, string> = {
   'no-chips': 'NO CHIPS',
   disconnected: 'OFFLINE',
   spectator: 'SPECTATOR',
+  eliminated: 'ELIMINATED',
 };
 
 // SVG ring timer — animates circumference as time runs out
@@ -101,7 +102,8 @@ export const PlayerSeat = memo(function PlayerSeat({
     player.status === 'folded' ||
     player.status === 'sitting-out' ||
     player.status === 'disconnected' ||
-    player.status === 'spectator';
+    player.status === 'spectator' ||
+    player.status === 'eliminated';
 
   const playerRevealedCards = player.holeCards || [];
   // Also show cards revealed via Show Hand button

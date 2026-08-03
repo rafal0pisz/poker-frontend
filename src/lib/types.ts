@@ -20,7 +20,8 @@ export type PlayerStatus =
   | 'waiting'
   | 'no-chips'
   | 'disconnected'
-  | 'spectator';
+  | 'spectator'
+  | 'eliminated';
 
 export type ActionType = 'check' | 'call' | 'bet' | 'raise' | 'fold' | 'all-in';
 
@@ -74,6 +75,44 @@ export interface RoomSettings {
   // Pasjonaci ledger after every hand. Set once at room:create time; not
   // player-facing.
   pasjonaciTable?: boolean;
+  // 'tournament' disables Dealer's Choice (single fixed variant) and enables
+  // blind-level progression, elimination tracking and payout placement.
+  mode?: 'cash' | 'tournament';
+  tournamentSettings?: TournamentSettings;
+}
+
+// ===== TOURNAMENT MODE =====
+
+export interface BlindLevel {
+  level: number;
+  smallBlind: number;
+  bigBlind: number;
+  durationSec: number;
+}
+
+export interface TournamentSettings {
+  variant: GameVariant;
+  startingStack: number;
+  blindLevels: BlindLevel[];
+  // New players may register up to and including this blind level (1-indexed).
+  lateRegistrationUntilLevel: number;
+}
+
+export interface TournamentPlacement {
+  sessionToken: string;
+  nick: string;
+  place: number; // 1 = winner
+  eliminatedAt: number;
+  amount?: number; // filled in once the tournament finishes
+}
+
+export interface TournamentState {
+  status: 'registering' | 'running' | 'finished';
+  currentLevel: number;
+  levelStartedAt: number | null;
+  registeredTokens: string[];
+  eliminationOrder: TournamentPlacement[];
+  finalResults: TournamentPlacement[] | null;
 }
 
 // 'draw' = Drawmaha draw phase (after flop, before turn)
@@ -260,6 +299,7 @@ export interface Room {
   // Recent completed hands, most-recently-played last — session-only,
   // capped server-side, lost on refresh/restart like everything else here.
   handHistory: HandResult[];
+  tournamentState?: TournamentState;
 }
 
 // Quick-tap chat reactions moved to '@/lib/reactions' (now image-based, not raw emoji).

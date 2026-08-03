@@ -15,6 +15,7 @@ import { RunItTwiceBoards } from './RunItTwiceBoards';
 import { HandHistoryList } from './HandHistoryList';
 import { HandHistoryDetail } from './HandHistoryDetail';
 import { downloadSessionSummaryImage } from '@/lib/exportSummaryImage';
+import { TournamentHUD } from './TournamentHUD';
 
 const VARIANT_LABELS: Record<GameVariant, string> = {
   texas: "Texas Hold'em",
@@ -223,6 +224,7 @@ export interface OvalTableProps {
   onSitBack: () => void;
   onSitOut: () => void;
   onTakeSeat: () => void;
+  onShowTournamentResults?: () => void;
 }
 
 export function OvalTable({
@@ -235,7 +237,7 @@ export function OvalTable({
   showDiscardUI, nextDealerVariant, onLeave, onShowHand,
   onCopyCode, onToggleMute, onEnableAudio, onShowAdmin, onShowVariantPicker,
   drawUI, actionPanel, preActionButton, chipRequestUI, handLogs, unreadCount, playerStats,
-  onSitBack, onSitOut, onTakeSeat,
+  onSitBack, onSitOut, onTakeSeat, onShowTournamentResults,
 }: OvalTableProps) {
 
   // Assign visual seat positions (1-6) to opponents based on their seat order
@@ -338,6 +340,12 @@ export function OvalTable({
           <button onClick={onLeave} style={{ background: 'transparent', border: 'none', fontSize: 10, color: 'rgba(var(--pk-cream-rgb),0.35)', cursor: 'pointer', padding: '4px 4px' }}>Leave</button>
         </div>
 
+        {room.settings.mode === 'tournament' && (
+          <div style={{ padding: '6px 12px', borderBottom: '1px solid rgba(var(--pk-gold-rgb),0.06)' }}>
+            <TournamentHUD room={room} onShowResults={onShowTournamentResults} />
+          </div>
+        )}
+
         {/* Variant pill */}
         <div style={{ padding: '6px 12px', borderBottom: '1px solid rgba(var(--pk-gold-rgb),0.06)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
@@ -345,7 +353,9 @@ export function OvalTable({
             <span style={{ fontSize: 11, fontWeight: 600, color: 'rgb(var(--pk-gold-rgb))' }}>{VARIANT_LABELS[currentVariant]}</span>
             {isDrawPhase && <span style={{ fontSize: 8, background: 'rgba(var(--pk-gold-rgb),0.15)', color: 'rgb(var(--pk-gold-rgb))', padding: '1px 5px', borderRadius: 4 }}>DRAW</span>}
           </div>
-          <button onClick={onShowVariantPicker} style={{ background: 'rgb(var(--pk-gold-rgb))', color: 'var(--pk-ink)', fontSize: 10, fontWeight: 700, padding: '2px 7px', borderRadius: 5, border: 'none', cursor: 'pointer' }}>D ▾</button>
+          {room.settings.mode !== 'tournament' && (
+            <button onClick={onShowVariantPicker} style={{ background: 'rgb(var(--pk-gold-rgb))', color: 'var(--pk-ink)', fontSize: 10, fontWeight: 700, padding: '2px 7px', borderRadius: 5, border: 'none', cursor: 'pointer' }}>D ▾</button>
+          )}
         </div>
 
         {/* Chat tabs */}

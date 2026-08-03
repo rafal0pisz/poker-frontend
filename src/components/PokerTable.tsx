@@ -29,6 +29,8 @@ import { AchievementToast } from './AchievementToast';
 import { QuickChat } from './QuickChat';
 import { ConnectionBanner } from './ConnectionBanner';
 import { MaintenanceBanner } from './MaintenanceBanner';
+import { TournamentHUD } from './TournamentHUD';
+import { TournamentResultsModal } from './TournamentResultsModal';
 
 interface Props {
   initialRoom: Room;
@@ -436,6 +438,8 @@ export function PokerTable({ initialRoom, mySessionToken, onLeave }: Props) {
   const [lastBubbleByPlayer, setLastBubbleByPlayer] = useState<Record<string, ChatMessage>>({});
   const [myLastBubble, setMyLastBubble] = useState<ChatMessage | null>(null);
   const [dismissedBubbleIds, setDismissedBubbleIds] = useState(new Set<string>());
+  const [showTournamentResults, setShowTournamentResults] = useState(false);
+  const prevTournamentStatusRef = useRef<string | null>(null);
 
   const { playChip, playDeal, playYourTurn, playWin, playFold, playSelect, muted, toggleMute } = useSounds();
   const { logs, processRoomState, processHandResult } = useHandLog();
@@ -451,6 +455,15 @@ export function PokerTable({ initialRoom, mySessionToken, onLeave }: Props) {
   useEffect(() => { showChatRef.current = showChat; }, [showChat]);
   useEffect(() => { messagesLengthRef.current = messages.length; }, [messages.length]);
   useEffect(() => { roomRef.current = room; }, [room]);
+
+  // Auto-open the results modal the moment a tournament finishes.
+  useEffect(() => {
+    const status = room.tournamentState?.status ?? null;
+    if (status === 'finished' && prevTournamentStatusRef.current !== 'finished') {
+      setShowTournamentResults(true);
+    }
+    prevTournamentStatusRef.current = status;
+  }, [room.tournamentState?.status]);
 
   const me = room.players.find((p) => p.sessionToken === mySessionToken);
 
@@ -938,6 +951,10 @@ export function PokerTable({ initialRoom, mySessionToken, onLeave }: Props) {
           </div>
         </div>
 
+        {room.settings.mode === 'tournament' && (
+          <TournamentHUD room={room} onShowResults={() => setShowTournamentResults(true)} />
+        )}
+
         {/* Variant bar */}
         <div className="flex items-center justify-between border border-poker-gold/30 px-3 py-1.5 rounded-lg mb-2" style={{ background: 'rgba(var(--pk-gold-rgb),0.08)' }}>
           <div className="flex items-center gap-2 min-w-0">
@@ -945,9 +962,11 @@ export function PokerTable({ initialRoom, mySessionToken, onLeave }: Props) {
             <span className="text-poker-gold text-xs font-medium truncate">{VARIANT_LABELS[currentVariant]}</span>
             {isDrawPhase && <span className="text-[9px] bg-poker-gold/20 text-poker-gold px-1.5 py-0.5 rounded tracking-wider animate-pulse">DRAW</span>}
           </div>
-          <button onClick={() => setShowVariantPicker(true)} className="bg-poker-gold text-poker-bg text-[11px] font-medium px-2 py-0.5 rounded flex items-center gap-1 flex-shrink-0">
-            D <span className="text-[9px] opacity-70">▾</span>
-          </button>
+          {room.settings.mode !== 'tournament' && (
+            <button onClick={() => setShowVariantPicker(true)} className="bg-poker-gold text-poker-bg text-[11px] font-medium px-2 py-0.5 rounded flex items-center gap-1 flex-shrink-0">
+              D <span className="text-[9px] opacity-70">▾</span>
+            </button>
+          )}
         </div>
 
         {/* Other players */}
@@ -1208,6 +1227,7 @@ export function PokerTable({ initialRoom, mySessionToken, onLeave }: Props) {
       <div className="hidden md:block">
         <OvalTable
           room={room}
+          onShowTournamentResults={() => setShowTournamentResults(true)}
           mySessionToken={mySessionToken}
           gameState={gameState}
           otherPlayers={otherPlayers}
@@ -1340,6 +1360,7 @@ export function PokerTable({ initialRoom, mySessionToken, onLeave }: Props) {
       />
 
       {showAdminPanel && <AdminPanel room={room} mySessionToken={mySessionToken} onClose={() => setShowAdminPanel(false)} />}
+      {showTournamentResults && <TournamentResultsModal room={room} onClose={() => setShowTournamentResults(false)} />}
       {showChat && <ChatModal messages={messages} mySessionToken={mySessionToken} room={room} onClose={() => setShowChat(false)} handLogs={logs} />}
       {showVariantPicker && (
         <VariantPicker

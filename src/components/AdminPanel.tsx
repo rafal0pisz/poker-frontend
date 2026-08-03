@@ -54,6 +54,12 @@ export function AdminPanel({ room, mySessionToken, onClose }: Props) {
     });
   };
 
+  const handleAdvanceBlindLevel = () => {
+    getSocket().emit('admin:advance-blind-level', (res: { ok: boolean; error?: string }) => {
+      if (!res.ok) alert(res.error || 'Error');
+    });
+  };
+
   const handleTableColor = (color: string) => {
     getSocket().emit('admin:set-table-color', { color }, (res: { ok: boolean; error?: string }) => {
       if (!res.ok) console.error('table color error:', res.error);
@@ -389,6 +395,20 @@ export function AdminPanel({ room, mySessionToken, onClose }: Props) {
               Use if the game freezes. Current hand is cancelled and chips are not awarded.
             </p>
           </div>
+
+          {room.settings.mode === 'tournament' && room.tournamentState?.status === 'running' && (
+            <div className="border-t border-poker-gold/10 pt-4">
+              <p className="text-xs text-poker-yellow/50 mb-1">
+                Tournament · level {room.tournamentState.currentLevel} ({room.settings.smallBlind}/{room.settings.bigBlind})
+              </p>
+              <button
+                onClick={handleAdvanceBlindLevel}
+                className="w-full bg-poker-gold/15 border border-poker-gold/40 text-poker-gold text-xs py-2.5 rounded-lg active:scale-95 transition-all"
+              >
+                ⬆ Force next blind level
+              </button>
+            </div>
+          )}
 
           {/* Time Bank */}
           <div className="border-t border-poker-gold/10 pt-4">

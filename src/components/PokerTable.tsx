@@ -1062,8 +1062,8 @@ export function PokerTable({ initialRoom, mySessionToken, onLeave }: Props) {
                 ) : (
                   <div className="mt-2 flex flex-col gap-1.5">
                     <p className="text-[11px] text-poker-yellow/50">Request chips from admin</p>
-                    <div className="flex gap-1.5">
-                      {[100, 200, 400].map((amt) => (
+                    <div className="flex flex-wrap gap-1.5">
+                      {[100, 200, 300, 400, 600, 800].map((amt) => (
                         <button
                           key={amt}
                           onClick={() => setChipRequestAmount(amt)}
@@ -1246,8 +1246,8 @@ export function PokerTable({ initialRoom, mySessionToken, onLeave }: Props) {
             ) : (
               <div style={{ display: 'flex', flexDirection: 'column', gap: 6, marginBottom: 6 }}>
                 <p style={{ fontSize: 11, color: 'rgba(var(--pk-cream-rgb),0.5)', margin: 0 }}>Request chips from admin</p>
-                <div style={{ display: 'flex', gap: 6 }}>
-                  {[100, 200, 400].map((amt) => (
+                <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
+                  {[100, 200, 300, 400, 600, 800].map((amt) => (
                     <button
                       key={amt}
                       onClick={() => setChipRequestAmount(amt)}

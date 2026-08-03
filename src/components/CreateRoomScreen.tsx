@@ -25,9 +25,9 @@ type CreateRoomResponse =
 export function CreateRoomScreen({ defaultNick, source, onCancel, onRoomCreated }: Props) {
   const [nick, setNick] = useState(defaultNick);
   const [mode, setMode] = useState<'cash' | 'tournament'>('cash');
-  const [smallBlind, setSmallBlind] = useState(10);
-  const [bigBlind, setBigBlind] = useState(20);
-  const [startingBuyIn, setStartingBuyIn] = useState(1000);
+  const [smallBlind, setSmallBlind] = useState(2);
+  const [bigBlind, setBigBlind] = useState(4);
+  const [startingBuyIn, setStartingBuyIn] = useState(400);
   const [maxSeats, setMaxSeats] = useState(9);
   const [actionTimeoutSec, setActionTimeoutSec] = useState<15 | 30 | 60>(30);
   const [creating, setCreating] = useState(false);

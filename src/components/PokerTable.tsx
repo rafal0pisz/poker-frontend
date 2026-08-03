@@ -31,6 +31,7 @@ import { ConnectionBanner } from './ConnectionBanner';
 import { MaintenanceBanner } from './MaintenanceBanner';
 import { TournamentHUD } from './TournamentHUD';
 import { TournamentResultsModal } from './TournamentResultsModal';
+import { RebuyPrompt } from './RebuyPrompt';
 
 interface Props {
   initialRoom: Room;
@@ -734,8 +735,14 @@ export function PokerTable({ initialRoom, mySessionToken, onLeave }: Props) {
     if (me?.chipRequest) setChipRequestSent(true);
     else setChipRequestSent(false);
   }, [me?.chipRequest]);
-  const isSpectator = me?.status === 'spectator';
-  const canSitOut = !!gameState && !!me && !['sitting-out', 'waiting', 'no-chips', 'spectator'].includes(me.status);
+  const isEliminated = me?.status === 'eliminated';
+  const myFinishingPlace = room.tournamentState?.eliminationOrder.find((e) => e.sessionToken === mySessionToken)?.place;
+  const myPendingRebuy = room.tournamentState?.pendingRebuys.find((p) => p.sessionToken === mySessionToken);
+  // Eliminated tournament players get the same "watch, don't play" treatment
+  // as a true spectator (no action panel, no seat-taking CTA) — they're just
+  // still in the room to watch the rest of the tournament.
+  const isSpectator = me?.status === 'spectator' || isEliminated;
+  const canSitOut = !!gameState && !!me && !['sitting-out', 'waiting', 'no-chips', 'spectator', 'eliminated'].includes(me.status);
 
   const winningCardsSet = new Set<CardType>();
   const winningCardsSecondarySet = new Set<CardType>();
@@ -886,8 +893,11 @@ export function PokerTable({ initialRoom, mySessionToken, onLeave }: Props) {
   //   seat 1 → (1-3+9)%9 = 7  (third, wraps around)
   const mySeat = me.seat;
 
+  // Eliminated tournament players fall out of the seat ring entirely — they
+  // keep watching (see isSpectator/isEliminated above) but no longer occupy
+  // a visible table position.
   const otherPlayers = room.players
-    .filter((p) => p.sessionToken !== mySessionToken)
+    .filter((p) => p.sessionToken !== mySessionToken && p.status !== 'eliminated')
     .sort((a, b) => {
       const aSeat = (a.seat - mySeat + maxSeats) % maxSeats;
       const bSeat = (b.seat - mySeat + maxSeats) % maxSeats;
@@ -1120,7 +1130,14 @@ export function PokerTable({ initialRoom, mySessionToken, onLeave }: Props) {
             )}
           </div>
 
-          {isSpectator && (
+          {isEliminated ? (
+            <div className="bg-poker-gold/10 border-2 border-poker-gold/40 rounded-xl p-4 text-center mb-2">
+              <p className="text-poker-gold text-base font-medium mb-1">
+                ❌ You&apos;re out{myFinishingPlace ? ` — place ${myFinishingPlace}` : ''}
+              </p>
+              <p className="text-poker-yellow/70 text-xs">You can keep watching the rest of the tournament.</p>
+            </div>
+          ) : isSpectator && (
             <div className="bg-poker-gold/10 border-2 border-poker-gold/40 rounded-xl p-4 text-center mb-2">
               <p className="text-poker-gold text-base font-medium mb-1">👀 You are watching</p>
               <p className="text-poker-yellow/70 text-xs mb-3">Take a seat to join the game.</p>
@@ -1281,6 +1298,7 @@ export function PokerTable({ initialRoom, mySessionToken, onLeave }: Props) {
           isShowdown={isShowdown}
           myHandShown={myHandShown}
           isSpectator={isSpectator}
+          isEliminated={isEliminated}
           isAdmin={isAdmin}
           isSittingOut={isSittingOut}
           canSitOut={canSitOut}
@@ -1361,6 +1379,15 @@ export function PokerTable({ initialRoom, mySessionToken, onLeave }: Props) {
 
       {showAdminPanel && <AdminPanel room={room} mySessionToken={mySessionToken} onClose={() => setShowAdminPanel(false)} />}
       {showTournamentResults && <TournamentResultsModal room={room} onClose={() => setShowTournamentResults(false)} />}
+      {myPendingRebuy && (
+        <RebuyPrompt
+          deadline={myPendingRebuy.deadline}
+          startingStack={room.settings.tournamentSettings?.startingStack ?? 0}
+          onDecide={(rebuy) => getSocket().emit('game:rebuy-decide', { rebuy }, (res: { ok: boolean; error?: string } | undefined) => {
+            if (res && !res.ok) console.error('[rebuy-decide]', res.error);
+          })}
+        />
+      )}
       {showChat && <ChatModal messages={messages} mySessionToken={mySessionToken} room={room} onClose={() => setShowChat(false)} handLogs={logs} />}
       {showVariantPicker && (
         <VariantPicker

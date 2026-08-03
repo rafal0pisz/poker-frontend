@@ -106,11 +106,19 @@ export interface TournamentPlacement {
   amount?: number; // filled in once the tournament finishes
 }
 
+export interface RebuyOffer {
+  sessionToken: string;
+  nick: string;
+  deadline: number;
+}
+
 export interface TournamentState {
   status: 'registering' | 'running' | 'finished';
   currentLevel: number;
   levelStartedAt: number | null;
   registeredTokens: string[];
+  rebuyTokens: string[];
+  pendingRebuys: RebuyOffer[];
   eliminationOrder: TournamentPlacement[];
   finalResults: TournamentPlacement[] | null;
   pasjonaciRecorded?: boolean;

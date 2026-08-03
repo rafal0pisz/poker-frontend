@@ -186,6 +186,7 @@ export interface OvalTableProps {
   isShowdown: boolean;
   myHandShown: boolean;
   isSpectator: boolean;
+  isEliminated?: boolean;
   isAdmin: boolean;
   isSittingOut: boolean;
   canSitOut: boolean;
@@ -230,7 +231,7 @@ export interface OvalTableProps {
 export function OvalTable({
   room, mySessionToken, gameState, otherPlayers, me, myHoleCards, myFoldedCards,
   winningCardsSet, winningCardsSecondarySet, activeResult, lastResult, resultMessage,
-  isShowdown, myHandShown, isSpectator, isAdmin, isSittingOut, canSitOut,
+  isShowdown, myHandShown, isSpectator, isEliminated, isAdmin, isSittingOut, canSitOut,
   muted, codeCopied, currentVariant, currentCardCount, isDrawPhase,
   revealedHands, sbSeat, bbSeat, prevCommCardCountRef,
   myBubbleToShow, getBubble, messages, sendChat, sendReaction,
@@ -603,7 +604,9 @@ export function OvalTable({
 
           {/* Actions / draw UI */}
           <div style={{ flex: 1, minWidth: 0 }}>
-            {isSpectator && (
+            {isEliminated ? (
+              <p style={{ fontSize: 12, color: 'rgba(var(--pk-cream-rgb),0.5)' }}>❌ You&apos;re out — watching the rest of the tournament</p>
+            ) : isSpectator && (
               <button onClick={() => onTakeSeat()} style={{ background: 'rgb(var(--pk-gold-rgb))', color: 'var(--pk-ink)', fontWeight: 600, padding: '10px 20px', borderRadius: 10, border: 'none', cursor: 'pointer', fontSize: 13 }}>
                 🪑 Take a seat
               </button>

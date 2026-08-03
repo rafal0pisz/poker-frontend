@@ -276,7 +276,7 @@ export function CreateRoomScreen({ defaultNick, source, onCancel, onRoomCreated 
               <p className="text-poker-yellow/40 text-[11px] mt-1">
                 {tLateRegUntilLevel === 0
                   ? 'No late registration — closes once the tournament starts.'
-                  : `New players can join through level ${tLateRegUntilLevel}, then registration closes.`}
+                  : `New players can join, and busted players can rebuy once, through level ${tLateRegUntilLevel} — then both close.`}
               </p>
             </div>
 
@@ -284,6 +284,9 @@ export function CreateRoomScreen({ defaultNick, source, onCancel, onRoomCreated 
               <p className="text-poker-yellow/70 text-xs leading-relaxed">
                 🏆 Payouts: <span className="text-poker-gold">1st 50%</span> · <span className="text-poker-gold">2nd 30%</span> · <span className="text-poker-gold">3rd 20%</span> of the prize pool.
                 Minimum 3 players to start.
+              </p>
+              <p className="text-poker-yellow/70 text-xs leading-relaxed mt-1.5">
+                🔁 A player who busts can rebuy <span className="text-poker-gold">once</span> for a fresh {tStartingStack}-chip stack — only while late registration is still open. Each rebuy adds to the prize pool.
               </p>
             </div>
           </>

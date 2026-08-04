@@ -150,3 +150,24 @@ export async function removePasjonaciPlayer(
   const res = await postJson('/api/pasjonaci/admin/remove-player', { password, nick });
   return parseJson(res);
 }
+
+// Manually add a tournament that finished outside the app (or before this
+// recording feature existed) — same shape a normal in-app tournament produces.
+export async function addPasjonaciTournament(
+  password: string,
+  results: TournamentRecordEntry[],
+  totalPlayers: number,
+  poolTotal: number,
+  rebuyCount: number,
+): Promise<{ ok: true; tournament: TournamentRecord } | { ok: false; error: string }> {
+  const res = await postJson('/api/pasjonaci/admin/tournament/add', { password, results, totalPlayers, poolTotal, rebuyCount });
+  return parseJson(res);
+}
+
+export async function deletePasjonaciTournament(
+  id: string,
+  password: string,
+): Promise<{ ok: true } | { ok: false; error: string }> {
+  const res = await postJson(`/api/pasjonaci/admin/tournament/${encodeURIComponent(id)}/delete`, { password });
+  return parseJson(res);
+}

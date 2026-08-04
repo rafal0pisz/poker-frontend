@@ -10,6 +10,8 @@ import {
   deletePasjonaciSession,
   editPasjonaciSession,
   removePasjonaciPlayer,
+  addPasjonaciTournament,
+  deletePasjonaciTournament,
   type PasjonaciView,
   type PlayerBalance,
   type Settlement,
@@ -17,19 +19,28 @@ import {
   type LeagueSession,
   type LeagueSessionResult,
   type TournamentRecord,
+  type TournamentRecordEntry,
 } from '@/lib/leagueApi';
+import { payoutShares } from '@/lib/tournamentPresets';
 
 const MEDALS: Record<number, string> = { 1: '🥇', 2: '🥈', 3: '🥉' };
 
-function TournamentCard({ t }: { t: TournamentRecord }) {
+function TournamentCard({ t, onDelete }: { t: TournamentRecord; onDelete?: (id: string) => void }) {
   return (
     <div className="bg-poker-yellow/5 border border-poker-gold/15 rounded-lg px-3 py-2.5">
       <div className="flex items-center justify-between mb-1">
         <p className="text-poker-gold text-sm font-medium">Turniej {t.number}</p>
-        <p className="text-poker-yellow/40 text-[10px]">{formatDate(t.finishedAt)} · {t.totalPlayers} graczy</p>
+        <div className="flex items-center gap-2">
+          <p className="text-poker-yellow/40 text-[10px]">{formatDate(t.finishedAt)} · {t.totalPlayers} graczy</p>
+          {onDelete && (
+            <button onClick={() => onDelete(t.id)} className="text-poker-coral text-[10px] hover:text-poker-coral/70 transition">
+              🗑
+            </button>
+          )}
+        </div>
       </div>
       <p className="text-poker-yellow/40 text-[10px] mb-2">
-        Pula: {t.poolTotal}{t.rebuyCount > 0 ? ` · ${t.rebuyCount} dokupienie${t.rebuyCount === 1 ? '' : t.rebuyCount < 5 ? 'a' : 'ń'}` : ''}
+        Pula: {t.poolTotal}{t.rebuyCount > 0 ? ` · ${t.rebuyCount} dokupie${t.rebuyCount === 1 ? 'nie' : t.rebuyCount < 5 ? 'nia' : 'ń'}` : ''}
       </p>
       <div className="space-y-1">
         {t.results.map((r) => (
@@ -198,6 +209,92 @@ function SessionEditForm({
   );
 }
 
+interface TournamentRow {
+  nick: string;
+  place: number;
+  rebuy: boolean;
+}
+
+function TournamentAddForm({
+  onSave,
+  onCancel,
+}: {
+  onSave: (rows: TournamentRow[], startingStack: number) => void;
+  onCancel: () => void;
+}) {
+  const [startingStack, setStartingStack] = useState(200);
+  const [rows, setRows] = useState<TournamentRow[]>([{ nick: '', place: 1, rebuy: false }]);
+
+  const updateRow = (i: number, patch: Partial<TournamentRow>) => {
+    setRows((prev) => prev.map((r, idx) => (idx === i ? { ...r, ...patch } : r)));
+  };
+  const removeRow = (i: number) => {
+    setRows((prev) => prev.filter((_, idx) => idx !== i));
+  };
+  const addRow = () => {
+    setRows((prev) => [...prev, { nick: '', place: prev.length + 1, rebuy: false }]);
+  };
+
+  return (
+    <div className="space-y-2 bg-poker-yellow/5 border border-poker-gold/20 rounded-lg p-3 mb-3">
+      <div className="flex items-center gap-2 mb-1">
+        <label className="text-poker-yellow/50 text-[11px] whitespace-nowrap">Starting stack</label>
+        <input
+          type="number"
+          value={startingStack}
+          onChange={(e) => setStartingStack(Math.max(1, Number(e.target.value)))}
+          className="w-24 bg-poker-bg border border-poker-gold/25 text-poker-yellow text-xs px-2 py-1.5 rounded-md focus:outline-none focus:border-poker-gold/60"
+        />
+      </div>
+      {rows.map((r, i) => (
+        <div key={i} className="flex items-center gap-1.5">
+          <input
+            value={r.nick}
+            onChange={(e) => updateRow(i, { nick: e.target.value })}
+            placeholder="Nick"
+            className="min-w-0 flex-1 bg-poker-bg border border-poker-gold/25 text-poker-yellow text-xs px-2 py-1.5 rounded-md placeholder:text-poker-yellow/30 focus:outline-none focus:border-poker-gold/60"
+          />
+          <input
+            type="number"
+            value={r.place}
+            onChange={(e) => updateRow(i, { place: Math.max(1, Number(e.target.value)) })}
+            placeholder="Miejsce"
+            className="w-16 bg-poker-bg border border-poker-gold/25 text-poker-yellow text-xs px-2 py-1.5 rounded-md placeholder:text-poker-yellow/30 focus:outline-none focus:border-poker-gold/60"
+          />
+          <label className="flex items-center gap-1 text-[10px] text-poker-yellow/60 shrink-0 whitespace-nowrap">
+            <input type="checkbox" checked={r.rebuy} onChange={(e) => updateRow(i, { rebuy: e.target.checked })} />
+            rebuy
+          </label>
+          <button onClick={() => removeRow(i)} className="text-poker-coral text-xs px-1.5 shrink-0">✕</button>
+        </div>
+      ))}
+      <button
+        onClick={addRow}
+        className="w-full border border-dashed border-poker-gold/25 text-poker-yellow/50 text-xs py-1.5 rounded-md hover:text-poker-yellow/80 hover:border-poker-gold/40 transition"
+      >
+        + Dodaj gracza
+      </button>
+      <p className="text-poker-yellow/35 text-[10px]">
+        Pula = starting stack × (liczba graczy + liczba rebuyów). Nagrody 50/30/20% dla top 3 (albo 62.5/37.5% przy 2 graczach) liczą się automatycznie.
+      </p>
+      <div className="flex gap-2 pt-1">
+        <button
+          onClick={() => onSave(rows.filter((r) => r.nick.trim()), startingStack)}
+          className="flex-1 bg-poker-gold/15 border border-poker-gold/30 text-poker-yellow text-xs font-medium py-1.5 rounded-md active:scale-95 transition"
+        >
+          Zapisz
+        </button>
+        <button
+          onClick={onCancel}
+          className="flex-1 bg-poker-yellow/5 border border-poker-gold/15 text-poker-yellow/60 text-xs font-medium py-1.5 rounded-md active:scale-95 transition"
+        >
+          Anuluj
+        </button>
+      </div>
+    </div>
+  );
+}
+
 type Tab = 'week' | 'alltime' | 'tournaments';
 
 export default function PasjonaciResultsPage() {
@@ -215,6 +312,7 @@ export default function PasjonaciResultsPage() {
   const [verifying, setVerifying] = useState(false);
   const [editingSessionId, setEditingSessionId] = useState<string | null>(null);
   const [removeNick, setRemoveNick] = useState('');
+  const [showAddTournament, setShowAddTournament] = useState(false);
 
   const load = useCallback(async () => {
     const res = await getPasjonaciResults();
@@ -279,6 +377,32 @@ export default function PasjonaciResultsPage() {
     load();
   };
 
+  const handleAddTournament = async (rows: TournamentRow[], startingStack: number) => {
+    if (!adminPassword) return;
+    if (rows.length === 0) { alert('Dodaj przynajmniej jednego gracza'); return; }
+    const totalPlayers = rows.length;
+    const rebuyCount = rows.filter((r) => r.rebuy).length;
+    const poolTotal = startingStack * (totalPlayers + rebuyCount);
+    const shares = payoutShares(totalPlayers);
+    const results: TournamentRecordEntry[] = rows.map((r) => ({
+      nick: r.nick.trim(),
+      place: r.place,
+      amount: r.place <= shares.length ? Math.round(poolTotal * shares[r.place - 1]) : 0,
+    }));
+    const res = await addPasjonaciTournament(adminPassword, results, totalPlayers, poolTotal, rebuyCount);
+    if (!res.ok) { alert(res.error); return; }
+    setShowAddTournament(false);
+    load();
+  };
+
+  const handleDeleteTournament = async (id: string) => {
+    if (!adminPassword) return;
+    if (!confirm('Usunąć ten turniej z historii?')) return;
+    const res = await deletePasjonaciTournament(id, adminPassword);
+    if (!res.ok) { alert(res.error); return; }
+    load();
+  };
+
   if (error) {
     return (
       <main className="min-h-screen flex items-center justify-center p-4">
@@ -337,6 +461,18 @@ export default function PasjonaciResultsPage() {
 
         {activeTab === 'tournaments' ? (
           <div className="mb-8">
+            {adminPassword && (
+              showAddTournament ? (
+                <TournamentAddForm onSave={handleAddTournament} onCancel={() => setShowAddTournament(false)} />
+              ) : (
+                <button
+                  onClick={() => setShowAddTournament(true)}
+                  className="w-full border border-dashed border-poker-gold/25 text-poker-yellow/50 text-xs py-2 rounded-md hover:text-poker-yellow/80 hover:border-poker-gold/40 transition mb-3"
+                >
+                  + Dodaj turniej ręcznie
+                </button>
+              )
+            )}
             {tournaments.length === 0 ? (
               <p className="text-poker-yellow/40 text-xs text-center py-4">
                 Brak jeszcze żadnych turniejów. Stwórz stół turniejowy na{' '}
@@ -344,7 +480,7 @@ export default function PasjonaciResultsPage() {
               </p>
             ) : (
               <div className="space-y-2">
-                {tournaments.map((t) => <TournamentCard key={t.id} t={t} />)}
+                {tournaments.map((t) => <TournamentCard key={t.id} t={t} onDelete={adminPassword ? handleDeleteTournament : undefined} />)}
               </div>
             )}
           </div>

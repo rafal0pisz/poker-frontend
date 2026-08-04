@@ -45,3 +45,12 @@ export function scaleBlindLevels(levels: BlindLevel[], startingSmallBlind: numbe
     return { ...l, smallBlind, bigBlind: smallBlind * 2 };
   });
 }
+
+// Payout split by finishing place — mirrors poker-backend/src/tournament.ts
+// payoutShares() exactly. Used to compute prize amounts when manually
+// recording a tournament that finished outside the app.
+export function payoutShares(registeredCount: number): number[] {
+  if (registeredCount >= 3) return [0.5, 0.3, 0.2];
+  if (registeredCount === 2) return [0.625, 0.375];
+  return [1];
+}

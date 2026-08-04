@@ -24,18 +24,23 @@ const MEDALS: Record<number, string> = { 1: '🥇', 2: '🥈', 3: '🥉' };
 function TournamentCard({ t }: { t: TournamentRecord }) {
   return (
     <div className="bg-poker-yellow/5 border border-poker-gold/15 rounded-lg px-3 py-2.5">
-      <div className="flex items-center justify-between mb-2">
+      <div className="flex items-center justify-between mb-1">
         <p className="text-poker-gold text-sm font-medium">Turniej {t.number}</p>
         <p className="text-poker-yellow/40 text-[10px]">{formatDate(t.finishedAt)} · {t.totalPlayers} graczy</p>
       </div>
+      <p className="text-poker-yellow/40 text-[10px] mb-2">
+        Pula: {t.poolTotal}{t.rebuyCount > 0 ? ` · ${t.rebuyCount} dokupienie${t.rebuyCount === 1 ? '' : t.rebuyCount < 5 ? 'a' : 'ń'}` : ''}
+      </p>
       <div className="space-y-1">
         {t.results.map((r) => (
           <div key={r.nick} className="flex items-center justify-between text-xs">
-            <span className="text-poker-yellow flex items-center gap-1.5">
+            <span className={`flex items-center gap-1.5 ${r.amount > 0 ? 'text-poker-yellow' : 'text-poker-yellow/50'}`}>
               <span>{MEDALS[r.place] ?? `${r.place}.`}</span>
               {r.nick}
             </span>
-            <span className="text-poker-gold font-medium">+{r.amount}</span>
+            <span className={r.amount > 0 ? 'text-poker-gold font-medium' : 'text-poker-yellow/30'}>
+              {r.amount > 0 ? `+${r.amount}` : '—'}
+            </span>
           </div>
         ))}
       </div>

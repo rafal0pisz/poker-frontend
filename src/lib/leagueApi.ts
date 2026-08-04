@@ -69,7 +69,8 @@ export interface TournamentRecord {
   finishedAt: number;
   totalPlayers: number;
   poolTotal: number;
-  results: TournamentRecordEntry[];
+  rebuyCount: number;
+  results: TournamentRecordEntry[]; // every entrant, not just the paid places
 }
 
 async function parseJson(res: Response) {

@@ -61,6 +61,7 @@ export interface TournamentRecordEntry {
   nick: string;
   place: number;
   amount: number;
+  rebuy?: boolean; // whether THIS player used their one rebuy — needed for net profit/loss
 }
 
 export interface TournamentRecord {
@@ -70,6 +71,7 @@ export interface TournamentRecord {
   totalPlayers: number;
   poolTotal: number;
   rebuyCount: number;
+  startingStack?: number; // absent on records saved before this field existed
   results: TournamentRecordEntry[]; // every entrant, not just the paid places
 }
 
@@ -159,8 +161,9 @@ export async function addPasjonaciTournament(
   totalPlayers: number,
   poolTotal: number,
   rebuyCount: number,
+  startingStack: number,
 ): Promise<{ ok: true; tournament: TournamentRecord } | { ok: false; error: string }> {
-  const res = await postJson('/api/pasjonaci/admin/tournament/add', { password, results, totalPlayers, poolTotal, rebuyCount });
+  const res = await postJson('/api/pasjonaci/admin/tournament/add', { password, results, totalPlayers, poolTotal, rebuyCount, startingStack });
   return parseJson(res);
 }
 

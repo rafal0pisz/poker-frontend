@@ -43,17 +43,32 @@ function TournamentCard({ t, onDelete }: { t: TournamentRecord; onDelete?: (id: 
         Pula: {t.poolTotal}{t.rebuyCount > 0 ? ` · ${t.rebuyCount} dokupie${t.rebuyCount === 1 ? 'nie' : t.rebuyCount < 5 ? 'nia' : 'ń'}` : ''}
       </p>
       <div className="space-y-1">
-        {t.results.map((r) => (
-          <div key={r.nick} className="flex items-center justify-between text-xs">
-            <span className={`flex items-center gap-1.5 ${r.amount > 0 ? 'text-poker-yellow' : 'text-poker-yellow/50'}`}>
-              <span>{MEDALS[r.place] ?? `${r.place}.`}</span>
-              {r.nick}
-            </span>
-            <span className={r.amount > 0 ? 'text-poker-gold font-medium' : 'text-poker-yellow/30'}>
-              {r.amount > 0 ? `+${r.amount}` : '—'}
-            </span>
-          </div>
-        ))}
+        {t.results.map((r) => {
+          // Net profit/loss = prize won - total invested (starting stack, x2
+          // if this player used their rebuy). Only computable on records that
+          // saved startingStack (added alongside the per-player rebuy flag) —
+          // older manually-migrated records won't have it.
+          const invested = t.startingStack != null ? t.startingStack * (1 + (r.rebuy ? 1 : 0)) : null;
+          const net = invested != null ? r.amount - invested : null;
+          return (
+            <div key={r.nick} className="flex items-center justify-between text-xs">
+              <span className={`flex items-center gap-1.5 ${r.amount > 0 ? 'text-poker-yellow' : 'text-poker-yellow/50'}`}>
+                <span>{MEDALS[r.place] ?? `${r.place}.`}</span>
+                {r.nick}
+              </span>
+              <span className="flex items-center gap-2">
+                <span className={r.amount > 0 ? 'text-poker-gold font-medium' : 'text-poker-yellow/30'}>
+                  {r.amount > 0 ? `+${r.amount}` : '—'}
+                </span>
+                {net !== null && (
+                  <span className={`text-[10px] ${net > 0 ? 'text-green-400' : net < 0 ? 'text-poker-coral' : 'text-poker-yellow/40'}`}>
+                    ({formatNet(net)})
+                  </span>
+                )}
+              </span>
+            </div>
+          );
+        })}
       </div>
     </div>
   );
@@ -388,8 +403,9 @@ export default function PasjonaciResultsPage() {
       nick: r.nick.trim(),
       place: r.place,
       amount: r.place <= shares.length ? Math.round(poolTotal * shares[r.place - 1]) : 0,
+      rebuy: r.rebuy,
     }));
-    const res = await addPasjonaciTournament(adminPassword, results, totalPlayers, poolTotal, rebuyCount);
+    const res = await addPasjonaciTournament(adminPassword, results, totalPlayers, poolTotal, rebuyCount, startingStack);
     if (!res.ok) { alert(res.error); return; }
     setShowAddTournament(false);
     load();

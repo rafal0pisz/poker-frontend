@@ -1041,7 +1041,12 @@ export function PokerTable({ initialRoom, mySessionToken, onLeave }: Props) {
               })}
             </div>
           )}
-          {gameState && <p className="text-center text-[10px] text-poker-gold/60 tracking-widest mt-2 uppercase">{VARIANT_LABELS[currentVariant]} · #{gameState.handNumber}</p>}
+          {gameState && (
+            <p className="text-center text-[10px] text-poker-gold/60 tracking-widest mt-2 uppercase">
+              {room.settings.pasjonaciTable && <span className="text-poker-gold">Pasjonaci · </span>}
+              {VARIANT_LABELS[currentVariant]} · #{gameState.handNumber}
+            </p>
+          )}
           <ResultPanel lastResult={lastResult} players={room.players} resultMessage={resultMessage} />
         </div>
 

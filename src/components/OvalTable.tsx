@@ -510,7 +510,12 @@ export function OvalTable({
                   })}
                 </div>
               )}
-              {gameState && <p style={{ fontSize: 9, color: 'rgba(var(--pk-gold-rgb),0.4)', letterSpacing: '0.06em', textTransform: 'uppercase' }}>{VARIANT_LABELS[currentVariant]} · #{gameState.handNumber}</p>}
+              {gameState && (
+                <p style={{ fontSize: 9, color: 'rgba(var(--pk-gold-rgb),0.4)', letterSpacing: '0.06em', textTransform: 'uppercase' }}>
+                  {room.settings.pasjonaciTable && <span style={{ color: 'rgb(var(--pk-gold-rgb))' }}>Pasjonaci · </span>}
+                  {VARIANT_LABELS[currentVariant]} · #{gameState.handNumber}
+                </p>
+              )}
             </div>
 
             {/* Opponent seats */}

@@ -10,10 +10,10 @@ import {
   deletePasjonaciSession,
   editPasjonaciSession,
   removePasjonaciPlayer,
+  resetPasjonaciLedger,
   addPasjonaciTournament,
   deletePasjonaciTournament,
   type PasjonaciView,
-  type PlayerBalance,
   type Settlement,
   type Payment,
   type LeagueSession,
@@ -82,29 +82,7 @@ function formatNet(net: number): string {
   return net > 0 ? `+${net}` : `${net}`;
 }
 
-function BalanceRow({ b }: { b: PlayerBalance }) {
-  return (
-    <div className="flex items-center justify-between px-3 py-2 bg-poker-yellow/5 rounded-lg">
-      <div>
-        <span className="text-poker-yellow text-sm">{b.nick}</span>
-        <span className="text-poker-yellow/40 text-[10px] ml-2">{b.sessionsPlayed}x</span>
-      </div>
-      <span className={`text-sm font-medium ${b.net > 0 ? 'text-green-400' : b.net < 0 ? 'text-poker-coral' : 'text-poker-yellow/50'}`}>
-        {formatNet(b.net)}
-      </span>
-    </div>
-  );
-}
-
-function SettlementList({
-  settlements,
-  periodId,
-  onPay,
-}: {
-  settlements: Settlement[];
-  periodId: number | 'all-time';
-  onPay: (periodId: number | 'all-time', s: Settlement) => void;
-}) {
+function SettlementList({ settlements, onPay }: { settlements: Settlement[]; onPay: (s: Settlement) => void }) {
   if (settlements.length === 0) {
     return <p className="text-poker-yellow/40 text-xs text-center py-3">Wszyscy rozliczeni ✓</p>;
   }
@@ -117,7 +95,7 @@ function SettlementList({
             <span className="font-medium text-poker-gold">{s.amount}</span> żetonów <span className="font-medium">{s.to}</span>
           </span>
           <button
-            onClick={() => onPay(periodId, s)}
+            onClick={() => onPay(s)}
             className="shrink-0 text-[11px] text-green-400 border border-green-500/30 bg-green-500/5 px-2 py-1 rounded-md active:scale-95 transition hover:bg-green-500/10"
           >
             ✓ Opłacone
@@ -128,15 +106,7 @@ function SettlementList({
   );
 }
 
-function PaymentHistoryList({
-  payments,
-  periodId,
-  onUndo,
-}: {
-  payments: Payment[];
-  periodId: number | 'all-time';
-  onUndo: (periodId: number | 'all-time', paymentId: string) => void;
-}) {
+function PaymentHistoryList({ payments, onUndo }: { payments: Payment[]; onUndo: (paymentId: string) => void }) {
   if (payments.length === 0) {
     return <p className="text-poker-yellow/40 text-xs text-center py-3">Brak jeszcze żadnych wpłat</p>;
   }
@@ -149,13 +119,93 @@ function PaymentHistoryList({
             <span className="font-medium">{p.amount}</span>
           </span>
           <button
-            onClick={() => onUndo(periodId, p.id)}
+            onClick={() => onUndo(p.id)}
             className="shrink-0 text-[11px] text-poker-yellow/50 border border-poker-gold/20 px-2 py-1 rounded-md active:scale-95 transition hover:text-poker-yellow/80"
           >
             ↩ Cofnij
           </button>
         </div>
       ))}
+    </div>
+  );
+}
+
+// One game/session = one fully self-contained card: its own results, its
+// own settlement (who owes whom for THIS game), and its own paid history —
+// nothing here aggregates across other sessions.
+function GameCard({
+  session,
+  isAdmin,
+  isEditing,
+  isExpanded,
+  onToggleExpanded,
+  onEdit,
+  onSave,
+  onCancel,
+  onDelete,
+  onPay,
+  onUndo,
+}: {
+  session: LeagueSession;
+  isAdmin: boolean;
+  isEditing: boolean;
+  isExpanded: boolean;
+  onToggleExpanded: () => void;
+  onEdit: () => void;
+  onSave: (results: LeagueSessionResult[]) => void;
+  onCancel: () => void;
+  onDelete: () => void;
+  onPay: (s: Settlement) => void;
+  onUndo: (paymentId: string) => void;
+}) {
+  return (
+    <div className="bg-poker-yellow/5 border border-poker-gold/15 rounded-lg px-3 py-2.5">
+      <div className="flex items-center justify-between mb-2">
+        <p className="text-poker-yellow/50 text-[10px]">{formatDate(session.playedAt)}</p>
+        {isAdmin && !isEditing && (
+          <div className="flex items-center gap-2.5">
+            <button onClick={onEdit} className="text-poker-yellow/50 text-[10px] hover:text-poker-yellow transition">
+              ✏️ Edytuj
+            </button>
+            <button onClick={onDelete} className="text-poker-coral text-[10px] hover:text-poker-coral/70 transition">
+              🗑 Usuń
+            </button>
+          </div>
+        )}
+      </div>
+
+      {isEditing ? (
+        <SessionEditForm session={session} onSave={onSave} onCancel={onCancel} />
+      ) : (
+        <>
+          <div className="space-y-1 mb-3">
+            {session.results.map((r) => (
+              <div key={r.nick} className="flex items-center justify-between text-xs">
+                <span className="text-poker-yellow">{r.nick}</span>
+                <span className={r.netResult >= 0 ? 'text-green-400' : 'text-poker-coral'}>{formatNet(r.netResult)}</span>
+              </div>
+            ))}
+          </div>
+
+          <div className="pt-2 border-t border-poker-gold/10">
+            <p className="text-poker-yellow/40 text-[10px] uppercase tracking-wide mb-1.5">Rozliczenie</p>
+            <SettlementList settlements={session.settlements} onPay={onPay} />
+          </div>
+
+          {session.payments.length > 0 && (
+            <div className="mt-2">
+              <button onClick={onToggleExpanded} className="text-poker-yellow/40 text-[10px] flex items-center gap-1">
+                Historia wpłat ({session.payments.length}) {isExpanded ? '▲' : '▼'}
+              </button>
+              {isExpanded && (
+                <div className="mt-1.5">
+                  <PaymentHistoryList payments={session.payments} onUndo={onUndo} />
+                </div>
+              )}
+            </div>
+          )}
+        </>
+      )}
     </div>
   );
 }
@@ -310,16 +360,15 @@ function TournamentAddForm({
   );
 }
 
-type Tab = 'week' | 'alltime' | 'tournaments';
+type Tab = 'games' | 'tournaments';
 
 export default function PasjonaciResultsPage() {
   const [league, setLeague] = useState<PasjonaciView | null>(null);
   const [tournaments, setTournaments] = useState<TournamentRecord[]>([]);
   const [error, setError] = useState<string | null>(null);
-  const [activeTab, setActiveTab] = useState<Tab>('week');
-  const [showHistory, setShowHistory] = useState(false);
+  const [activeTab, setActiveTab] = useState<Tab>('games');
+  const [expandedPayments, setExpandedPayments] = useState<Record<string, boolean>>({});
 
-  const [showPaymentHistory, setShowPaymentHistory] = useState(false);
   const [showAdminPrompt, setShowAdminPrompt] = useState(false);
   const [adminPasswordInput, setAdminPasswordInput] = useState('');
   const [adminPassword, setAdminPassword] = useState<string | null>(null);
@@ -328,6 +377,7 @@ export default function PasjonaciResultsPage() {
   const [editingSessionId, setEditingSessionId] = useState<string | null>(null);
   const [removeNick, setRemoveNick] = useState('');
   const [showAddTournament, setShowAddTournament] = useState(false);
+  const [resetting, setResetting] = useState(false);
 
   const load = useCallback(async () => {
     const res = await getPasjonaciResults();
@@ -343,16 +393,16 @@ export default function PasjonaciResultsPage() {
 
   useEffect(() => { load(); }, [load]);
 
-  const handlePaySettlement = async (periodId: number | 'all-time', s: Settlement) => {
-    if (!confirm(`Oznaczyć jako opłacone: ${s.from} → ${s.to}, ${s.amount} żetonów?\n\nTo trwale zmniejszy dług — kolejne sesje nie przywrócą tej kwoty.`)) return;
-    const res = await payLeagueSettlement(periodId, s.from, s.to, s.amount);
+  const handlePaySettlement = async (sessionId: string, s: Settlement) => {
+    if (!confirm(`Oznaczyć jako opłacone: ${s.from} → ${s.to}, ${s.amount} żetonów?\n\nTo trwale zmniejszy dług dla tej gry — nie da się tego cofnąć poza przyciskiem "Cofnij".`)) return;
+    const res = await payLeagueSettlement(sessionId, s.from, s.to, s.amount);
     if (!res.ok) { alert(res.error); return; }
     load();
   };
 
-  const handleUndoPayment = async (periodId: number | 'all-time', paymentId: string) => {
-    if (!confirm('Cofnąć tę wpłatę? Dług wróci do rozliczenia.')) return;
-    const res = await undoLeaguePayment(periodId, paymentId);
+  const handleUndoPayment = async (sessionId: string, paymentId: string) => {
+    if (!confirm('Cofnąć tę wpłatę? Dług wróci do rozliczenia tej gry.')) return;
+    const res = await undoLeaguePayment(sessionId, paymentId);
     if (!res.ok) { alert(res.error); return; }
     load();
   };
@@ -369,7 +419,7 @@ export default function PasjonaciResultsPage() {
 
   const handleDeleteSession = async (id: string) => {
     if (!adminPassword) return;
-    if (!confirm('Usunąć tę sesję z historii i rankingu?')) return;
+    if (!confirm('Usunąć tę grę z historii?')) return;
     const res = await deletePasjonaciSession(id, adminPassword);
     if (!res.ok) { alert(res.error); return; }
     load();
@@ -385,10 +435,21 @@ export default function PasjonaciResultsPage() {
 
   const handleRemovePlayer = async () => {
     if (!adminPassword || !removeNick.trim()) return;
-    if (!confirm(`Usunąć gracza "${removeNick.trim()}" ze wszystkich wyników i rankingu?`)) return;
+    if (!confirm(`Usunąć gracza "${removeNick.trim()}" ze wszystkich gier w historii?`)) return;
     const res = await removePasjonaciPlayer(removeNick.trim(), adminPassword);
     if (!res.ok) { alert(res.error); return; }
     setRemoveNick('');
+    load();
+  };
+
+  const handleResetLedger = async () => {
+    if (!adminPassword) return;
+    if (!confirm('Zresetować WSZYSTKIE wyniki cash game? Usunie to każdą grę, jej rozliczenie i historię wpłat. Turnieje zostaną nietknięte.')) return;
+    if (!confirm('To naprawdę nieodwracalne — dane przepadną na zawsze. Kontynuować?')) return;
+    setResetting(true);
+    const res = await resetPasjonaciLedger(adminPassword);
+    setResetting(false);
+    if (!res.ok) { alert(res.error); return; }
     load();
   };
 
@@ -438,9 +499,6 @@ export default function PasjonaciResultsPage() {
     );
   }
 
-  const activePeriod = activeTab === 'alltime' ? league.allTime : league.currentPeriod;
-  const activePeriodId: number | 'all-time' = activeTab === 'alltime' ? 'all-time' : league.currentPeriod.startedAt;
-
   return (
     <main className="min-h-screen p-4 pb-12">
       <div className="max-w-md mx-auto">
@@ -450,22 +508,16 @@ export default function PasjonaciResultsPage() {
         </div>
         <h1 className="font-serif italic text-2xl text-poker-gold text-center mt-2 mb-1">🏆 Pasjonaci</h1>
         <p className="text-poker-yellow/40 text-xs text-center mb-6">
-          Wspólne wyniki wszystkich stołów utworzonych z pokero.pl/pasjonaci
+          Wspólne wyniki wszystkich stołów utworzonych z pokero.pl/pasjonaci — każda gra rozliczana osobno
         </p>
 
         {/* Tab toggle */}
         <div className="flex bg-poker-yellow/5 border border-poker-gold/20 rounded-lg p-1 mb-4">
           <button
-            onClick={() => setActiveTab('week')}
-            className={`flex-1 py-2 rounded-md text-xs font-medium transition ${activeTab === 'week' ? 'bg-poker-gold text-poker-bg' : 'text-poker-yellow/60'}`}
+            onClick={() => setActiveTab('games')}
+            className={`flex-1 py-2 rounded-md text-xs font-medium transition ${activeTab === 'games' ? 'bg-poker-gold text-poker-bg' : 'text-poker-yellow/60'}`}
           >
-            Ten tydzień
-          </button>
-          <button
-            onClick={() => setActiveTab('alltime')}
-            className={`flex-1 py-2 rounded-md text-xs font-medium transition ${activeTab === 'alltime' ? 'bg-poker-gold text-poker-bg' : 'text-poker-yellow/60'}`}
-          >
-            Cały czas
+            Gry
           </button>
           <button
             onClick={() => setActiveTab('tournaments')}
@@ -501,131 +553,36 @@ export default function PasjonaciResultsPage() {
             )}
           </div>
         ) : (
-          <>
-        {activeTab === 'week' && (
-          <p className="text-poker-yellow/40 text-[11px] text-center mb-3">
-            Trwa od {formatDate(activePeriod.startedAt)} · automatyczny reset po 7 dniach
-          </p>
-        )}
-
-        {/* Ranking */}
-        <div className="mb-5">
-          <p className="text-poker-yellow/60 text-xs uppercase tracking-wide mb-2">Ranking</p>
-          {activePeriod.balances.length === 0 ? (
-            <p className="text-poker-yellow/40 text-xs text-center py-4">
-              Brak jeszcze żadnych sesji w tym okresie. Stwórz stół na{' '}
-              <a href="/pasjonaci" className="text-poker-gold underline">pokero.pl/pasjonaci</a>, żeby zaczęły się liczyć.
-            </p>
-          ) : (
-            <div className="space-y-1.5">
-              {activePeriod.balances.map((b) => <BalanceRow key={b.nick} b={b} />)}
-            </div>
-          )}
-        </div>
-
-        {/* Settlement */}
-        <div className="mb-5">
-          <p className="text-poker-yellow/60 text-xs uppercase tracking-wide mb-2">Rozliczenie</p>
-          <p className="text-poker-yellow/35 text-[11px] mb-2">
-            Kliknij &quot;Opłacone&quot;, gdy oddasz swój dług — trwale zmniejsza go, kolejne sesje nie przywrócą tej kwoty.
-          </p>
-          <SettlementList settlements={activePeriod.settlements} periodId={activePeriodId} onPay={handlePaySettlement} />
-        </div>
-
-        {/* Payment history */}
-        {activePeriod.payments.length > 0 && (
-          <div className="mb-6">
-            <button
-              onClick={() => setShowPaymentHistory((v) => !v)}
-              className="text-poker-yellow/60 text-xs uppercase tracking-wide mb-2 flex items-center gap-1"
-            >
-              Historia wpłat ({activePeriod.payments.length}) {showPaymentHistory ? '▲' : '▼'}
-            </button>
-            {showPaymentHistory && (
-              <PaymentHistoryList payments={activePeriod.payments} periodId={activePeriodId} onUndo={handleUndoPayment} />
-            )}
-          </div>
-        )}
-
-        {/* Past periods */}
-        {league.pastPeriods.length > 0 && (
-          <div className="mb-5">
-            <p className="text-poker-yellow/60 text-xs uppercase tracking-wide mb-2">Poprzednie tygodnie</p>
-            <div className="space-y-2">
-              {league.pastPeriods.map((p, i) => (
-                <details key={i} className="bg-poker-yellow/5 border border-poker-gold/15 rounded-lg px-3 py-2">
-                  <summary className="text-poker-yellow text-xs cursor-pointer">
-                    {formatDate(p.startedAt)} – {p.endedAt ? formatDate(p.endedAt) : '?'}
-                  </summary>
-                  <div className="mt-2 space-y-1">
-                    {p.balances.map((b) => <BalanceRow key={b.nick} b={b} />)}
-                  </div>
-                  <div className="mt-2">
-                    <SettlementList settlements={p.settlements} periodId={p.startedAt} onPay={handlePaySettlement} />
-                  </div>
-                  {p.payments.length > 0 && (
-                    <div className="mt-2">
-                      <p className="text-poker-yellow/40 text-[10px] uppercase tracking-wide mb-1.5">Historia wpłat</p>
-                      <PaymentHistoryList payments={p.payments} periodId={p.startedAt} onUndo={handleUndoPayment} />
-                    </div>
-                  )}
-                </details>
-              ))}
-            </div>
-          </div>
-        )}
-
-        {/* Session history */}
-        {league.sessions.length > 0 && (
           <div className="mb-8">
-            <button
-              onClick={() => setShowHistory((v) => !v)}
-              className="text-poker-yellow/60 text-xs uppercase tracking-wide mb-2 flex items-center gap-1"
-            >
-              Historia sesji ({league.sessions.length}) {showHistory ? '▲' : '▼'}
-            </button>
-            {showHistory && (
-              <div className="space-y-2">
+            <p className="text-poker-yellow/35 text-[11px] mb-3">
+              Każda gra ma własne rozliczenie — kliknij &quot;Opłacone&quot;, gdy dług z TEJ gry zostanie oddany.
+            </p>
+            {league.sessions.length === 0 ? (
+              <p className="text-poker-yellow/40 text-xs text-center py-4">
+                Brak jeszcze żadnych gier. Stwórz stół na{' '}
+                <a href="/pasjonaci" className="text-poker-gold underline">pokero.pl/pasjonaci</a>, żeby zaczęły się liczyć.
+              </p>
+            ) : (
+              <div className="space-y-3">
                 {league.sessions.map((s) => (
-                  <div key={s.id} className="bg-poker-yellow/5 border border-poker-gold/15 rounded-lg px-3 py-2">
-                    <div className="flex items-center justify-between mb-1.5">
-                      <p className="text-poker-yellow/50 text-[10px]">{formatDate(s.playedAt)}</p>
-                      {adminPassword && editingSessionId !== s.id && (
-                        <div className="flex items-center gap-2.5">
-                          <button onClick={() => setEditingSessionId(s.id)} className="text-poker-yellow/50 text-[10px] hover:text-poker-yellow transition">
-                            ✏️ Edytuj
-                          </button>
-                          <button onClick={() => handleDeleteSession(s.id)} className="text-poker-coral text-[10px] hover:text-poker-coral/70 transition">
-                            🗑 Usuń
-                          </button>
-                        </div>
-                      )}
-                    </div>
-                    {editingSessionId === s.id ? (
-                      <SessionEditForm
-                        session={s}
-                        onSave={(results) => handleSaveSession(s.id, results)}
-                        onCancel={() => setEditingSessionId(null)}
-                      />
-                    ) : (
-                      <div className="space-y-1">
-                        {s.results.map((r) => (
-                          <div key={r.nick} className="flex items-center justify-between text-xs">
-                            <span className="text-poker-yellow">{r.nick}</span>
-                            <span className={r.netResult >= 0 ? 'text-green-400' : 'text-poker-coral'}>
-                              {formatNet(r.netResult)}
-                            </span>
-                          </div>
-                        ))}
-                      </div>
-                    )}
-                  </div>
+                  <GameCard
+                    key={s.id}
+                    session={s}
+                    isAdmin={!!adminPassword}
+                    isEditing={editingSessionId === s.id}
+                    isExpanded={!!expandedPayments[s.id]}
+                    onToggleExpanded={() => setExpandedPayments((prev) => ({ ...prev, [s.id]: !prev[s.id] }))}
+                    onEdit={() => setEditingSessionId(s.id)}
+                    onSave={(results) => handleSaveSession(s.id, results)}
+                    onCancel={() => setEditingSessionId(null)}
+                    onDelete={() => handleDeleteSession(s.id)}
+                    onPay={(s2) => handlePaySettlement(s.id, s2)}
+                    onUndo={(paymentId) => handleUndoPayment(s.id, paymentId)}
+                  />
                 ))}
               </div>
             )}
           </div>
-        )}
-          </>
         )}
 
         {/* Admin */}
@@ -659,9 +616,9 @@ export default function PasjonaciResultsPage() {
             </div>
           )}
           {adminPassword && (
-            <div className="mt-3 bg-poker-yellow/5 border border-poker-gold/20 rounded-lg p-3 space-y-2">
+            <div className="mt-3 bg-poker-yellow/5 border border-poker-gold/20 rounded-lg p-3 space-y-3">
               <p className="text-poker-yellow/60 text-[11px]">
-                ✓ Tryb administratora. Edytuj/usuń sesje w historii powyżej albo usuń gracza z rankingu:
+                ✓ Tryb administratora. Edytuj/usuń gry na liście powyżej albo usuń gracza z całej historii:
               </p>
               <div className="flex gap-2">
                 <input
@@ -674,7 +631,19 @@ export default function PasjonaciResultsPage() {
                   onClick={handleRemovePlayer}
                   className="bg-poker-coral/10 border border-poker-coral/30 text-poker-coral text-xs font-medium px-3 rounded-lg active:scale-95 transition"
                 >
-                  Usuń z rankingu
+                  Usuń z historii
+                </button>
+              </div>
+              <div className="pt-2 border-t border-poker-gold/10">
+                <p className="text-poker-yellow/40 text-[10px] mb-1.5">
+                  Nieodwracalne — usuwa wszystkie gry, rozliczenia i wpłaty (turnieje zostają).
+                </p>
+                <button
+                  onClick={handleResetLedger}
+                  disabled={resetting}
+                  className="w-full bg-poker-coral/10 border border-poker-coral/40 text-poker-coral text-xs font-medium py-2 rounded-lg active:scale-95 transition disabled:opacity-40"
+                >
+                  {resetting ? 'Resetowanie...' : '⚠ Zresetuj wszystkie wyniki'}
                 </button>
               </div>
             </div>

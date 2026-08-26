@@ -1,9 +1,12 @@
 // "Pasjonaci" results API client — plain REST calls to the backend's
 // /api/pasjonaci endpoints (see poker-backend/src/league-store.ts). There is
 // exactly one shared ledger; results are written server-side, silently,
-// after every hand on a table created via /pasjonaci. This module reads the
-// ledger, lets anyone confirm their own settlement, and (password-gated)
-// lets an admin edit/delete a session or remove a player from the ranking.
+// after every hand on a table created via /pasjonaci. Settlement is entirely
+// per-session — no aggregation across sessions — so each game's "who owes
+// whom" and "paid" history stands on its own. This module reads the ledger,
+// lets anyone confirm their own settlement, and (password-gated) lets an
+// admin edit/delete a session, remove a player from history, or reset the
+// whole ledger.
 const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:4000';
 
 export interface LeagueSessionResult {
@@ -11,18 +14,6 @@ export interface LeagueSessionResult {
   totalBuyIn: number;
   finalChips: number;
   netResult: number;
-}
-
-export interface LeagueSession {
-  id: string;
-  playedAt: number;
-  results: LeagueSessionResult[];
-}
-
-export interface PlayerBalance {
-  nick: string;
-  net: number;
-  sessionsPlayed: number;
 }
 
 export interface Settlement {
@@ -39,19 +30,16 @@ export interface Payment {
   paidAt: number;
 }
 
-export interface LeaguePeriodView {
-  startedAt: number;
-  endedAt: number | null;
-  balances: PlayerBalance[];
-  settlements: Settlement[];
-  payments: Payment[];
+export interface LeagueSession {
+  id: string;
+  playedAt: number;
+  results: LeagueSessionResult[];
+  settlements: Settlement[]; // still-outstanding debt for THIS session
+  payments: Payment[]; // history for THIS session, newest first
 }
 
 export interface PasjonaciView {
-  currentPeriod: LeaguePeriodView;
-  pastPeriods: LeaguePeriodView[];
-  allTime: LeaguePeriodView;
-  sessions: LeagueSession[];
+  sessions: LeagueSession[]; // newest first
 }
 
 // Finished tournaments — a completely separate record from the cash-game
@@ -106,20 +94,20 @@ export async function getPasjonaciTournaments(): Promise<
 }
 
 export async function payLeagueSettlement(
-  periodId: number | 'all-time',
+  sessionId: string,
   from: string,
   to: string,
   amount: number,
 ): Promise<{ ok: true } | { ok: false; error: string }> {
-  const res = await postJson('/api/pasjonaci/settlement/pay', { periodId, from, to, amount });
+  const res = await postJson('/api/pasjonaci/settlement/pay', { sessionId, from, to, amount });
   return parseJson(res);
 }
 
 export async function undoLeaguePayment(
-  periodId: number | 'all-time',
+  sessionId: string,
   paymentId: string,
 ): Promise<{ ok: true } | { ok: false; error: string }> {
-  const res = await postJson('/api/pasjonaci/settlement/undo-payment', { periodId, paymentId });
+  const res = await postJson('/api/pasjonaci/settlement/undo-payment', { sessionId, paymentId });
   return parseJson(res);
 }
 
@@ -150,6 +138,13 @@ export async function removePasjonaciPlayer(
   password: string,
 ): Promise<{ ok: true } | { ok: false; error: string }> {
   const res = await postJson('/api/pasjonaci/admin/remove-player', { password, nick });
+  return parseJson(res);
+}
+
+// Wipes the entire cash-game ledger (every session, its results, and its
+// payment history). Tournaments are untouched. Irreversible.
+export async function resetPasjonaciLedger(password: string): Promise<{ ok: true } | { ok: false; error: string }> {
+  const res = await postJson('/api/pasjonaci/admin/reset', { password });
   return parseJson(res);
 }
 

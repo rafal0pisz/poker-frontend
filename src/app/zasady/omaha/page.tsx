@@ -81,7 +81,7 @@ export default function OmahaPage() {
             <p>Omaha jest najczęściej grana w wersji Pot Limit (PLO), gdzie maksymalny raise jest ograniczony do rozmiaru puli. Pełny opis: <Link href="/zasady/omaha-pot-limit/">Zasady Omaha Pot Limit →</Link></p>
 
             <h2>Omaha w Pokero</h2>
-            <p>W Pokero dostępna jest zarówno Omaha No Limit jak i Omaha Pot Limit. Reguła 2+3 jest egzekwowana automatycznie — silnik gry sam wybiera najlepszą kombinację zgodną z zasadami. W Dealer&apos;s Choice możesz wybrać Omaha lub PLO jako swój wariant na turę dealera.</p>
+            <p>W Pokero Omaha jest zawsze grana w wersji Pot Limit (PLO) — tak jak w większości pokojów na świecie. Reguła 2+3 jest egzekwowana automatycznie — silnik gry sam wybiera najlepszą kombinację zgodną z zasadami. W Dealer&apos;s Choice możesz wybrać Omaha jako swój wariant na turę dealera.</p>
           </div>
 
           <div style={{ marginTop: '2.5rem', display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>

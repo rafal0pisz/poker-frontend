@@ -21,14 +21,12 @@ import { TournamentHUD } from './TournamentHUD';
 
 const VARIANT_LABELS: Record<GameVariant, string> = {
   texas: "Texas Hold'em",
-  omaha: 'Omaha',
+  omaha: 'Omaha Pot Limit',
   pineapple: 'Crazy Pineapple',
   'pineapple-classic': 'Pineapple Classic',
-  'omaha-pl': 'Omaha Pot Limit',
-  'omaha5': 'Omaha (5-card)',
-  'omaha-hl': 'Omaha Hi-Lo',
-  'drawmaha-pl': 'Drawmaha Pot Limit',
-  drawmaha: 'Drawmaha',
+  'omaha5': 'Omaha 5-card Pot Limit',
+  'omaha-hl': 'Omaha Hi-Lo Pot Limit',
+  drawmaha: 'Drawmaha Pot Limit',
 };
 
 // 7 seat positions around the oval (as % of oval width/height)

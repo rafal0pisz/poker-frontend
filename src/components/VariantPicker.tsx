@@ -2,32 +2,30 @@
 
 import type { GameVariant } from '@/lib/types';
 
+// Texas and Pineapple are No Limit; every other variant is Pot Limit only
+// (see isPotLimitVariant) — no separate "-pl" choice anymore.
 export const VARIANT_LABELS: Record<GameVariant, string> = {
   texas: "Texas Hold'em",
-  omaha: 'Omaha (4-card)',
-  'omaha-pl': 'Omaha Pot Limit',
-  omaha5: 'Omaha (5-card)',
-  'omaha-hl': 'Omaha Hi-Lo',
-  drawmaha: 'Drawmaha',
-  'drawmaha-pl': 'Drawmaha Pot Limit',
+  omaha: 'Omaha Pot Limit',
+  omaha5: 'Omaha 5-card Pot Limit',
+  'omaha-hl': 'Omaha Hi-Lo Pot Limit',
+  drawmaha: 'Drawmaha Pot Limit',
   pineapple: 'Crazy Pineapple',
   'pineapple-classic': 'Pineapple Classic',
 };
 
 const VARIANT_DESCRIPTIONS: Record<GameVariant, string> = {
-  texas: 'Classic · 2 hole + 5 board',
-  omaha: '4 hole · must use 2 + 3 board',
-  'omaha-pl': '4 hole · must use exactly 2+3 · max bet = pot size',
-  omaha5: '5 hole · must use exactly 2 + 3 board',
-  'omaha-hl': '4 hole · split pot · best high + best low (8 or better)',
-  drawmaha: '5 hole · Five-card Draw · split pot (Omaha + Draw)',
-  'drawmaha-pl': '5 hole · draw + split pot · max bet = pot size',
-  pineapple: '3 hole · max 2 from hand · no discard',
-  'pineapple-classic': '3 hole · discard 1 after flop · Texas rules',
+  texas: 'Classic · 2 hole + 5 board · No Limit',
+  omaha: '4 hole · must use 2 + 3 board · max bet = pot size',
+  omaha5: '5 hole · must use exactly 2 + 3 board · max bet = pot size',
+  'omaha-hl': '4 hole · split pot · best high + best low (8 or better) · max bet = pot size',
+  drawmaha: '5 hole · Five-card Draw · split pot (Omaha + Draw) · max bet = pot size',
+  pineapple: '3 hole · max 2 from hand · no discard · No Limit',
+  'pineapple-classic': '3 hole · discard 1 after flop · Texas rules · No Limit',
 };
 
 // All variants are now fully implemented
-const AVAILABLE_VARIANTS: GameVariant[] = ['texas', 'omaha', 'omaha-pl', 'omaha5', 'omaha-hl', 'drawmaha', 'drawmaha-pl', 'pineapple'];
+const AVAILABLE_VARIANTS: GameVariant[] = ['texas', 'omaha', 'omaha5', 'omaha-hl', 'drawmaha', 'pineapple'];
 
 interface Props {
   currentVariant: GameVariant;

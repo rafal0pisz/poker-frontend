@@ -11,12 +11,10 @@ interface Props {
 
 const VARIANT_SHORT: Record<string, string> = {
   texas: "Hold'em",
-  omaha: 'Omaha',
-  'omaha-pl': 'Omaha PL',
-  omaha5: 'Omaha-5',
-  'omaha-hl': 'Omaha Hi-Lo',
-  drawmaha: 'Drawmaha',
-  'drawmaha-pl': 'Drawmaha PL',
+  omaha: 'Omaha PL',
+  omaha5: 'Omaha-5 PL',
+  'omaha-hl': 'Omaha Hi-Lo PL',
+  drawmaha: 'Drawmaha PL',
   pineapple: 'Pineapple',
   'pineapple-classic': 'Pineapple Classic',
 };

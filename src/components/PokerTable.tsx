@@ -775,7 +775,7 @@ export function PokerTable({ initialRoom, mySessionToken, onLeave }: Props) {
   }
 
   const currentVariant: GameVariant = gameState?.variant || 'texas';
-  const currentCardCount = (currentVariant === 'omaha' || currentVariant === 'omaha-pl' || currentVariant === 'omaha-hl') ? 4 : (currentVariant === 'omaha5' || isDrawmahaVariant(currentVariant)) ? 5 : (currentVariant === 'pineapple' || currentVariant === 'pineapple-classic') ? 3 : 2;
+  const currentCardCount = (currentVariant === 'omaha' || currentVariant === 'omaha-hl') ? 4 : (currentVariant === 'omaha5' || isDrawmahaVariant(currentVariant)) ? 5 : (currentVariant === 'pineapple' || currentVariant === 'pineapple-classic') ? 3 : 2;
 
   const isDrawPhase = gameState?.phase === 'draw';
   const isPineappleDiscardPhase = gameState?.phase === 'pineapple-discard';

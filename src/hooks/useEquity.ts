@@ -146,7 +146,7 @@ export function useEquity(
     const tid = setTimeout(() => {
       if (cancelled) return;
 
-      const isOmaha = variant === 'omaha' || variant === 'omaha-pl';
+      const isOmaha = variant === 'omaha';
       const board = communityCards as string[];
       const knownCards = new Set([
         ...players.flatMap(p => p.cards as string[]),

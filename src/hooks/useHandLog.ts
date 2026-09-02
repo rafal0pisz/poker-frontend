@@ -13,14 +13,12 @@ export interface LogEntry {
 
 const VARIANT_NAMES: Record<GameVariant, string> = {
   texas: "Texas Hold'em",
-  omaha: 'Omaha',
-  omaha5: 'Omaha (5-card)',
-  'omaha-hl': 'Omaha Hi-Lo',
-  drawmaha: 'Drawmaha',
+  omaha: 'Omaha Pot Limit',
+  omaha5: 'Omaha 5-card Pot Limit',
+  'omaha-hl': 'Omaha Hi-Lo Pot Limit',
+  drawmaha: 'Drawmaha Pot Limit',
   pineapple: 'Crazy Pineapple',
   'pineapple-classic': 'Pineapple Classic',
-  'omaha-pl': 'Omaha Pot Limit',
-  'drawmaha-pl': 'Drawmaha Pot Limit',
 };
 
 let _entryId = 0;

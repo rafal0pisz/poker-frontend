@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import type { Player, GameState, RoomSettings, ActionType } from '@/lib/types';
+import { isPotLimitVariant } from '@/lib/types';
 import { getSocket } from '@/lib/socket';
 
 interface Props {
@@ -46,7 +47,7 @@ export function ActionPanel({ me, gameState, settings, players }: Props) {
   const minRaiseAmount = gameState.currentBet + gameState.minRaise;
 
   // Pot Limit cap: max raise = currentBet + pot + toCall
-  const isPotLimit = gameState.variant === 'omaha-pl' || gameState.variant === 'drawmaha-pl';
+  const isPotLimit = isPotLimitVariant(gameState.variant);
 
   // Pot Limit max raise formula:
   // potLimitMax = currentBet + pot + toCall

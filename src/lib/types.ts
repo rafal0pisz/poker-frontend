@@ -5,11 +5,21 @@ export type Card = `${Rank}${Suit}`;
 
 export type PlayerRole = 'player' | 'vice-admin' | 'admin';
 
-export type GameVariant = 'texas' | 'omaha' | 'omaha-pl' | 'omaha5' | 'omaha-hl' | 'drawmaha' | 'drawmaha-pl' | 'pineapple' | 'pineapple-classic';
+// Texas and Pineapple are always No-Limit; every other variant is always Pot
+// Limit — see isPotLimitVariant below. There is no separate "-pl" variant
+// anymore (removed — Omaha/Omaha5/Omaha-HL/Drawmaha are pot-limit by
+// definition now, not a picker option).
+export type GameVariant = 'texas' | 'omaha' | 'omaha5' | 'omaha-hl' | 'drawmaha' | 'pineapple' | 'pineapple-classic';
 
 // Any variant using Drawmaha's 5-card-hole / draw-phase / split-pot rules.
 export function isDrawmahaVariant(variant: GameVariant | string | undefined): boolean {
-  return variant === 'drawmaha' || variant === 'drawmaha-pl';
+  return variant === 'drawmaha';
+}
+
+// Texas Hold'em and Pineapple stay No-Limit; every other variant (Omaha,
+// Omaha5, Omaha Hi-Lo, Drawmaha) is Pot Limit only.
+export function isPotLimitVariant(variant: GameVariant | string | undefined): boolean {
+  return variant !== 'texas' && variant !== 'pineapple' && variant !== 'pineapple-classic';
 }
 
 export type PlayerStatus =

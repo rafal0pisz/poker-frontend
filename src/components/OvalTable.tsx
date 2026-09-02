@@ -5,6 +5,8 @@ import type { Room, Card as CardType, HandResult, ChatMessage, GameVariant } fro
 import type { LogEntry } from '@/hooks/useHandLog';
 import { QUICK_REACTIONS } from '@/lib/reactions';
 import { ReactionImage } from './ReactionImage';
+import { MemeImage } from './MemeImage';
+import { MEMES } from '@/lib/memes';
 import { Card, CardPlaceholder } from './Card';
 import { PlayerSeat } from './PlayerSeat';
 import { ActionPanel } from './ActionPanel';
@@ -204,6 +206,7 @@ export interface OvalTableProps {
   messages: ChatMessage[];
   sendChat: (t: string) => void;
   sendReaction: (e: string) => void;
+  onSendMeme: (memeId: string) => void;
   showDiscardUI: boolean;
   showRevealUI: boolean;
   nextDealerVariant: GameVariant | null;
@@ -234,7 +237,7 @@ export function OvalTable({
   isShowdown, myHandShown, isSpectator, isEliminated, isAdmin, isSittingOut, canSitOut,
   muted, codeCopied, currentVariant, currentCardCount, isDrawPhase,
   revealedHands, sbSeat, bbSeat, prevCommCardCountRef,
-  myBubbleToShow, getBubble, messages, sendChat, sendReaction,
+  myBubbleToShow, getBubble, messages, sendChat, sendReaction, onSendMeme,
   showDiscardUI, nextDealerVariant, onLeave, onShowHand,
   onCopyCode, onToggleMute, onEnableAudio, onShowAdmin, onShowVariantPicker,
   drawUI, actionPanel, preActionButton, chipRequestUI, handLogs, unreadCount, playerStats,
@@ -278,6 +281,7 @@ export function OvalTable({
   const equityMap = Object.fromEntries(equityResults.map(e => [e.sessionToken, e.equity]));
   const [chatText, setChatText] = useState('');
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
+  const [showMemePicker, setShowMemePicker] = useState(false);
   const REACTIONS = QUICK_REACTIONS;
   const scrollRef = useRef<HTMLDivElement>(null);
 
@@ -375,7 +379,9 @@ export function OvalTable({
             : chatMessages.map(m => (
               <div key={m.id} style={{ fontSize: 11, lineHeight: 1.4, display: 'flex', alignItems: 'center', gap: 4 }}>
                 <span style={{ fontWeight: 600, color: m.senderSessionToken === mySessionToken ? 'rgb(var(--pk-gold-rgb))' : 'rgba(var(--pk-gold-rgb),0.6)' }}>{m.senderNick ?? 'You'}: </span>
-                {m.type === 'reaction' ? <ReactionImage value={m.content} size={22} /> : <span style={{ color: 'rgba(var(--pk-cream-rgb),0.7)' }}>{m.content}</span>}
+                {m.type === 'reaction' ? <ReactionImage value={m.content} size={22} />
+                  : m.type === 'meme' ? <MemeImage value={m.content} size={90} />
+                  : <span style={{ color: 'rgba(var(--pk-cream-rgb),0.7)' }}>{m.content}</span>}
                 <span style={{ fontSize: 9, color: 'rgba(var(--pk-cream-rgb),0.2)' }}>{formatTime(m.timestamp)}</span>
               </div>
             ))
@@ -446,11 +452,29 @@ export function OvalTable({
                 ))}
               </div>
             )}
+            {showMemePicker && room.settings.pasjonaciTable && (
+              <div style={{ borderTop: '1px solid rgba(var(--pk-gold-rgb),0.08)', padding: '7px 8px', display: 'flex', gap: 6, justifyContent: 'space-between' }}>
+                {MEMES.map(id => (
+                  <button key={id} onClick={() => { onSendMeme(id); setShowMemePicker(false); }}
+                    style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(var(--pk-gold-rgb),0.12)', borderRadius: 8, padding: 2, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'background .12s' }}
+                    onMouseEnter={ev => (ev.currentTarget.style.background = 'rgba(var(--pk-gold-rgb),0.14)')}
+                    onMouseLeave={ev => (ev.currentTarget.style.background = 'rgba(255,255,255,0.03)')}
+                  ><MemeImage value={id} size={40} /></button>
+                ))}
+              </div>
+            )}
             <div style={{ borderTop: '1px solid rgba(var(--pk-gold-rgb),0.08)', padding: 8, display: 'flex', gap: 6 }}>
               <button
                 onClick={() => setShowEmojiPicker(p => !p)}
                 style={{ width: 30, height: 30, background: showEmojiPicker ? 'rgba(var(--pk-gold-rgb),0.2)' : 'rgba(var(--pk-gold-rgb),0.06)', border: `1px solid ${showEmojiPicker ? 'rgba(var(--pk-gold-rgb),0.5)' : 'rgba(var(--pk-gold-rgb),0.15)'}`, borderRadius: 7, fontSize: 14, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}
               >😊</button>
+              {room.settings.pasjonaciTable && (
+                <button
+                  onClick={() => setShowMemePicker(p => !p)}
+                  title="Memy"
+                  style={{ width: 30, height: 30, background: showMemePicker ? 'rgba(var(--pk-gold-rgb),0.2)' : 'rgba(var(--pk-gold-rgb),0.06)', border: `1px solid ${showMemePicker ? 'rgba(var(--pk-gold-rgb),0.5)' : 'rgba(var(--pk-gold-rgb),0.15)'}`, borderRadius: 7, fontSize: 14, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}
+                >🎭</button>
+              )}
               <input
                 value={chatText}
                 onChange={e => setChatText(e.target.value)}

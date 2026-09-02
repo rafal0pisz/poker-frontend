@@ -3,7 +3,9 @@
 import { useEffect, useRef, useState } from 'react';
 import type { ChatMessage, Room } from '@/lib/types';
 import { QUICK_REACTIONS } from '@/lib/reactions';
+import { MEMES } from '@/lib/memes';
 import { ReactionImage } from './ReactionImage';
+import { MemeImage } from './MemeImage';
 
 const REACTIONS = QUICK_REACTIONS;
 
@@ -12,13 +14,17 @@ interface Props {
   mySessionToken: string;
   onSendChat: (text: string) => void;
   onSendReaction?: (emoji: string) => void;
+  // Only passed (by the parent) when this table is a Pasjonaci table —
+  // its mere presence gates whether the meme button/picker show at all.
+  onSendMeme?: (memeId: string) => void;
 }
 
-export function QuickChat({ messages, mySessionToken, onSendChat, onSendReaction }: Props) {
+export function QuickChat({ messages, mySessionToken, onSendChat, onSendReaction, onSendMeme }: Props) {
   const [open, setOpen] = useState(false);
   const [text, setText] = useState('');
   const [unread, setUnread] = useState(0);
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
+  const [showMemePicker, setShowMemePicker] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
   const prevLenRef = useRef(messages.length);
 
@@ -51,6 +57,11 @@ export function QuickChat({ messages, mySessionToken, onSendChat, onSendReaction
   const sendReaction = (emoji: string) => {
     onSendReaction?.(emoji);
     setShowEmojiPicker(false);
+  };
+
+  const sendMeme = (memeId: string) => {
+    onSendMeme?.(memeId);
+    setShowMemePicker(false);
   };
 
   const formatTime = (ts: number) =>
@@ -86,15 +97,19 @@ export function QuickChat({ messages, mySessionToken, onSendChat, onSendReaction
             ) : (
               chatMessages.map(m => {
                 const isReaction = m.type === 'reaction';
+                const isMeme = m.type === 'meme';
+                const isMedia = isReaction || isMeme;
                 return (
                   <div key={m.id} className="text-[11px] leading-snug flex items-center gap-1">
-                    {!isReaction && (
+                    {!isMedia && (
                       <span className="font-semibold" style={{ color: m.senderSessionToken === mySessionToken ? 'rgb(var(--pk-gold-rgb))' : 'rgba(var(--pk-gold-rgb),0.6)' }}>
                         {m.senderNick ?? 'You'}:{' '}
                       </span>
                     )}
-                    {isReaction ? <ReactionImage value={m.content} size={22} /> : <span className="text-poker-yellow/70">{m.content}</span>}
-                    {!isReaction && <span className="text-poker-yellow/25 text-[9px] ml-1">{formatTime(m.timestamp)}</span>}
+                    {isReaction ? <ReactionImage value={m.content} size={22} />
+                      : isMeme ? <MemeImage value={m.content} size={80} />
+                      : <span className="text-poker-yellow/70">{m.content}</span>}
+                    {!isMedia && <span className="text-poker-yellow/25 text-[9px] ml-1">{formatTime(m.timestamp)}</span>}
                   </div>
                 );
               })
@@ -115,6 +130,20 @@ export function QuickChat({ messages, mySessionToken, onSendChat, onSendReaction
             </div>
           )}
 
+          {/* Meme picker */}
+          {showMemePicker && onSendMeme && (
+            <div className="border-t border-poker-gold/10 px-3 py-2 flex gap-1.5 justify-between flex-wrap">
+              {MEMES.map(id => (
+                <button
+                  key={id}
+                  onClick={() => sendMeme(id)}
+                  className="py-1 rounded-lg active:scale-90 transition flex items-center justify-center"
+                  style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(var(--pk-gold-rgb),0.12)' }}
+                ><MemeImage value={id} size={44} /></button>
+              ))}
+            </div>
+          )}
+
           {/* Input */}
           <div className="border-t border-poker-gold/10 p-2 flex gap-2">
             {onSendReaction && (
@@ -123,6 +152,13 @@ export function QuickChat({ messages, mySessionToken, onSendChat, onSendReaction
                 className="w-8 h-8 rounded-lg text-sm flex items-center justify-center flex-shrink-0 transition-all"
                 style={{ background: showEmojiPicker ? 'rgba(var(--pk-gold-rgb),0.2)' : 'rgba(var(--pk-gold-rgb),0.06)', border: `1px solid ${showEmojiPicker ? 'rgba(var(--pk-gold-rgb),0.5)' : 'rgba(var(--pk-gold-rgb),0.15)'}` }}
               >😊</button>
+            )}
+            {onSendMeme && (
+              <button
+                onClick={() => setShowMemePicker(p => !p)}
+                className="w-8 h-8 rounded-lg text-sm flex items-center justify-center flex-shrink-0 transition-all"
+                style={{ background: showMemePicker ? 'rgba(var(--pk-gold-rgb),0.2)' : 'rgba(var(--pk-gold-rgb),0.06)', border: `1px solid ${showMemePicker ? 'rgba(var(--pk-gold-rgb),0.5)' : 'rgba(var(--pk-gold-rgb),0.15)'}` }}
+              >🎭</button>
             )}
             <input
               value={text}

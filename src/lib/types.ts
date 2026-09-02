@@ -257,7 +257,7 @@ export interface GameState {
 }
 
 // Chat
-export type ChatMessageType = 'text' | 'reaction' | 'system';
+export type ChatMessageType = 'text' | 'reaction' | 'meme' | 'system';
 
 export interface ChatMessage {
   id: string;

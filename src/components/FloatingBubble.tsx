@@ -2,6 +2,7 @@
 
 import type { ChatMessage } from '@/lib/types';
 import { ReactionImage } from './ReactionImage';
+import { MemeImage } from './MemeImage';
 
 interface Props {
   message: ChatMessage | null;
@@ -17,6 +18,8 @@ export function FloatingBubble({ message, position = 'above' }: Props) {
   if (!message) return null;
 
   const isReaction = message.type === 'reaction';
+  const isMeme = message.type === 'meme';
+  const isMedia = isReaction || isMeme;
 
   const arrowStyles =
     position === 'above'
@@ -44,13 +47,15 @@ export function FloatingBubble({ message, position = 'above' }: Props) {
     >
       <div
         className={
-          isReaction
+          isMedia
             ? ''
             : 'bg-white text-poker-bg px-3 py-1.5 rounded-2xl text-xs font-medium whitespace-nowrap max-w-[180px] truncate shadow-lg relative'
         }
       >
-        {isReaction ? <ReactionImage value={message.content} size={36} /> : message.content}
-        {!isReaction && (
+        {isReaction ? <ReactionImage value={message.content} size={36} />
+          : isMeme ? <MemeImage value={message.content} size={84} />
+          : message.content}
+        {!isMedia && (
           <div
             className="absolute left-1/2 -translate-x-1/2"
             style={{

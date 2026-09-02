@@ -3,11 +3,13 @@
 import { useEffect, useRef, useState } from 'react';
 import type { ChatMessage, SessionResult, Room, HandResult } from '@/lib/types';
 import { QUICK_REACTIONS } from '@/lib/reactions';
+import { MEMES } from '@/lib/memes';
 import { getSocket } from '@/lib/socket';
 import { HandHistoryList } from './HandHistoryList';
 import { HandHistoryDetail } from './HandHistoryDetail';
 import { downloadSessionSummaryImage } from '@/lib/exportSummaryImage';
 import { ReactionImage } from './ReactionImage';
+import { MemeImage } from './MemeImage';
 
 interface Props {
   messages: ChatMessage[];
@@ -24,6 +26,7 @@ export function ChatModal({ messages, mySessionToken, room, onClose, handLogs }:
   const [tab, setTab] = useState<Tab>('chat');
   const [text, setText] = useState('');
   const [sending, setSending] = useState(false);
+  const [showMemePicker, setShowMemePicker] = useState(false);
   const [selectedHand, setSelectedHand] = useState<HandResult | null>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
 
@@ -55,6 +58,13 @@ export function ChatModal({ messages, mySessionToken, room, onClose, handLogs }:
     getSocket().emit('chat:send', { type: 'reaction', content: emoji }, (response: ActionResponse) => {
       if (response && !response.ok) console.warn('Reaction failed:', response.error);
     });
+  };
+
+  const sendMeme = (memeId: string) => {
+    getSocket().emit('chat:send', { type: 'meme', content: memeId }, (response: ActionResponse) => {
+      if (response && !response.ok) console.warn('Meme failed:', response.error);
+    });
+    setShowMemePicker(false);
   };
 
   const formatTime = (ts: number) =>
@@ -207,12 +217,16 @@ export function ChatModal({ messages, mySessionToken, room, onClose, handLogs }:
                 chatMessages.map((m) => {
                   const isMine = m.senderSessionToken === mySessionToken;
                   const isReaction = m.type === 'reaction';
+                  const isMeme = m.type === 'meme';
+                  const isMedia = isReaction || isMeme;
                   return (
                     <div key={m.id} className={`flex ${isMine ? 'justify-end' : 'justify-start'}`}>
-                      <div className={isReaction ? `${isMine ? 'mr-1' : 'ml-1'}` : `max-w-[75%] px-3 py-1.5 rounded-2xl ${isMine ? 'bg-poker-gold text-poker-bg' : 'bg-poker-yellow/10 text-poker-yellow border border-poker-gold/15'}`}>
-                        {!isMine && !isReaction && <p className="text-[10px] opacity-70 mb-0.5">{m.senderNick}</p>}
-                        {isReaction ? <ReactionImage value={m.content} size={40} /> : <p className="text-sm break-words">{m.content}</p>}
-                        {!isReaction && (
+                      <div className={isMedia ? `${isMine ? 'mr-1' : 'ml-1'}` : `max-w-[75%] px-3 py-1.5 rounded-2xl ${isMine ? 'bg-poker-gold text-poker-bg' : 'bg-poker-yellow/10 text-poker-yellow border border-poker-gold/15'}`}>
+                        {!isMine && !isMedia && <p className="text-[10px] opacity-70 mb-0.5">{m.senderNick}</p>}
+                        {isReaction ? <ReactionImage value={m.content} size={40} />
+                          : isMeme ? <MemeImage value={m.content} size={140} />
+                          : <p className="text-sm break-words">{m.content}</p>}
+                        {!isMedia && (
                           <p className={`text-[9px] mt-0.5 text-right ${isMine ? 'text-poker-bg/50' : 'text-poker-yellow/40'}`}>
                             {formatTime(m.timestamp)}
                           </p>
@@ -246,13 +260,31 @@ export function ChatModal({ messages, mySessionToken, room, onClose, handLogs }:
         {/* Reactions — chat tab only */}
         {tab === 'chat' && (
           <div className="px-4 py-2 border-t border-poker-gold/15 flex-shrink-0">
-            <div className="flex gap-1.5 justify-center">
+            <div className="flex gap-1.5 justify-center items-center">
               {QUICK_REACTIONS.map((r) => (
                 <button key={r} onClick={() => sendReaction(r)} className="bg-poker-yellow/5 hover:bg-poker-yellow/15 p-1.5 rounded-full active:scale-90 transition">
                   <ReactionImage value={r} size={32} />
                 </button>
               ))}
+              {room.settings.pasjonaciTable && (
+                <button
+                  onClick={() => setShowMemePicker((v) => !v)}
+                  className={`p-1.5 rounded-full active:scale-90 transition text-lg ${showMemePicker ? 'bg-poker-gold/25' : 'bg-poker-yellow/5 hover:bg-poker-yellow/15'}`}
+                  title="Memy"
+                >
+                  🎭
+                </button>
+              )}
             </div>
+            {showMemePicker && room.settings.pasjonaciTable && (
+              <div className="flex gap-2 justify-center mt-2 flex-wrap">
+                {MEMES.map((id) => (
+                  <button key={id} onClick={() => sendMeme(id)} className="bg-poker-yellow/5 hover:bg-poker-yellow/15 p-1 rounded-lg active:scale-90 transition">
+                    <MemeImage value={id} size={48} />
+                  </button>
+                ))}
+              </div>
+            )}
           </div>
         )}
 

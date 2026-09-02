@@ -700,6 +700,12 @@ export function PokerTable({ initialRoom, mySessionToken, onLeave }: Props) {
     });
   };
 
+  const sendMeme = (memeId: string) => {
+    getSocket().emit('chat:send', { type: 'meme', content: memeId }, (r: { ok: boolean; error?: string } | undefined) => {
+      if (r && !r.ok) console.warn('Meme failed:', r.error);
+    });
+  };
+
   const sendChat = (text: string) => {
     const t = text.trim();
     if (!t) return;
@@ -1321,6 +1327,7 @@ export function PokerTable({ initialRoom, mySessionToken, onLeave }: Props) {
           messages={messages}
           sendChat={sendChat}
           sendReaction={sendReaction}
+          onSendMeme={sendMeme}
           showDiscardUI={showDiscardUI}
           showRevealUI={showRevealUI}
           nextDealerVariant={nextDealerVariant}
@@ -1380,6 +1387,7 @@ export function PokerTable({ initialRoom, mySessionToken, onLeave }: Props) {
           getSocket().emit('chat:send', { type: 'text', content: text });
         }}
         onSendReaction={sendReaction}
+        onSendMeme={room.settings.pasjonaciTable ? sendMeme : undefined}
       />
 
       {showAdminPanel && <AdminPanel room={room} mySessionToken={mySessionToken} onClose={() => setShowAdminPanel(false)} />}

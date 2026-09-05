@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from 'react';
 import type { ChatMessage, Room } from '@/lib/types';
 import { QUICK_REACTIONS } from '@/lib/reactions';
-import { MEMES } from '@/lib/memes';
+import { MemePicker } from './MemePicker';
 import { ReactionImage } from './ReactionImage';
 import { MemeImage } from './MemeImage';
 
@@ -132,15 +132,8 @@ export function QuickChat({ messages, mySessionToken, onSendChat, onSendReaction
 
           {/* Meme picker */}
           {showMemePicker && onSendMeme && (
-            <div className="border-t border-poker-gold/10 px-3 py-2 flex gap-1.5 justify-between flex-wrap">
-              {MEMES.map(id => (
-                <button
-                  key={id}
-                  onClick={() => sendMeme(id)}
-                  className="py-1 rounded-lg active:scale-90 transition flex items-center justify-center"
-                  style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(var(--pk-gold-rgb),0.12)' }}
-                ><MemeImage value={id} size={44} /></button>
-              ))}
+            <div className="border-t border-poker-gold/10 px-3 py-2">
+              <MemePicker size={44} onSend={sendMeme} />
             </div>
           )}
 

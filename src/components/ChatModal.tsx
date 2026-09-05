@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from 'react';
 import type { ChatMessage, SessionResult, Room, HandResult } from '@/lib/types';
 import { QUICK_REACTIONS } from '@/lib/reactions';
-import { MEMES } from '@/lib/memes';
+import { MemePicker } from './MemePicker';
 import { getSocket } from '@/lib/socket';
 import { HandHistoryList } from './HandHistoryList';
 import { HandHistoryDetail } from './HandHistoryDetail';
@@ -277,12 +277,8 @@ export function ChatModal({ messages, mySessionToken, room, onClose, handLogs }:
               )}
             </div>
             {showMemePicker && room.settings.pasjonaciTable && (
-              <div className="flex gap-2 justify-center mt-2 flex-wrap">
-                {MEMES.map((id) => (
-                  <button key={id} onClick={() => sendMeme(id)} className="bg-poker-yellow/5 hover:bg-poker-yellow/15 p-1 rounded-lg active:scale-90 transition">
-                    <MemeImage value={id} size={48} />
-                  </button>
-                ))}
+              <div className="mt-2">
+                <MemePicker size={48} onSend={sendMeme} />
               </div>
             )}
           </div>

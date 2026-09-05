@@ -6,7 +6,7 @@ import type { LogEntry } from '@/hooks/useHandLog';
 import { QUICK_REACTIONS } from '@/lib/reactions';
 import { ReactionImage } from './ReactionImage';
 import { MemeImage } from './MemeImage';
-import { MEMES } from '@/lib/memes';
+import { MemePicker } from './MemePicker';
 import { Card, CardPlaceholder } from './Card';
 import { PlayerSeat } from './PlayerSeat';
 import { ActionPanel } from './ActionPanel';
@@ -451,14 +451,8 @@ export function OvalTable({
               </div>
             )}
             {showMemePicker && room.settings.pasjonaciTable && (
-              <div style={{ borderTop: '1px solid rgba(var(--pk-gold-rgb),0.08)', padding: '7px 8px', display: 'flex', gap: 6, justifyContent: 'space-between' }}>
-                {MEMES.map(id => (
-                  <button key={id} onClick={() => { onSendMeme(id); setShowMemePicker(false); }}
-                    style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(var(--pk-gold-rgb),0.12)', borderRadius: 8, padding: 2, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'background .12s' }}
-                    onMouseEnter={ev => (ev.currentTarget.style.background = 'rgba(var(--pk-gold-rgb),0.14)')}
-                    onMouseLeave={ev => (ev.currentTarget.style.background = 'rgba(255,255,255,0.03)')}
-                  ><MemeImage value={id} size={40} /></button>
-                ))}
+              <div style={{ borderTop: '1px solid rgba(var(--pk-gold-rgb),0.08)', padding: '7px 8px' }}>
+                <MemePicker size={40} onSend={(id) => { onSendMeme(id); setShowMemePicker(false); }} />
               </div>
             )}
             <div style={{ borderTop: '1px solid rgba(var(--pk-gold-rgb),0.08)', padding: 8, display: 'flex', gap: 6 }}>

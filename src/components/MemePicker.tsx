@@ -15,9 +15,13 @@ const PAGE_SIZE = 5;
 interface Props {
   onSend: (memeId: string) => void;
   size?: number;
+  // Gap between thumbnails — kept configurable so a tighter container (e.g.
+  // the 240px desktop sidebar) can shrink this without affecting the wider
+  // mobile/modal pickers.
+  gap?: number;
 }
 
-export function MemePicker({ onSend, size = 44 }: Props) {
+export function MemePicker({ onSend, size = 44, gap = 6 }: Props) {
   const [page, setPage] = useState(0);
   const totalPages = Math.ceil(MEMES.length / PAGE_SIZE);
   const start = page * PAGE_SIZE;
@@ -41,7 +45,7 @@ export function MemePicker({ onSend, size = 44 }: Props) {
 
   return (
     <div>
-      <div style={{ display: 'flex', gap: 6, justifyContent: 'center', flexWrap: 'wrap' }}>
+      <div style={{ display: 'flex', gap, justifyContent: 'center', flexWrap: 'nowrap' }}>
         {visible.map((id) => (
           <button
             key={id}
@@ -51,7 +55,7 @@ export function MemePicker({ onSend, size = 44 }: Props) {
               background: 'rgba(255,255,255,0.03)',
               border: '1px solid rgba(var(--pk-gold-rgb),0.12)',
               borderRadius: 8,
-              padding: 2,
+              padding: 1,
               cursor: 'pointer',
               display: 'flex',
               alignItems: 'center',

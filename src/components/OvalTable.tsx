@@ -452,7 +452,7 @@ export function OvalTable({
             )}
             {showMemePicker && room.settings.pasjonaciTable && (
               <div style={{ borderTop: '1px solid rgba(var(--pk-gold-rgb),0.08)', padding: '7px 8px' }}>
-                <MemePicker size={40} onSend={(id) => { onSendMeme(id); setShowMemePicker(false); }} />
+                <MemePicker size={34} gap={4} onSend={(id) => { onSendMeme(id); setShowMemePicker(false); }} />
               </div>
             )}
             <div style={{ borderTop: '1px solid rgba(var(--pk-gold-rgb),0.08)', padding: 8, display: 'flex', gap: 6 }}>

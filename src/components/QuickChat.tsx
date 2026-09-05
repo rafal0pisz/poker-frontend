@@ -26,6 +26,7 @@ export function QuickChat({ messages, mySessionToken, onSendChat, onSendReaction
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
   const [showMemePicker, setShowMemePicker] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
+  const memePickerRef = useRef<HTMLDivElement>(null);
   const prevLenRef = useRef(messages.length);
 
   const chatMessages = messages.filter(m => m.type !== 'system');
@@ -46,6 +47,19 @@ export function QuickChat({ messages, mySessionToken, onSendChat, onSendReaction
   useEffect(() => {
     if (open) setUnread(0);
   }, [open]);
+
+  // The picker (thumbnails + page nav) can render below the fold on short
+  // mobile viewports — scroll it fully into view so the nav row is always
+  // reachable without the user having to discover that the page scrolls.
+  // Meme thumbnails load asynchronously and can still be growing the page's
+  // layout after the first scroll, so retry once more shortly after.
+  useEffect(() => {
+    if (!showMemePicker || !memePickerRef.current) return;
+    const scroll = () => memePickerRef.current?.scrollIntoView({ block: 'end', behavior: 'smooth' });
+    scroll();
+    const retry = setTimeout(scroll, 250);
+    return () => clearTimeout(retry);
+  }, [showMemePicker]);
 
   const send = () => {
     const t = text.trim();
@@ -132,7 +146,7 @@ export function QuickChat({ messages, mySessionToken, onSendChat, onSendReaction
 
           {/* Meme picker */}
           {showMemePicker && onSendMeme && (
-            <div className="border-t border-poker-gold/10 px-3 py-2">
+            <div ref={memePickerRef} className="border-t border-poker-gold/10 px-3 py-2">
               <MemePicker size={44} onSend={sendMeme} />
             </div>
           )}

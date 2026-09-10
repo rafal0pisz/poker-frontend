@@ -2,7 +2,7 @@
 // shown alongside quick reactions on tables created via /pasjonaci.
 // Same shape as reactions.ts (see REACTION_IMAGE_SRC) but rendered larger,
 // since these are full photos rather than small icons.
-export const MEMES = ['facepalm', 'balaclava', 'confused', 'hottub', 'boss', 'blessing', 'badbeat', 'flex', 'moto'] as const;
+export const MEMES = ['facepalm', 'balaclava', 'confused', 'hottub', 'boss', 'blessing', 'badbeat', 'flex', 'moto', 'cool', 'splash', 'skeptical', 'construction'] as const;
 export type Meme = typeof MEMES[number];
 
 export const MEME_IMAGE_SRC: Record<Meme, string> = {
@@ -15,6 +15,10 @@ export const MEME_IMAGE_SRC: Record<Meme, string> = {
   badbeat: '/memes/badbeat.jpg',
   flex: '/memes/flex.jpg',
   moto: '/memes/moto.jpg',
+  cool: '/memes/cool.jpg',
+  splash: '/memes/splash.jpg',
+  skeptical: '/memes/skeptical.jpg',
+  construction: '/memes/construction.jpg',
 };
 
 export const MEME_LABEL: Record<Meme, string> = {
@@ -27,4 +31,8 @@ export const MEME_LABEL: Record<Meme, string> = {
   badbeat: 'Bad Beat',
   flex: 'Flex',
   moto: 'Moto',
+  cool: 'Cool',
+  splash: 'Splash',
+  skeptical: 'Skeptical',
+  construction: 'Construction',
 };

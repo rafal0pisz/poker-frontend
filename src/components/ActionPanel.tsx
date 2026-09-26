@@ -63,10 +63,13 @@ export function ActionPanel({ me, gameState, settings, players }: Props) {
   const collectedPot = gameState.pot;
   const effectivePot = collectedPot + betsOnTable;
   const totalPot = collectedPot;
-  // PL max formula: effectivePot + 2×toCall (= call the bet + raise by pot-after-call)
-  // Must include betsOnTable (uncollected bets from current round)
+  // PL max formula: myCurrentBet + effectivePot + 2×toCall (= call the bet + raise by pot-after-call).
+  // myCurrentBet matters whenever I already have chips in this round before
+  // raising again — e.g. as SB/BB preflop (my posted blind), or re-raising
+  // after an earlier bet this street. Dropping it silently under-caps exactly
+  // those cases. Must include betsOnTable (uncollected bets from current round).
   const potLimitMax = isPotLimit
-    ? Math.max(effectivePot + 2 * toCall, minRaiseAmount)
+    ? Math.max(me.currentBet + effectivePot + 2 * toCall, minRaiseAmount)
     : Infinity;
 
   // Cap maxRaiseAmount: effective max (opponent coverage) AND pot limit
@@ -253,8 +256,12 @@ export function ActionPanel({ me, gameState, settings, players }: Props) {
         <div className="grid grid-cols-4 gap-1.5">
           {(isPotLimit ? [
             { label: 'Min',    value: minRaiseAmount },
-            { label: '¼ pot',  value: Math.max(Math.floor((effectivePot + 2 * toCall) * 0.25) + toCall, minRaiseAmount) },
-            { label: '½ pot',  value: Math.max(Math.floor((effectivePot + 2 * toCall) * 0.5) + toCall, minRaiseAmount) },
+            // A ¼/½-pot raise = call + a fraction of the pot AFTER that call
+            // (effectivePot + toCall), on top of what I've already got in
+            // (me.currentBet) — same base formula as potLimitMax above, just
+            // scaled to a fraction instead of the full pot.
+            { label: '¼ pot',  value: Math.max(Math.floor(me.currentBet + toCall + (effectivePot + toCall) * 0.25), minRaiseAmount) },
+            { label: '½ pot',  value: Math.max(Math.floor(me.currentBet + toCall + (effectivePot + toCall) * 0.5), minRaiseAmount) },
             { label: 'Pot',    value: maxRaiseAmount },
           ] : gameState.phase === 'preflop' ? [
             { label: 'Min',    value: minRaiseAmount },

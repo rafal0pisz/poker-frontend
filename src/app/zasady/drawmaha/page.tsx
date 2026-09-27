@@ -93,7 +93,7 @@ export default function DrawmahaPage() {
 
           <div style={{ marginTop: '2.5rem', display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
             <Link href="/zasady/crazy-pineapple/" className="btn-outline">← Crazy Pineapple</Link>
-            <Link href="/zasady/uklady-kart/" className="btn-outline">Układy kart →</Link>
+            <Link href="/zasady/dobierana-klasyczna/" className="btn-outline">Dobierana klasyczna →</Link>
             <Link href="/graj/" className="btn-primary">🎰 Zagraj teraz</Link>
           </div>
         </div>

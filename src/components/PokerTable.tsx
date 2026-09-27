@@ -16,6 +16,7 @@ import { FloatingBubble } from './FloatingBubble';
 import { VariantPicker, VARIANT_LABELS } from './VariantPicker';
 import { DrawmahaDraw } from './DrawmahaDraw';
 import { PineappleDiscard } from './PineappleDiscard';
+import { FiveCardDrawSubmit } from './FiveCardDrawSubmit';
 import { PlayerStatsModal } from './PlayerStatsModal';
 import { DrawmahaReveal } from './DrawmahaReveal';
 import { RunItTwicePrompt } from './RunItTwicePrompt';
@@ -415,7 +416,14 @@ function DesktopChat({ messages, mySessionToken, room, onSend, onSendReaction }:
 
 export function PokerTable({ initialRoom, mySessionToken, onLeave }: Props) {
   const [room, setRoom] = useState<Room>(initialRoom);
-  const [myHoleCards, setMyHoleCards] = useState<CardType[]>([]);
+  // Seed from initialRoom (the room:join response), not an empty array — a
+  // reconnect mid-hand only gets a fresh 'room:state'/'game:your-cards'
+  // event once something ELSE happens in the room (an opponent's action, a
+  // timer tick, ...). Until then this must reflect what we already know, or
+  // the reconnecting player sees no hole cards at all in the meantime.
+  const [myHoleCards, setMyHoleCards] = useState<CardType[]>(
+    () => initialRoom.players.find((p) => p.sessionToken === mySessionToken)?.holeCards ?? []
+  );
   const [myFoldedCards, setMyFoldedCards] = useState<CardType[]>([]); // cards kept visible after fold
   const [showAdminPanel, setShowAdminPanel] = useState(false);
   const [showChat, setShowChat] = useState(false);
@@ -487,6 +495,17 @@ export function PokerTable({ initialRoom, mySessionToken, onLeave }: Props) {
     }
   }, [isDrawPhaseCurrent, myDrawStateFromRoom?.hasDrawn]);
 
+  // Same reconnect/edge-case reset, for five-card-draw's discard phase.
+  // Reuses discardIndices/drawSubmitted — a hand is exclusively either
+  // Drawmaha or five-card-draw, never both, so there's no cross-contamination.
+  const isFiveCardDrawDiscardPhaseCurrent = room.gameState?.phase === 'draw-discard';
+  const myFiveCardDrawStateFromRoom = room.gameState?.fiveCardDrawState?.playerStates[mySessionToken];
+  useEffect(() => {
+    if (isFiveCardDrawDiscardPhaseCurrent && myFiveCardDrawStateFromRoom && !myFiveCardDrawStateFromRoom.hasDiscarded) {
+      setDrawSubmitted(false);
+    }
+  }, [isFiveCardDrawDiscardPhaseCurrent, myFiveCardDrawStateFromRoom?.hasDiscarded]);
+
   useEffect(() => {
     const socket = getSocket();
 
@@ -527,18 +546,19 @@ export function PokerTable({ initialRoom, mySessionToken, onLeave }: Props) {
       }
       // During draw phase always sync cards from room state
       // (draw phase may update holeCards mid-hand)
-      if (updated.gameState?.phase === 'draw' && myUpdated?.holeCards) {
+      if ((updated.gameState?.phase === 'draw' || updated.gameState?.phase === 'draw-discard') && myUpdated?.holeCards) {
         setMyHoleCards(myUpdated.holeCards);
       }
       // On fold: save cards to foldedCards (grayed out) instead of clearing
-      // Exception: Drawmaha — folded cards go to muck which can be reshuffled into deck
-      // showing them would give unfair information about cards in play
+      // Exception: Drawmaha and five-card-draw — folded cards go to muck which
+      // can be reshuffled into the deck for a later discard/redraw; showing
+      // them would give unfair information about cards still in play.
       if (myUpdated?.status === 'folded') {
-        const isDrawmaha = isDrawmahaVariant(updated.gameState?.variant);
+        const cardsGoToMuck = isDrawmahaVariant(updated.gameState?.variant) || updated.gameState?.variant === 'five-card-draw';
         // Use myUpdated.holeCards directly — backend always sends own cards back.
         // Avoid stale closure issue with myHoleCards React state.
         const cardsToSave = myUpdated?.holeCards;
-        if (cardsToSave && cardsToSave.length > 0 && !isDrawmaha) {
+        if (cardsToSave && cardsToSave.length > 0 && !cardsGoToMuck) {
           setMyFoldedCards(cardsToSave);
         }
         setMyHoleCards([]);
@@ -664,6 +684,14 @@ export function PokerTable({ initialRoom, mySessionToken, onLeave }: Props) {
     });
   };
 
+  const handleFiveCardDrawDiscard = () => {
+    if (drawSubmitted) return;
+    setDrawSubmitted(true);
+    getSocket().emit('game:five-card-draw-discard', { discardIndices: [...discardIndices] }, (res: { ok: boolean; error?: string } | undefined) => {
+      if (res && !res.ok) { console.error('[five-card-draw-discard]', res.error); setDrawSubmitted(false); }
+    });
+  };
+
   const handleDrawDecide = (accept: boolean) => {
     getSocket().emit('game:draw-decide', { accept }, (res: { ok: boolean; error?: string } | undefined) => {
       if (res && !res.ok) console.error('[draw-decide]', res.error);
@@ -775,18 +803,27 @@ export function PokerTable({ initialRoom, mySessionToken, onLeave }: Props) {
   }
 
   const currentVariant: GameVariant = gameState?.variant || 'texas';
-  const currentCardCount = (currentVariant === 'omaha' || currentVariant === 'omaha-hl') ? 4 : (currentVariant === 'omaha5' || isDrawmahaVariant(currentVariant)) ? 5 : (currentVariant === 'pineapple' || currentVariant === 'pineapple-classic') ? 3 : 2;
+  const currentCardCount = (currentVariant === 'omaha' || currentVariant === 'omaha-hl') ? 4
+    : (currentVariant === 'omaha5' || currentVariant === 'courchevel' || currentVariant === 'five-card-draw' || isDrawmahaVariant(currentVariant)) ? 5
+    : (currentVariant === 'pineapple' || currentVariant === 'pineapple-classic') ? 3
+    : 2;
 
   const isDrawPhase = gameState?.phase === 'draw';
   const isPineappleDiscardPhase = gameState?.phase === 'pineapple-discard';
+  const isFiveCardDrawDiscardPhase = gameState?.phase === 'draw-discard';
   const drawState = gameState?.drawState;
   const myDrawPlayerState = drawState?.playerStates[mySessionToken];
   const pineappleDiscardState = gameState?.pineappleDiscardState;
   const myPineappleState = pineappleDiscardState?.playerStates[mySessionToken];
+  const fiveCardDrawState = gameState?.fiveCardDrawState;
+  const myFiveCardDrawState = fiveCardDrawState?.playerStates[mySessionToken];
   const showPineappleDiscardUI = isPineappleDiscardPhase && !!myPineappleState && !myPineappleState.hasDiscarded && !isSpectator;
   const showDrawUI = isDrawPhase && drawState != null && (me?.status === 'playing' || me?.status === 'all-in');
   const showDiscardUI = showDrawUI && !(myDrawPlayerState?.hasDrawn ?? false);
   const showRevealUI = showDrawUI && (myDrawPlayerState?.hasDrawn ?? false) && (drawState?.currentDecidingSeat != null);
+  const showFiveCardDrawUI = isFiveCardDrawDiscardPhase && fiveCardDrawState != null
+    && (me?.status === 'playing' || me?.status === 'all-in') && !isSpectator
+    && !(myFiveCardDrawState?.hasDiscarded ?? false);
 
   const myBubbleToShow = (myLastBubble && !dismissedBubbleIds.has(myLastBubble.id)) ? myLastBubble : null;
   const getBubble = (token: string): ChatMessage | null => {
@@ -1121,7 +1158,7 @@ export function PokerTable({ initialRoom, mySessionToken, onLeave }: Props) {
                 </span>
               )}
             </div>
-            {!showDiscardUI && (
+            {!showDiscardUI && !showFiveCardDrawUI && (
               <div className={myHoleCards.length >= 5 ? 'flex -space-x-2' : myFoldedCards.length >= 5 ? 'flex -space-x-2' : 'flex gap-0.5'}>
                 {myHoleCards.length > 0
                   ? myHoleCards.map((c, i) => (
@@ -1191,6 +1228,25 @@ export function PokerTable({ initialRoom, mySessionToken, onLeave }: Props) {
             />
           )}
 
+          {showFiveCardDrawUI && (
+            <DrawCardsDisplay
+              holeCards={myHoleCards}
+              discardIndices={discardIndices}
+              submitted={drawSubmitted}
+              onToggle={toggleDiscardIndex}
+            />
+          )}
+
+          {showFiveCardDrawUI && fiveCardDrawState && (
+            <FiveCardDrawSubmit
+              discardCount={discardIndices.size}
+              drawState={fiveCardDrawState}
+              submitted={drawSubmitted}
+              onSubmit={handleFiveCardDrawDiscard}
+              onClear={() => setDiscardIndices(new Set<number>())}
+            />
+          )}
+
           {gameState?.runItTwiceState && (
             <RunItTwicePrompt
               runItTwiceState={gameState.runItTwiceState}
@@ -1204,6 +1260,14 @@ export function PokerTable({ initialRoom, mySessionToken, onLeave }: Props) {
             <div className="bg-poker-yellow/5 border border-poker-gold/25 rounded-xl px-4 py-3 text-center">
               <p className="text-poker-yellow/60 text-sm">
                 {!myDrawPlayerState?.hasDrawn ? 'Waiting for draw phase…' : myDrawPlayerState.revealedCard ? '✓ Draw submitted — waiting to decide…' : '✓ Draw submitted — waiting for others…'}
+              </p>
+            </div>
+          )}
+
+          {gameState && !isSpectator && isFiveCardDrawDiscardPhase && !showFiveCardDrawUI && (
+            <div className="bg-poker-yellow/5 border border-poker-gold/25 rounded-xl px-4 py-3 text-center">
+              <p className="text-poker-yellow/60 text-sm">
+                {!myFiveCardDrawState?.hasDiscarded ? 'Waiting for draw phase…' : '✓ Discard submitted — waiting for others…'}
               </p>
             </div>
           )}
@@ -1317,7 +1381,7 @@ export function PokerTable({ initialRoom, mySessionToken, onLeave }: Props) {
           codeCopied={codeCopied}
           currentVariant={currentVariant}
           currentCardCount={currentCardCount}
-          isDrawPhase={isDrawPhase || isPineappleDiscardPhase}
+          isDrawPhase={isDrawPhase || isPineappleDiscardPhase || isFiveCardDrawDiscardPhase}
           revealedHands={mergedRevealedHands}
           sbSeat={sbSeat}
           bbSeat={bbSeat}
@@ -1328,7 +1392,7 @@ export function PokerTable({ initialRoom, mySessionToken, onLeave }: Props) {
           sendChat={sendChat}
           sendReaction={sendReaction}
           onSendMeme={sendMeme}
-          showDiscardUI={showDiscardUI}
+          showDiscardUI={showDiscardUI || showFiveCardDrawUI}
           showRevealUI={showRevealUI}
           nextDealerVariant={nextDealerVariant}
           onLeave={() => { if (confirm('Leave? You\'ll lose your seat.')) { getSocket().emit('room:leave'); clearSessionToken(room.id); onLeave(); } }}
@@ -1358,12 +1422,25 @@ export function PokerTable({ initialRoom, mySessionToken, onLeave }: Props) {
               {showRevealUI && drawState && (
                 <DrawmahaReveal drawState={drawState} mySessionToken={mySessionToken} myPlayer={me} players={room.players} onDecide={handleDrawDecide} />
               )}
+              {showFiveCardDrawUI && (
+                <>
+                  <DrawCardsDisplay holeCards={myHoleCards} discardIndices={discardIndices} submitted={drawSubmitted} onToggle={toggleDiscardIndex} />
+                  {fiveCardDrawState && (
+                    <FiveCardDrawSubmit discardCount={discardIndices.size} drawState={fiveCardDrawState} submitted={drawSubmitted} onSubmit={handleFiveCardDrawDiscard} onClear={() => setDiscardIndices(new Set<number>())} />
+                  )}
+                </>
+              )}
               {gameState?.runItTwiceState && (
                 <RunItTwicePrompt runItTwiceState={gameState.runItTwiceState} mySessionToken={mySessionToken} players={room.players} onDecide={handleRunItTwiceDecide} />
               )}
               {gameState && !isSpectator && isDrawPhase && !showDiscardUI && !showRevealUI && (
                 <div className="bg-poker-yellow/5 border border-poker-gold/25 rounded-xl px-4 py-3 text-center">
                   <p className="text-poker-yellow/60 text-sm">{!myDrawPlayerState?.hasDrawn ? 'Waiting for draw phase…' : '✓ Draw submitted'}</p>
+                </div>
+              )}
+              {gameState && !isSpectator && isFiveCardDrawDiscardPhase && !showFiveCardDrawUI && (
+                <div className="bg-poker-yellow/5 border border-poker-gold/25 rounded-xl px-4 py-3 text-center">
+                  <p className="text-poker-yellow/60 text-sm">{!myFiveCardDrawState?.hasDiscarded ? 'Waiting for draw phase…' : '✓ Discard submitted'}</p>
                 </div>
               )}
             </>

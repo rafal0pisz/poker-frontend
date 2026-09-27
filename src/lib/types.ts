@@ -5,21 +5,21 @@ export type Card = `${Rank}${Suit}`;
 
 export type PlayerRole = 'player' | 'vice-admin' | 'admin';
 
-// Texas and Pineapple are always No-Limit; every other variant is always Pot
-// Limit — see isPotLimitVariant below. There is no separate "-pl" variant
-// anymore (removed — Omaha/Omaha5/Omaha-HL/Drawmaha are pot-limit by
-// definition now, not a picker option).
-export type GameVariant = 'texas' | 'omaha' | 'omaha5' | 'omaha-hl' | 'drawmaha' | 'pineapple' | 'pineapple-classic';
+// Texas, Pineapple and five-card-draw are always No-Limit; every other
+// variant is always Pot Limit — see isPotLimitVariant below. There is no
+// separate "-pl" variant anymore (removed — Omaha/Omaha5/Omaha-HL/
+// Courchevel/Drawmaha are pot-limit by definition now, not a picker option).
+export type GameVariant = 'texas' | 'omaha' | 'omaha5' | 'omaha-hl' | 'courchevel' | 'drawmaha' | 'pineapple' | 'pineapple-classic' | 'five-card-draw';
 
 // Any variant using Drawmaha's 5-card-hole / draw-phase / split-pot rules.
 export function isDrawmahaVariant(variant: GameVariant | string | undefined): boolean {
   return variant === 'drawmaha';
 }
 
-// Texas Hold'em and Pineapple stay No-Limit; every other variant (Omaha,
-// Omaha5, Omaha Hi-Lo, Drawmaha) is Pot Limit only.
+// Texas Hold'em, Pineapple and five-card-draw stay No-Limit; every other
+// variant (Omaha, Omaha5, Omaha Hi-Lo, Courchevel, Drawmaha) is Pot Limit only.
 export function isPotLimitVariant(variant: GameVariant | string | undefined): boolean {
-  return variant !== 'texas' && variant !== 'pineapple' && variant !== 'pineapple-classic';
+  return variant !== 'texas' && variant !== 'pineapple' && variant !== 'pineapple-classic' && variant !== 'five-card-draw';
 }
 
 export type PlayerStatus =
@@ -135,7 +135,9 @@ export interface TournamentState {
 }
 
 // 'draw' = Drawmaha draw phase (after flop, before turn)
-export type HandPhase = 'preflop' | 'flop' | 'draw' | 'pineapple-discard' | 'turn' | 'river' | 'showdown';
+// 'draw-discard'/'postdraw' = five-card-draw's simultaneous discard/redraw
+// (no reveal, unlike Drawmaha) and its second/final betting round
+export type HandPhase = 'preflop' | 'flop' | 'draw' | 'pineapple-discard' | 'turn' | 'river' | 'showdown' | 'draw-discard' | 'postdraw';
 
 export interface SidePot {
   amount: number;
@@ -214,6 +216,12 @@ export interface PineappleDiscardState {
   discardDeadline: number | null;
 }
 
+// Five-card-draw's own discard state: 0-5 indices, no reveal sub-phase.
+export interface FiveCardDrawState {
+  playerStates: Record<string, { hasDiscarded: boolean; discardIndices: number[] }>;
+  discardDeadline: number | null;
+}
+
 // ===== RUN IT TWICE =====
 
 export interface RunItTwiceState {
@@ -258,6 +266,7 @@ export interface GameState {
   lastHandResult: HandResult | null;
   drawState?: DrawState;
   pineappleDiscardState?: PineappleDiscardState;
+  fiveCardDrawState?: FiveCardDrawState;
   runItTwiceState?: RunItTwiceState;
   runItTwiceOffered?: boolean;
   runItTwiceReveal?: RunItTwiceRevealState;

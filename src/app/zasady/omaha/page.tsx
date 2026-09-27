@@ -96,7 +96,9 @@ export default function OmahaPage() {
               <Link href="/zasady/texas-holdem/">Texas Hold&apos;em</Link> ·{' '}
               <Link href="/zasady/omaha-pot-limit/">Omaha Pot Limit</Link> ·{' '}
               <Link href="/zasady/crazy-pineapple/">Crazy Pineapple</Link> ·{' '}
-              <Link href="/zasady/drawmaha/">Drawmaha</Link>
+              <Link href="/zasady/drawmaha/">Drawmaha</Link> ·{' '}
+              <Link href="/zasady/courchevel/">Courchevel</Link> ·{' '}
+              <Link href="/zasady/dobierana-klasyczna/">Dobierana klasyczna</Link>
             </p>
           </div>
         </div>

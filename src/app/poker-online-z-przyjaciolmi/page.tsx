@@ -65,6 +65,8 @@ export default function PokerOnlinePage() {
               <li><Link href="/zasady/crazy-pineapple/">Crazy Pineapple</Link> — 3 karty, Texas-style</li>
               <li><Link href="/zasady/drawmaha/">Drawmaha</Link> — wymiana kart, split pot</li>
               <li><Link href="/zasady/drawmaha-pot-limit/">Drawmaha Pot Limit</Link> — jak wyżej z pot limit</li>
+              <li><Link href="/zasady/courchevel/">Courchevel</Link> — Omaha Hi-Lo, 5 kart, karta odkryta przed preflopem</li>
+              <li><Link href="/zasady/dobierana-klasyczna/">Dobierana klasyczna</Link> — 5 kart, brak stołu, jedna wymiana</li>
             </ul>
 
             <h2>Dealer&apos;s Choice — każdy gra w co chce</h2>

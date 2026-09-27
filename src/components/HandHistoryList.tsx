@@ -14,9 +14,11 @@ const VARIANT_SHORT: Record<string, string> = {
   omaha: 'Omaha PL',
   omaha5: 'Omaha-5 PL',
   'omaha-hl': 'Omaha Hi-Lo PL',
+  courchevel: 'Courchevel PL',
   drawmaha: 'Drawmaha PL',
   pineapple: 'Pineapple',
   'pineapple-classic': 'Pineapple Classic',
+  'five-card-draw': '5 Card Draw',
 };
 
 function nickFor(result: HandResult, players: Player[], token: string): string {

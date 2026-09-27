@@ -120,7 +120,9 @@ export default function PineapplePage() {
               <strong style={{ color: 'rgb(var(--pk-gold-rgb))' }}>Inne warianty:</strong>{' '}
               <Link href="/zasady/texas-holdem/">Texas Hold&apos;em</Link> ·{' '}
               <Link href="/zasady/omaha/">Omaha</Link> ·{' '}
-              <Link href="/zasady/drawmaha/">Drawmaha</Link>
+              <Link href="/zasady/drawmaha/">Drawmaha</Link> ·{' '}
+              <Link href="/zasady/courchevel/">Courchevel</Link> ·{' '}
+              <Link href="/zasady/dobierana-klasyczna/">Dobierana klasyczna</Link>
             </p>
           </div>
         </div>

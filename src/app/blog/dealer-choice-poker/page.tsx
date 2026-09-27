@@ -47,6 +47,8 @@ export default function Post13() {
             <li><Link href="/zasady/omaha/">Omaha</Link> — 4 karty, dokładnie 2+3</li>
             <li><Link href="/zasady/crazy-pineapple/">Crazy Pineapple</Link> — 3 karty, 1 lub 2 z ręki</li>
             <li><Link href="/zasady/drawmaha/">Drawmaha</Link> — 5 kart, wymiana, split pot</li>
+            <li><Link href="/zasady/courchevel/">Courchevel</Link> — 5 kart, split pot, karta odkryta przed preflopem</li>
+            <li><Link href="/zasady/dobierana-klasyczna/">Dobierana klasyczna</Link> — 5 kart, bez stołu, jedna wymiana</li>
           </ul>
 
           <h2>Strategia wyboru wariantu</h2>

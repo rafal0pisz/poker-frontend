@@ -7,7 +7,7 @@ import type { GameVariant, Room, RoomSettings } from '@/lib/types';
 import { VARIANT_LABELS } from './VariantPicker';
 import { BLIND_LEVEL_PRESETS, scaleBlindLevels } from '@/lib/tournamentPresets';
 
-const TOURNAMENT_VARIANTS: GameVariant[] = ['texas', 'omaha', 'omaha5', 'omaha-hl', 'drawmaha', 'pineapple'];
+const TOURNAMENT_VARIANTS: GameVariant[] = ['texas', 'omaha', 'omaha5', 'omaha-hl', 'courchevel', 'drawmaha', 'pineapple', 'five-card-draw'];
 
 interface Props {
   defaultNick: string;

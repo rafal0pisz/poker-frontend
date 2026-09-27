@@ -9,9 +9,11 @@ export const VARIANT_LABELS: Record<GameVariant, string> = {
   omaha: 'Omaha Pot Limit',
   omaha5: 'Omaha 5-card Pot Limit',
   'omaha-hl': 'Omaha Hi-Lo Pot Limit',
+  courchevel: 'Courchevel Pot Limit',
   drawmaha: 'Drawmaha Pot Limit',
   pineapple: 'Crazy Pineapple',
   'pineapple-classic': 'Pineapple Classic',
+  'five-card-draw': 'Five Card Draw',
 };
 
 const VARIANT_DESCRIPTIONS: Record<GameVariant, string> = {
@@ -19,13 +21,15 @@ const VARIANT_DESCRIPTIONS: Record<GameVariant, string> = {
   omaha: '4 hole · must use 2 + 3 board · max bet = pot size',
   omaha5: '5 hole · must use exactly 2 + 3 board · max bet = pot size',
   'omaha-hl': '4 hole · split pot · best high + best low (8 or better) · max bet = pot size',
+  courchevel: '5 hole · 1st flop card shown before preflop · split pot high + low · max bet = pot size',
   drawmaha: '5 hole · Five-card Draw · split pot (Omaha + Draw) · max bet = pot size',
   pineapple: '3 hole · max 2 from hand · no discard · No Limit',
   'pineapple-classic': '3 hole · discard 1 after flop · Texas rules · No Limit',
+  'five-card-draw': '5 hole · no board · discard 0-5, redraw once · No Limit',
 };
 
 // All variants are now fully implemented
-const AVAILABLE_VARIANTS: GameVariant[] = ['texas', 'omaha', 'omaha5', 'omaha-hl', 'drawmaha', 'pineapple'];
+const AVAILABLE_VARIANTS: GameVariant[] = ['texas', 'omaha', 'omaha5', 'omaha-hl', 'courchevel', 'drawmaha', 'pineapple', 'five-card-draw'];
 
 interface Props {
   currentVariant: GameVariant;

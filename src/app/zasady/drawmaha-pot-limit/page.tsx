@@ -103,7 +103,9 @@ export default function DrawmahaPotLimitPage() {
               <Link href="/zasady/omaha/">Omaha</Link> ·{' '}
               <Link href="/zasady/omaha-pot-limit/">Omaha Pot Limit</Link> ·{' '}
               <Link href="/zasady/drawmaha/">Drawmaha</Link> ·{' '}
-              <Link href="/zasady/crazy-pineapple/">Crazy Pineapple</Link>
+              <Link href="/zasady/crazy-pineapple/">Crazy Pineapple</Link> ·{' '}
+              <Link href="/zasady/courchevel/">Courchevel</Link> ·{' '}
+              <Link href="/zasady/dobierana-klasyczna/">Dobierana klasyczna</Link>
             </p>
           </div>
         </div>

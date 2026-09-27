@@ -146,7 +146,12 @@ export function useEquity(
     const tid = setTimeout(() => {
       if (cancelled) return;
 
-      const isOmaha = variant === 'omaha';
+      // Every Omaha-family variant must use EXACTLY 2 hole + 3 board cards.
+      // This previously only checked 'omaha', silently mis-evaluating
+      // omaha5/omaha-hl equity as plain best-5-of-7 (Texas rules) — folding
+      // courchevel in here too, and fixing that pre-existing gap for the
+      // other two at the same time.
+      const isOmaha = variant === 'omaha' || variant === 'omaha5' || variant === 'omaha-hl' || variant === 'courchevel';
       const board = communityCards as string[];
       const knownCards = new Set([
         ...players.flatMap(p => p.cards as string[]),

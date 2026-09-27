@@ -258,7 +258,7 @@ export default function OmahaHiLoPage() {
 
           <div style={{ marginTop: '2.5rem', display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
             <Link href="/zasady/omaha/" className="btn-outline">← Omaha</Link>
-            <Link href="/zasady/omaha-5-kartowa/" className="btn-outline">Omaha 5-kartowa →</Link>
+            <Link href="/zasady/courchevel/" className="btn-outline">Courchevel →</Link>
             <Link href="/" className="btn-primary">Zagraj teraz</Link>
           </div>
 
@@ -270,7 +270,9 @@ export default function OmahaHiLoPage() {
               <Link href="/zasady/omaha-5-kartowa/">Omaha 5-kartowa</Link> ·{' '}
               <Link href="/zasady/omaha-pot-limit/">Omaha Pot Limit</Link> ·{' '}
               <Link href="/zasady/crazy-pineapple/">Crazy Pineapple</Link> ·{' '}
-              <Link href="/zasady/drawmaha/">Drawmaha</Link>
+              <Link href="/zasady/drawmaha/">Drawmaha</Link> ·{' '}
+              <Link href="/zasady/courchevel/">Courchevel</Link> ·{' '}
+              <Link href="/zasady/dobierana-klasyczna/">Dobierana klasyczna</Link>
             </p>
           </div>
 

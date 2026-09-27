@@ -79,7 +79,7 @@ export default function Omaha5Page() {
           </div>
 
           <div style={{ marginTop: '2.5rem', display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
-            <Link href="/zasady/omaha-hi-lo/" className="btn-outline">← Omaha Hi-Lo</Link>
+            <Link href="/zasady/courchevel/" className="btn-outline">← Courchevel</Link>
             <Link href="/zasady/crazy-pineapple/" className="btn-outline">Crazy Pineapple →</Link>
             <Link href="/" className="btn-primary">Zagraj teraz</Link>
           </div>
@@ -92,7 +92,9 @@ export default function Omaha5Page() {
               <Link href="/zasady/omaha-hi-lo/">Omaha Hi-Lo</Link> ·{' '}
               <Link href="/zasady/omaha-pot-limit/">Omaha Pot Limit</Link> ·{' '}
               <Link href="/zasady/crazy-pineapple/">Crazy Pineapple</Link> ·{' '}
-              <Link href="/zasady/drawmaha/">Drawmaha</Link>
+              <Link href="/zasady/drawmaha/">Drawmaha</Link> ·{' '}
+              <Link href="/zasady/courchevel/">Courchevel</Link> ·{' '}
+              <Link href="/zasady/dobierana-klasyczna/">Dobierana klasyczna</Link>
             </p>
           </div>
         </div>

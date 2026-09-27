@@ -26,7 +26,9 @@ const VARIANT_LABELS: Record<GameVariant, string> = {
   'pineapple-classic': 'Pineapple Classic',
   'omaha5': 'Omaha 5-card Pot Limit',
   'omaha-hl': 'Omaha Hi-Lo Pot Limit',
+  courchevel: 'Courchevel Pot Limit',
   drawmaha: 'Drawmaha Pot Limit',
+  'five-card-draw': 'Five Card Draw',
 };
 
 // 7 seat positions around the oval (as % of oval width/height)
